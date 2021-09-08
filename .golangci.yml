@@ -41,22 +41,20 @@ linters:
   disable-all: true
   enable:
     - govet
-    #    - errcheck
+    - errcheck
     - gocyclo
     - structcheck
     - varcheck
     - ineffassign
     - deadcode
     - typecheck
-    - golint
-    - interfacer
+    - revive
     - unconvert
     - goconst
     - gocyclo
     - staticcheck
     - unused
     - gosimple
-    #    - dupl
     - gofmt
     - gosec
     - lll
