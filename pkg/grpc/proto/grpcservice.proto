@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package grpc;
+option go_package = "github.com/stasBigunenko/monorepa";
+
+
+service GrpcService {
+  rpc GetItems(Username) returns (Items) {}
+}
+
+message Items {
+  repeated Obj items = 1;
+}
+
+message Obj {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+}
+
+message Username {
+  string username = 1;
+}
