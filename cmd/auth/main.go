@@ -31,7 +31,9 @@ func main() {
 	ctx := context.Background()
 
 	// init server and config
-	server := auth.New(ctx)
+
+	// server := auth.New(ctx)
+	server := auth.MockServerActions{}
 	if err := server.ServerAddrConfig(); err != nil {
 		log.Fatal("Can`t get config of server: ", err)
 	}
@@ -40,7 +42,7 @@ func main() {
 	server.GetRouters()
 
 	// create shutdown
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	go func() {
 		oscall := <-c
 		log.Printf("system call:%+v", oscall)
