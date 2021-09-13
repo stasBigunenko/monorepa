@@ -230,8 +230,7 @@ func TestGetCertificateKey(t *testing.T) {
 func TesCertParsing(t *testing.T) {
 
 	// config env
-	//
-	//JWT config
+	// JWT config
 	os.Setenv("TOKEN_EXPIRE", "10") // minutes
 	defer os.Unsetenv("TOKEN_EXPIRE")
 
@@ -258,7 +257,8 @@ func TesCertParsing(t *testing.T) {
 	// pub, err := x509.ParsePKCS1PublicKey(block.Bytes)
 	pubInterface, _ := x509.ParsePKIXPublicKey(block.Bytes)
 
-	pub := pubInterface.(*rsa.PublicKey)
+	pub, ok := pubInterface.(*rsa.PublicKey)
+	assert.Equal(t, true, ok)
 
 	token, err := jwt.ParseWithClaims(tokenString, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return pub, nil
