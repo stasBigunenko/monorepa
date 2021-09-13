@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package grpc;
-option go_package = "github.com/stasBigunenko/monorepa";
+option go_package = "github.com/stasBigunenko/monorepa/pkg/grpc/proto";
 
 
 service GrpcService {
