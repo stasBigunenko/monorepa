@@ -7,14 +7,16 @@ import (
 	"math/rand"
 )
 
+type Storage struct{}
+
 type StorageItem struct {
 	Id          string
 	Title       string
 	Description string
 }
 
-func NewStorage() *StorageItem {
-	return &StorageItem{}
+func NewStorage() *Storage {
+	return &Storage{}
 }
 
 const letterBytes = "abcdefgh ijklmnop qrstuvw xyz"
@@ -39,7 +41,7 @@ func randStringBytesUpper(n int) string {
 }
 
 // GetItems generate slice of Storage according the username and send back
-func (d *StorageItem) GetItems(c context.Context, u string) ([]StorageItem, error) {
+func (d *Storage) GetItems(c context.Context, u string) ([]StorageItem, error) {
 	items := []StorageItem{}
 
 	if u == "" {
