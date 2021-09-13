@@ -17,7 +17,6 @@ import (
 func TestGrpcServiceServer(t *testing.T) {
 	ln := bufconn.Listen(1024)
 	dd := storage.NewStorage()
-	//d := new(mocks.StorageInterface)
 	d := storage.StorageItemService(dd)
 	go serveBufconn(ln, d)
 	client := makeBufconnClient(ln)
