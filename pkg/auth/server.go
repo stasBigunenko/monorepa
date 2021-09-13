@@ -52,15 +52,15 @@ func (s *Server) GetRouters() {
 	itemsHandler.HandlerItems()
 }
 
-func (s *Server) getHttpAddress() string {
+func (s *Server) getHTTPAddress() string {
 	return fmt.Sprintf("%s:%s", s.config.Host, s.config.Port)
 }
 
 func (s *Server) Start(ctx context.Context) error {
 	// init server
 	server := &http.Server{
-		Addr:         s.getHttpAddress(),
-		Handler:      middleware.JsonRespHeaders(s.router),
+		Addr:         s.getHTTPAddress(),
+		Handler:      middleware.JSONRespHeaders(s.router),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}
@@ -76,7 +76,7 @@ func (s *Server) Start(ctx context.Context) error {
 		}
 	}()
 
-	fmt.Println("Server is running on: " + s.getHttpAddress())
+	fmt.Println("Server is running on: " + s.getHTTPAddress())
 
 	<-ctx.Done() // wait end of work
 

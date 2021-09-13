@@ -85,6 +85,10 @@ func (h *HandlerItemsServ) GetCertKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write(respByte)
+	if _, err := w.Write(respByte); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
