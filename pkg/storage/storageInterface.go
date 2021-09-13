@@ -2,6 +2,6 @@ package storage
 
 import "context"
 
-type StorageInterface interface {
-	GetItems(context.Context, string) ([]Storage, error)
+type StorageItemService interface {
+	GetItems(context.Context, string) ([]StorageItem, error)
 }

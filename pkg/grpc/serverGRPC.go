@@ -13,10 +13,10 @@ import (
 type ServerGRPC struct {
 	pb.UnimplementedGrpcServiceServer
 
-	storage storage.StorageInterface
+	storage storage.StorageItemService
 }
 
-func NewGRPC(s storage.StorageInterface) ServerGRPC {
+func NewGRPC(s storage.StorageItemService) ServerGRPC {
 	return ServerGRPC{
 		storage: s,
 	}
@@ -33,7 +33,7 @@ func (s ServerGRPC) GetItems(c context.Context, in *pb.Username) (*pb.Items, err
 
 	data, err := s.storage.GetItems(ctx, in.Username)
 	if err != nil {
-		return &pb.Items{}, status.Error(codes.Internal, "internal problem 000000000")
+		return &pb.Items{}, status.Error(codes.Internal, "internal problem")
 	}
 
 	for _, val := range data {

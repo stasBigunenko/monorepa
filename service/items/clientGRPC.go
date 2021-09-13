@@ -15,17 +15,17 @@ type GRPCClient struct {
 	Client pb.GrpcServiceClient
 }
 
-func New() *GRPCClient {
+func New(addr string) *GRPCClient {
 	gc := &GRPCClient{}
 
-	conn, _ := grpc.Dial(":8080", grpc.WithInsecure())
+	conn, _ := grpc.Dial(addr, grpc.WithInsecure())
 
 	gc.Client = pb.NewGrpcServiceClient(conn)
 
 	return gc
 }
 
-func (gc *GRPCClient) GetItems(ctx context.Context, un string) ([]storage.Storage, error) {
+func (gc *GRPCClient) GetItems(ctx context.Context, un string) ([]storage.StorageItem, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -33,13 +33,13 @@ func (gc *GRPCClient) GetItems(ctx context.Context, un string) ([]storage.Storag
 		Username: un,
 	})
 	if err != nil {
-		return []storage.Storage{}, status.Error(codes.Internal, "internal problem")
+		return []storage.StorageItem{}, status.Error(codes.Internal, "internal problem")
 	}
 
-	itemsAll := []storage.Storage{}
+	itemsAll := []storage.StorageItem{}
 
 	for _, val := range data.Items {
-		itemsAll = append(itemsAll, storage.Storage{
+		itemsAll = append(itemsAll, storage.StorageItem{
 			Id:          val.Id,
 			Title:       val.Title,
 			Description: val.Description,
