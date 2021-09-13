@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"monorepa/service/items"
 
@@ -28,6 +27,8 @@ func TestGrpcServiceServer(t *testing.T) {
 
 	getItems, _ := client.GetItems(context.Background(), "I")
 
+	require.Equal(t, x[0].Title, getItems[0].Title, "need to fix test program")
+	require.Equal(t, x[0].Description, getItems[0].Description, "need to fix test program")
 
 	_, err := client.GetItems(context.Background(), "")
 	require.NotNil(t, err, "grpc should return err invalid username")
