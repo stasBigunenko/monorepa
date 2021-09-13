@@ -16,7 +16,7 @@ func init() {
 	// shutdown
 	os.Setenv("Server_Cancel_Timeout", "5")
 
-	//JWT config
+	// JWT config
 	os.Setenv("TOKEN_EXPIRE", "10") // minutes
 
 	// certificates
