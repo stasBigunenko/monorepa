@@ -74,6 +74,4 @@ func GetCertificateKey(certVersion string) ([]byte, error) {
 	}
 
 	return pem.EncodeToMemory(publicKeyBlock), nil
-	// return publicKeyBytes, nil
-
 }
