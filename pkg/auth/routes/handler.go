@@ -12,14 +12,14 @@ import (
 
 type HandlerItemsServ struct {
 	router   *mux.Router
-	services auth.AuthService
+	services *auth.MockAuthService
 	ctx      context.Context
 }
 
 func New(ctx context.Context, router *mux.Router) *HandlerItemsServ {
 	return &HandlerItemsServ{
 		router:   router,
-		services: auth.New(),
+		services: &auth.MockAuthService{},
 		ctx:      ctx,
 	}
 }
