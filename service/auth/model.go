@@ -5,7 +5,7 @@ import "monorepa/model"
 type Session struct {
 }
 
-type AuthService interface {
+type Service interface {
 	Login(model.User) (string, error)
 	GetCert(string) ([]byte, error)
 }
