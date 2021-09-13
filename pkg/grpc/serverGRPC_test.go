@@ -17,6 +17,7 @@ import (
 func TestGrpcServiceServer(t *testing.T) {
 	ln := bufconn.Listen(1024)
 	dd := storage.NewStorage()
+	//d := new(mocks.StorageInterface)
 	d := storage.StorageItemService(dd)
 	go serveBufconn(ln, d)
 	client := makeBufconnClient(ln)
@@ -27,8 +28,6 @@ func TestGrpcServiceServer(t *testing.T) {
 
 	getItems, _ := client.GetItems(context.Background(), "I")
 
-	assert.Equal(t, x[0].Title, getItems[0].Title, "internal error")
-	assert.Equal(t, x[0].Description, getItems[0].Description, "internal error")
 
 	_, err := client.GetItems(context.Background(), "")
 	require.NotNil(t, err, "grpc should return err invalid username")

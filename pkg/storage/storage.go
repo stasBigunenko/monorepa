@@ -7,8 +7,6 @@ import (
 	"math/rand"
 )
 
-type Storage struct{}
-
 type StorageItem struct {
 	Id          string
 	Title       string
@@ -42,7 +40,7 @@ func randStringBytesUpper(n int) string {
 
 // GetItems generate slice of Storage according the username and send back
 func (d *Storage) GetItems(c context.Context, u string) ([]StorageItem, error) {
-	items := []StorageItem{}
+	items := []Storage{}
 
 	if u == "" {
 		return nil, errors.New("invalid user name")
