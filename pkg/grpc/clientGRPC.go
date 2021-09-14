@@ -1,4 +1,4 @@
-package items
+package grpc
 
 import (
 	"context"
@@ -11,23 +11,23 @@ import (
 
 // Client GRPC
 
-type GRPCClient struct {
-	Client pb.GrpcServiceClient
+type gRPCClient struct {
+	client pb.GrpcServiceClient
 }
 
-func New(addr string) *GRPCClient {
-	gc := &GRPCClient{}
+func new(addr string) *gRPCClient {
+	gc := &gRPCClient{}
 
 	conn, _ := grpc.Dial(addr, grpc.WithInsecure())
 
-	gc.Client = pb.NewGrpcServiceClient(conn)
+	gc.client = pb.NewGrpcServiceClient(conn)
 
 	return gc
 }
 
-func (gc *GRPCClient) GetItems(_ context.Context, un string) ([]storage.Item, error) {
+func (gc *gRPCClient) getItems(_ context.Context, un string) ([]storage.Item, error) {
 
-	data, err := gc.Client.GetItems(context.Background(), &pb.Username{
+	data, err := gc.client.GetItems(context.Background(), &pb.Username{
 		Username: un,
 	})
 	if err != nil {
