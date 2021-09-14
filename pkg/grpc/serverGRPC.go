@@ -38,7 +38,7 @@ func (s ServerGRPC) GetItems(c context.Context, in *pb.Username) (*pb.Items, err
 
 	for _, val := range data {
 		items = append(items, &pb.Obj{
-			Id:          val.Id,
+			Id:          val.ID,
 			Title:       val.Title,
 			Description: val.Description,
 		})

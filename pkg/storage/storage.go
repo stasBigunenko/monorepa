@@ -10,7 +10,7 @@ import (
 type Storage struct{}
 
 type Item struct {
-	Id          string
+	ID          string
 	Title       string
 	Description string
 }
@@ -58,7 +58,7 @@ func (d *Storage) GetItems(c context.Context, u string) ([]Item, error) {
 		description := randStringBytes(len(descr))
 
 		items = append(items, Item{
-			Id:          id.String(),
+			ID:          id.String(),
 			Title:       title,
 			Description: description,
 		})
