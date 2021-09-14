@@ -22,7 +22,12 @@ func (s *Session) Login(user model.User) (string, error) {
 		return "", errors.New("wrong password")
 	}
 
-	token, err := jwt.CreateUserJWTToken(user.Name)
+	conf, err := jwt.NewJTWConfig()
+	if err != nil {
+		return "", err
+	}
+
+	token, err := jwt.CreateUserJWTToken(user.Name, conf)
 	if err != nil {
 		return "", err
 	}
@@ -32,7 +37,12 @@ func (s *Session) Login(user model.User) (string, error) {
 
 // Get certificate for user
 func (s *Session) GetCert(keyCertVersion string) ([]byte, error) {
-	res, err := jwt.GetCertificateKey(keyCertVersion)
+	conf, err := jwt.NewJTWConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := jwt.GetCertificateKey(keyCertVersion, conf)
 	if err != nil {
 		return nil, err
 	}

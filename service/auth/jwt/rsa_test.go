@@ -1,7 +1,6 @@
 package jwt
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,81 +10,50 @@ func TestReadRSAPrivateKey(t *testing.T) {
 
 	type request struct {
 		certVersion string
+		pathCerts   string
 	}
 
 	type want struct {
 		isError bool
 	}
 
-	type env struct {
-		set   func()
-		unset func()
-	}
-
 	testCases := []struct {
 		name    string
 		request request
 		want    want
-		env     env
 	}{
 		{
 			name: "normal request",
 			request: request{
 				certVersion: "1",
+				pathCerts:   "../../../pkg/storage/certificates",
 			},
-			want: want{
-				isError: false,
-			},
-			env: env{
-				set: func() {
-					os.Setenv("CERT_PATH", "../../../pkg/storage/certificates")
-				},
-				unset: func() {
-					os.Unsetenv("CERT_PATH")
-				},
-			},
+			want: want{isError: false},
 		},
 		{
 			name: "wrong path",
 			request: request{
 				certVersion: "1",
+				pathCerts:   "./",
 			},
 			want: want{
 				isError: true,
-			},
-			env: env{
-				set: func() {
-					os.Setenv("CERT_PATH", "./")
-				},
-				unset: func() {
-					os.Unsetenv("CERT_PATH")
-				},
 			},
 		},
 		{
 			name: "wrong cert version",
 			request: request{
 				certVersion: "0",
+				pathCerts:   "../../../pkg/storage/certificates",
 			},
 			want: want{
 				isError: true,
-			},
-			env: env{
-				set: func() {
-					os.Setenv("CERT_PATH", "../../../pkg/storage/certificates")
-				},
-				unset: func() {
-					os.Unsetenv("CERT_PATH")
-				},
 			},
 		},
 	}
 
 	for _, tc := range testCases {
-		tc.env.set()
-		defer tc.env.unset()
-
-		privKey, err := readRSAPrivateKey(tc.request.certVersion)
+		privKey, err := readRSAPrivateKey(tc.request.certVersion, tc.request.pathCerts)
 
 		if tc.want.isError {
 			assert.Nil(t, privKey, tc.name)

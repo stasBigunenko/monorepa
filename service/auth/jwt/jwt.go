@@ -3,10 +3,6 @@ package jwt
 import (
 	"crypto/x509"
 	"encoding/pem"
-	"errors"
-	"os"
-	"strconv"
-	"time"
 
 	"github.com/golang-jwt/jwt"
 )
@@ -18,35 +14,15 @@ func newClaim(name, version string) *UserClaims {
 	}
 }
 
-func addExpTime(claims *UserClaims) error {
-	expireTime := os.Getenv("TOKEN_EXPIRE")
-	duration, err := strconv.Atoi(expireTime)
-	if err != nil {
-		return err
-	}
-
-	claims.ExpiresAt = time.Now().Add(time.Duration(duration) * time.Minute).Unix()
-
-	return nil
-}
-
 // create new tocken for User
-func CreateUserJWTToken(userName string) (string, error) {
-	certVersion := os.Getenv("CERT_VERSION")
-	if certVersion == "" {
-		return "", errors.New("wrong cert path")
-	}
-
-	privateKey, err := readRSAPrivateKey(certVersion)
+func CreateUserJWTToken(userName string, conf *Config) (string, error) {
+	privateKey, err := readRSAPrivateKey(conf.certVersion, conf.pathCert)
 	if err != nil {
 		return "", err
 	}
 
-	claims := newClaim(userName, certVersion)
-	err = addExpTime(claims)
-	if err != nil {
-		return "", err
-	}
+	claims := newClaim(userName, conf.certVersion)
+	claims.addExpTime(conf.tokenExpireDuration)
 
 	tokenString, err := jwt.NewWithClaims(jwt.SigningMethodRS512, claims).SignedString(privateKey)
 	if err != nil {
@@ -57,8 +33,8 @@ func CreateUserJWTToken(userName string) (string, error) {
 }
 
 // get certifikate of some version
-func GetCertificateKey(certVersion string) ([]byte, error) {
-	privateKey, err := readRSAPrivateKey(certVersion)
+func GetCertificateKey(certVersion string, conf *Config) ([]byte, error) {
+	privateKey, err := readRSAPrivateKey(certVersion, conf.pathCert)
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"monorepa/model"
-	"os"
 	"testing"
 
 	"github.com/golang-jwt/jwt"
@@ -22,37 +21,20 @@ func TestCreateUserJWTToken(t *testing.T) {
 		isError bool
 	}
 
-	type env struct {
-		set   func()
-		unset func()
-	}
-
 	testCases := []struct {
-		name    string
-		request request
-		want    want
-		env     env
+		name      string
+		request   request
+		want      want
+		envConfig Config
 	}{
 		{
-			name: "normal request",
-			request: request{
-				userName: "bob",
-			},
-
-			want: want{
-				isError: false,
-			},
-			env: env{
-				set: func() {
-					os.Setenv("TOKEN_EXPIRE", "10")
-					os.Setenv("CERT_VERSION", "1")
-					os.Setenv("CERT_PATH", "../../../pkg/storage/certificates")
-				},
-				unset: func() {
-					os.Unsetenv("TOKEN_EXPIRE")
-					os.Unsetenv("CERT_VERSION")
-					os.Unsetenv("CERT_PATH")
-				},
+			name:    "normal request",
+			request: request{userName: "bob"},
+			want:    want{isError: false},
+			envConfig: Config{
+				pathCert:            "../../../pkg/storage/certificates",
+				certVersion:         "1",
+				tokenExpireDuration: 10,
 			},
 		},
 		{
@@ -63,38 +45,10 @@ func TestCreateUserJWTToken(t *testing.T) {
 			want: want{
 				isError: true,
 			},
-			env: env{
-				set: func() {
-					os.Setenv("TOKEN_EXPIRE", "10")
-					os.Setenv("CERT_VERSION", "1")
-					os.Setenv("CERT_PATH", "./")
-				},
-				unset: func() {
-					os.Unsetenv("TOKEN_EXPIRE")
-					os.Unsetenv("CERT_VERSION")
-					os.Unsetenv("CERT_PATH")
-				},
-			},
-		},
-		{
-			name: "wrong time",
-			request: request{
-				userName: "bob",
-			},
-			want: want{
-				isError: true,
-			},
-			env: env{
-				set: func() {
-					os.Setenv("TOKEN_EXPIRE", "")
-					os.Setenv("CERT_VERSION", "1")
-					os.Setenv("CERT_PATH", "./")
-				},
-				unset: func() {
-					os.Unsetenv("TOKEN_EXPIRE")
-					os.Unsetenv("CERT_VERSION")
-					os.Unsetenv("CERT_PATH")
-				},
+			envConfig: Config{
+				pathCert:            "./",
+				certVersion:         "1",
+				tokenExpireDuration: 10,
 			},
 		},
 		{
@@ -105,26 +59,16 @@ func TestCreateUserJWTToken(t *testing.T) {
 			want: want{
 				isError: true,
 			},
-			env: env{
-				set: func() {
-					os.Setenv("TOKEN_EXPIRE", "10")
-					os.Setenv("CERT_VERSION", "0")
-					os.Setenv("CERT_PATH", "../../../pkg/storage/certificates")
-				},
-				unset: func() {
-					os.Unsetenv("TOKEN_EXPIRE")
-					os.Unsetenv("CERT_VERSION")
-					os.Unsetenv("CERT_PATH")
-				},
+			envConfig: Config{
+				pathCert:            "../../../pkg/storage/certificates",
+				certVersion:         "0",
+				tokenExpireDuration: 10,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
-		tc.env.set()
-		defer tc.env.unset()
-
-		token, err := CreateUserJWTToken(tc.request.userName)
+		token, err := CreateUserJWTToken(tc.request.userName, &tc.envConfig)
 
 		if tc.want.isError {
 			assert.Equal(t, token, "", tc.name)
@@ -145,16 +89,11 @@ func TestGetCertificateKey(t *testing.T) {
 		isError bool
 	}
 
-	type env struct {
-		set   func()
-		unset func()
-	}
-
 	testCases := []struct {
-		name    string
-		request request
-		want    want
-		env     env
+		name      string
+		request   request
+		want      want
+		envConfig Config
 	}{
 		{
 			name: "normal request",
@@ -165,13 +104,8 @@ func TestGetCertificateKey(t *testing.T) {
 			want: want{
 				isError: false,
 			},
-			env: env{
-				set: func() {
-					os.Setenv("CERT_PATH", "../../../pkg/storage/certificates")
-				},
-				unset: func() {
-					os.Unsetenv("CERT_PATH")
-				},
+			envConfig: Config{
+				pathCert: "../../../pkg/storage/certificates",
 			},
 		},
 		{
@@ -182,13 +116,8 @@ func TestGetCertificateKey(t *testing.T) {
 			want: want{
 				isError: true,
 			},
-			env: env{
-				set: func() {
-					os.Setenv("CERT_PATH", "./")
-				},
-				unset: func() {
-					os.Unsetenv("CERT_PATH")
-				},
+			envConfig: Config{
+				pathCert: "./",
 			},
 		},
 		{
@@ -199,22 +128,15 @@ func TestGetCertificateKey(t *testing.T) {
 			want: want{
 				isError: true,
 			},
-			env: env{
-				set: func() {
-					os.Setenv("CERT_PATH", "../../../pkg/storage/certificates")
-				},
-				unset: func() {
-					os.Unsetenv("CERT_PATH")
-				},
+			envConfig: Config{
+				pathCert: "./",
 			},
 		},
 	}
 
 	for _, tc := range testCases {
-		tc.env.set()
-		defer tc.env.unset()
 
-		cert, err := GetCertificateKey(tc.request.certVersion)
+		cert, err := GetCertificateKey(tc.request.certVersion, &tc.envConfig)
 
 		if tc.want.isError {
 			assert.Nil(t, cert, tc.name)
@@ -231,30 +153,26 @@ func TesCertParsing(t *testing.T) {
 
 	// config env
 	// JWT config
-	os.Setenv("TOKEN_EXPIRE", "10") // minutes
-	defer os.Unsetenv("TOKEN_EXPIRE")
-
-	// certificates
-	os.Setenv("CERT_VERSION", "1")
-	defer os.Unsetenv("CERT_VERSION")
-	os.Setenv("CERT_PATH", "../../../pkg/storage/certificates")
-	defer os.Unsetenv("CERT_PATH")
+	conf := Config{
+		certVersion:         "1",
+		tokenExpireDuration: 10, // minutes
+		pathCert:            "../../../pkg/storage/certificates",
+	}
 
 	// create user
 	user := model.User{
 		Name: "bob",
 	}
 
-	tokenString, err := CreateUserJWTToken(user.Name)
+	tokenString, err := CreateUserJWTToken(user.Name, &conf)
 	assert.Nil(t, err)
 
-	pbKeyBytes, err := GetCertificateKey(os.Getenv("CERT_VERSION"))
+	pbKeyBytes, err := GetCertificateKey(conf.certVersion, &conf)
 	assert.Nil(t, err)
 
 	block, _ := pem.Decode(pbKeyBytes)
 	assert.NotNil(t, block, "block")
 
-	// pub, err := x509.ParsePKCS1PublicKey(block.Bytes)
 	pubInterface, _ := x509.ParsePKIXPublicKey(block.Bytes)
 
 	pub, ok := pubInterface.(*rsa.PublicKey)
