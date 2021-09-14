@@ -9,8 +9,8 @@ import (
 
 type Storage struct{}
 
-type StorageItem struct {
-	Id          string
+type Item struct {
+	ID          string
 	Title       string
 	Description string
 }
@@ -23,6 +23,7 @@ const letterBytes = "abcdefgh ijklmnop qrstuvw xyz"
 const letterBytesUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 // RandStringBytesfunction generate lower runes and spaces
+//nolint
 func randStringBytes(n int) string {
 	b := make([]byte, n)
 	for i := range b {
@@ -32,6 +33,7 @@ func randStringBytes(n int) string {
 }
 
 // RandStringBytesUpper function generate upper runes
+//nolint
 func randStringBytesUpper(n int) string {
 	b := make([]byte, n)
 	for i := range b {
@@ -41,8 +43,8 @@ func randStringBytesUpper(n int) string {
 }
 
 // GetItems generate slice of Storage according the username and send back
-func (d *Storage) GetItems(c context.Context, u string) ([]StorageItem, error) {
-	items := []StorageItem{}
+func (d *Storage) GetItems(c context.Context, u string) ([]Item, error) {
+	items := []Item{}
 
 	if u == "" {
 		return nil, errors.New("invalid user name")
@@ -51,12 +53,12 @@ func (d *Storage) GetItems(c context.Context, u string) ([]StorageItem, error) {
 	for i := range u {
 
 		id := uuid.New()
-		title := randStringBytesUpper(len(id))
+		title := randStringBytesUpper(len(id)) //nolint
 		descr := string(u[i]) + title
-		description := randStringBytes(len(descr))
+		description := randStringBytes(len(descr))//nolint
 
-		items = append(items, StorageItem{
-			Id:          id.String(),
+		items = append(items, Item{
+			ID:          id.String(),
 			Title:       title,
 			Description: description,
 		})

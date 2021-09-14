@@ -13,10 +13,10 @@ import (
 type ServerGRPC struct {
 	pb.UnimplementedGrpcServiceServer
 
-	storage storage.StorageItemService
+	storage storage.ItemService
 }
 
-func NewGRPC(s storage.StorageItemService) ServerGRPC {
+func NewGRPC(s storage.ItemService) ServerGRPC {
 	return ServerGRPC{
 		storage: s,
 	}
@@ -38,7 +38,7 @@ func (s ServerGRPC) GetItems(c context.Context, in *pb.Username) (*pb.Items, err
 
 	for _, val := range data {
 		items = append(items, &pb.Obj{
-			Id:          val.Id,
+			Id:          val.ID,
 			Title:       val.Title,
 			Description: val.Description,
 		})
