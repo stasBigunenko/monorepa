@@ -1,4 +1,4 @@
-module monorepa
+module github.com/stasBigunenko/monorepa
 
 go 1.17
 

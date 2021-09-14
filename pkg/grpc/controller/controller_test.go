@@ -3,7 +3,7 @@ package grpccontroller
 import (
 	"context"
 	"fmt"
-	pb "monorepa/pkg/grpc/proto"
+	pb "github.com/stasBigunenko/monorepa/pkg/grpc/proto"
 	"reflect"
 	"testing"
 

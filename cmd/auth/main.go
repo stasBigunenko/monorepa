@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"log"
-	"monorepa/pkg/auth"
+	"github.com/stasBigunenko/monorepa/pkg/auth"
 	"os"
 	"os/signal"
 )

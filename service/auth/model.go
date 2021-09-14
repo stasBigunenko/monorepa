@@ -1,6 +1,6 @@
 package auth
 
-import "monorepa/model"
+import "github.com/stasBigunenko/monorepa/model"
 
 type Session struct {
 }
