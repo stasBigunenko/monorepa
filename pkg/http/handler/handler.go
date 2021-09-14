@@ -2,6 +2,7 @@ package httphandler
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -9,7 +10,7 @@ import (
 )
 
 type ItemsGrpcService interface {
-	GetItems() ([]Item, error)
+	GetItems(name string) ([]Item, error)
 }
 
 type HTTPHandler struct {
@@ -56,7 +57,20 @@ func (h HTTPHandler) GetRouter() *mux.Router {
 
 // Returns the list of items
 func (h HTTPHandler) ListItems(w http.ResponseWriter, req *http.Request) {
-	items, err := h.ItemsService.GetItems()
+	p, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	var person Person
+
+	if err = json.Unmarshal(p, &person); err != nil {
+		h.reportError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	items, err := h.ItemsService.GetItems(person.Name)
 	if err != nil {
 		h.reportError(w, http.StatusInternalServerError, err)
 		return

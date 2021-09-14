@@ -4,8 +4,12 @@ import (
 	"github.com/google/uuid"
 )
 
+type Person struct {
+	Name string `json:"name,omitempty"`
+}
+
 type Item struct {
-	id uuid.UUID
+	ID uuid.UUID `json:"id,omitempty"`
 }
 
 type Error struct {
