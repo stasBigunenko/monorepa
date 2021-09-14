@@ -33,8 +33,8 @@ func getCfg() Config {
 	}
 
 	grpcAddr := os.Getenv("GRPC_ADDRESS")
-	if jwtAddr == "" {
-		jwtAddr = "127.0.0.1:50051"
+	if grpcAddr == "" {
+		grpcAddr = "127.0.0.1:50051"
 	}
 
 	return Config{
