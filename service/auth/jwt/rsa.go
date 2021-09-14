@@ -4,12 +4,15 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 
 	"github.com/golang-jwt/jwt"
 )
 
 func getCertName(path, version string) string {
-	return fmt.Sprintf("%v/private_key%v.pem", path, version)
+	certName := fmt.Sprintf("private_key%v.pem", version)
+
+	return filepath.Join(path, certName)
 }
 
 // read certificate as RSA key and certificate version
