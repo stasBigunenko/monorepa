@@ -1,0 +1,10 @@
+version: "3"
+
+services: 
+  auth:
+    container_name: "jwt-auth"
+    build: 
+      context: "./"
+      dockerfile: "./docker/auth.Dockerfile"
+    ports: 
+      - "8080:8080"
