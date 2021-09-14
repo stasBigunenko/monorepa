@@ -12,4 +12,4 @@ RUN go mod download
 # Copy the code into the container
 COPY . .
 
-ENTRYPOINT ["go", "run", "./cmd/auth/main.go", "-envVars"]
+ENTRYPOINT ["go", "run", "./cmd/auth/main.go"]

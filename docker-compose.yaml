@@ -6,5 +6,19 @@ services:
     build: 
       context: "./"
       dockerfile: "./docker/auth.Dockerfile"
+    environment:
+      # serever
+      SERVER_HOST: ''
+      SERVER_PORT: '8080'
+      
+      # shutdown
+      Server_Cancel_Timeout: '5'
+
+      # JWT config
+      TOKEN_EXPIRE: '10'
+
+      # certificates
+      CERT_VERSION: '1'
+      CERT_PATH: './pkg/storage/certificates'
     ports: 
       - "8080:8080"
