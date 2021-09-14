@@ -16,9 +16,9 @@ import (
 )
 
 type Config struct {
-	HttpAddress string
-	JwtAddress  string
-	GrpcAddress string
+	HTTPAddress string
+	JWTAddress  string
+	GRPCAddress string
 }
 
 func getCfg() Config {
@@ -38,16 +38,16 @@ func getCfg() Config {
 	}
 
 	return Config{
-		HttpAddress: httpAddr,
-		JwtAddress:  jwtAddr,
-		GrpcAddress: grpcAddr,
+		HTTPAddress: httpAddr,
+		JWTAddress:  jwtAddr,
+		GRPCAddress: grpcAddr,
 	}
 }
 
 func main() {
 	cfg := getCfg()
 
-	conn, err := grpc.Dial(cfg.GrpcAddress, grpc.WithInsecure())
+	conn, err := grpc.Dial(cfg.GRPCAddress, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect to grpc: %v", err)
 	}
@@ -55,10 +55,10 @@ func main() {
 
 	service := grpccontroller.New(pb.NewGrpcServiceClient(conn))
 
-	h := httphandler.New(service, cfg.JwtAddress)
+	h := httphandler.New(service, cfg.JWTAddress)
 
 	srv := http.Server{
-		Addr:    cfg.HttpAddress,
+		Addr:    cfg.HTTPAddress,
 		Handler: h.GetRouter(),
 	}
 
@@ -66,7 +66,7 @@ func main() {
 	defer close(sigC)
 	go func() {
 		<-sigC
-		srv.Shutdown(context.TODO())
+		srv.Shutdown(context.TODO()) // nolint:errcheck
 	}()
 	signal.Notify(sigC, syscall.SIGINT, syscall.SIGTERM)
 
