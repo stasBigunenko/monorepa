@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"monorepa/pkg/auth"
 	"os"
 	"os/signal"
 )
 
-func init() {
+func defaultEnvConfig() {
 	// serever
 	os.Setenv("SERVER_HOST", "")
 	os.Setenv("SERVER_PORT", "8080")
@@ -29,6 +30,14 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	ctx := context.Background()
+
+	// add env part
+	addEnv := flag.Bool("envVars", false, "add default env variables")
+	flag.Parse()
+
+	if *addEnv {
+		defaultEnvConfig()
+	}
 
 	// init server and config
 
