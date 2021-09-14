@@ -21,7 +21,7 @@ func TestGrpcServiceServer(t *testing.T) {
 	client := makeBufconnClient(ln)
 
 	x := []storage.Item{
-		{"295bb267-122e-4ab7-a0a4-851490f98095", "XVLBZGBAICMRAJWW", "  fdzdgrxomvt ler"},
+		{Title: "XVLBZGBAICMRAJWW", Description: "  fdzdgrxomvt ler"},
 	}
 
 	getItems, _ := client.GetItems(context.Background(), "I")
