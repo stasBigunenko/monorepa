@@ -32,15 +32,15 @@ func TestUserTokenGen(t *testing.T) {
 
 	testCases := []struct {
 		name            string
-		service         *auth.MockAuthService // service to mock
-		serviceFuncResp func(*auth.MockAuthService, []byte)
+		service         *auth.MockService // service to mock
+		serviceFuncResp func(*auth.MockService, []byte)
 		request         request
 		want            wantResp
 	}{
 		{
 			name:    "Normal request",
-			service: &auth.MockAuthService{},
-			serviceFuncResp: func(mc *auth.MockAuthService, items []byte) {
+			service: &auth.MockService{},
+			serviceFuncResp: func(mc *auth.MockService, items []byte) {
 				mc.On("Login",
 					mock.Anything,
 				).Return("qwerty.qwerty.qwerty", nil)
@@ -68,8 +68,8 @@ func TestUserTokenGen(t *testing.T) {
 		},
 		{
 			name:    "Wirhout user data",
-			service: &auth.MockAuthService{},
-			serviceFuncResp: func(mc *auth.MockAuthService, items []byte) {
+			service: &auth.MockService{},
+			serviceFuncResp: func(mc *auth.MockService, items []byte) {
 				mc.On("Login",
 					mock.Anything,
 				).Return("", errors.New("wrong password"))
@@ -93,8 +93,8 @@ func TestUserTokenGen(t *testing.T) {
 		},
 		{
 			name:    "Wirhout user password",
-			service: &auth.MockAuthService{},
-			serviceFuncResp: func(mc *auth.MockAuthService, items []byte) {
+			service: &auth.MockService{},
+			serviceFuncResp: func(mc *auth.MockService, items []byte) {
 				mc.On("Login",
 					mock.Anything,
 				).Return("", errors.New("wrong password"))
@@ -179,15 +179,15 @@ func TestGetCertificateKey(t *testing.T) {
 
 	testCases := []struct {
 		name            string
-		service         *auth.MockAuthService // service to mock
-		serviceFuncResp func(*auth.MockAuthService)
+		service         *auth.MockService // service to mock
+		serviceFuncResp func(*auth.MockService)
 		request         request
 		want            wantResp
 	}{
 		{
 			name:    "Normal request",
-			service: &auth.MockAuthService{},
-			serviceFuncResp: func(mc *auth.MockAuthService) {
+			service: &auth.MockService{},
+			serviceFuncResp: func(mc *auth.MockService) {
 				mc.On("GetCert",
 					mock.Anything,
 				).Return([]byte("qwerty.qwerty.qwerty"), nil)
@@ -203,8 +203,8 @@ func TestGetCertificateKey(t *testing.T) {
 		},
 		{
 			name:    "Internal error",
-			service: &auth.MockAuthService{},
-			serviceFuncResp: func(mc *auth.MockAuthService) {
+			service: &auth.MockService{},
+			serviceFuncResp: func(mc *auth.MockService) {
 				mc.On("GetCert",
 					mock.Anything,
 				).Return([]byte{}, errors.New("some err"))
