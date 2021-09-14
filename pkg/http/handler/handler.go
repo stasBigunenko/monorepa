@@ -39,6 +39,7 @@ func (h HTTPHandler) reportError(w http.ResponseWriter, status int, err error) {
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.Write(res) //nolint:errcheck
