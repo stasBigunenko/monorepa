@@ -41,8 +41,7 @@ func main() {
 
 	// init server and config
 
-	// server := auth.New(ctx)
-	server := auth.MockServerActions{}
+	server := auth.New(ctx)
 	if err := server.ServerAddrConfig(); err != nil {
 		log.Fatal("Can`t get config of server: ", err)
 	}
@@ -61,5 +60,4 @@ func main() {
 	if err := server.Start(ctx); err != nil {
 		log.Fatal("Problems with server run: ", err)
 	}
-
 }
