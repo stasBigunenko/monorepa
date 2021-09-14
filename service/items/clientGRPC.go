@@ -25,7 +25,7 @@ func New(addr string) *GRPCClient {
 	return gc
 }
 
-func (gc *GRPCClient) GetItems(ctx context.Context, un string) ([]storage.StorageItem, error) {
+func (gc *GRPCClient) GetItems(ctx context.Context, un string) ([]storage.Item, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -33,13 +33,13 @@ func (gc *GRPCClient) GetItems(ctx context.Context, un string) ([]storage.Storag
 		Username: un,
 	})
 	if err != nil {
-		return []storage.StorageItem{}, status.Error(codes.Internal, "internal problem")
+		return []storage.Item{}, status.Error(codes.Internal, "internal problem")
 	}
 
-	itemsAll := []storage.StorageItem{}
+	itemsAll := []storage.Item{}
 
 	for _, val := range data.Items {
-		itemsAll = append(itemsAll, storage.StorageItem{
+		itemsAll = append(itemsAll, storage.Item{
 			Id:          val.Id,
 			Title:       val.Title,
 			Description: val.Description,

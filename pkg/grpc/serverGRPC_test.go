@@ -20,7 +20,7 @@ func TestGrpcServiceServer(t *testing.T) {
 	go serveBufconn(ln, d)
 	client := makeBufconnClient(ln)
 
-	x := []storage.StorageItem{
+	x := []storage.Item{
 		{"295bb267-122e-4ab7-a0a4-851490f98095", "XVLBZGBAICMRAJWW", "  fdzdgrxomvt ler"},
 	}
 
