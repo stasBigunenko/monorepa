@@ -41,7 +41,7 @@ func (h HTTPHandler) reportError(w http.ResponseWriter, status int, err error) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	w.Write(res)
+	w.Write(res) //nolint:errcheck
 }
 
 func (h HTTPHandler) GetRouter() *mux.Router {
@@ -58,15 +58,17 @@ func (h HTTPHandler) ListItems(w http.ResponseWriter, req *http.Request) {
 	items, err := h.ItemsService.GetItems()
 	if err != nil {
 		h.reportError(w, http.StatusInternalServerError, err)
+		return
 	}
 
 	res, err := json.Marshal(items)
 	if err != nil {
 		h.reportError(w, http.StatusInternalServerError, err)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(res)
+	w.Write(res) //nolint:errcheck
 }
 
 func (h HTTPHandler) authMiddleware(next http.Handler) http.Handler {
