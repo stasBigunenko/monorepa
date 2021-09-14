@@ -16,7 +16,6 @@ import (
 func TestGrpcServiceServer(t *testing.T) {
 	ln := bufconn.Listen(1024)
 	dd := storage.NewStorage()
-	//d := new(mocks.StorageInterface)
 	d := storage.ItemService(dd)
 	go serveBufconn(ln, d)
 	client := makeBufconnClient(ln)
@@ -58,7 +57,7 @@ func makeBufconnClient(ln *bufconn.Listener) *items.GRPCClient {
 		grpc.WithContextDialer(makeBufDialer(ln)),
 		grpc.WithInsecure(),
 	)
-	//cl := monorepa.NewGrpcServiceClient(conn)
+
 	client.Client = monorepa.NewGrpcServiceClient(conn)
 
 	return client
