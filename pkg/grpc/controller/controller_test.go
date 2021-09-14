@@ -3,6 +3,7 @@ package grpccontroller
 import (
 	"context"
 	"fmt"
+	"monorepa/model"
 	pb "monorepa/pkg/grpc/proto"
 	"reflect"
 	"testing"
@@ -29,7 +30,7 @@ func TestGRPCСontroller_GetItems(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    []Item
+		want    []model.Item
 		wantErr bool
 	}{
 		{
@@ -52,9 +53,9 @@ func TestGRPCСontroller_GetItems(t *testing.T) {
 			args: args{
 				username: "Boris",
 			},
-			want: []Item{
+			want: []model.Item{
 				{
-					Name: "Vasya",
+					Title: "Vasya",
 				},
 			},
 			wantErr: false,
