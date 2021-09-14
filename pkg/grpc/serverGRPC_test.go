@@ -17,7 +17,7 @@ func TestGrpcServiceServer(t *testing.T) {
 	ln := bufconn.Listen(1024)
 	dd := storage.NewStorage()
 	//d := new(mocks.StorageInterface)
-	d := storage.StorageItemService(dd)
+	d := storage.ItemService(dd)
 	go serveBufconn(ln, d)
 	client := makeBufconnClient(ln)
 
@@ -34,7 +34,7 @@ func TestGrpcServiceServer(t *testing.T) {
 	require.NotNil(t, err, "grpc should return err invalid username")
 }
 
-func serveBufconn(ln *bufconn.Listener, data storage.StorageItemService) {
+func serveBufconn(ln *bufconn.Listener, data storage.ItemService) {
 
 	s := grpc.NewServer()
 	monorepa.RegisterGrpcServiceServer(s, NewGRPC(data))

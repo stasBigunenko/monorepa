@@ -13,10 +13,10 @@ import (
 type ServerGRPC struct {
 	pb.UnimplementedGrpcServiceServer
 
-	storage storage.StorageItemService
+	storage storage.ItemService
 }
 
-func NewGRPC(s storage.StorageItemService) ServerGRPC {
+func NewGRPC(s storage.ItemService) ServerGRPC {
 	return ServerGRPC{
 		storage: s,
 	}
