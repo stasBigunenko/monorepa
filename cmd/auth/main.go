@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"flag"
-	"log"
 	"github.com/stasBigunenko/monorepa/pkg/auth"
+	"log"
 	"os"
 	"os/signal"
 )
