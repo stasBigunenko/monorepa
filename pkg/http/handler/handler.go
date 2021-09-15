@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"monorepa/model"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
 type ItemsGrpcService interface {
-	GetItems(name string) ([]Item, error)
+	GetItems(name string) ([]model.Item, error)
 }
 
 type HTTPHandler struct {
