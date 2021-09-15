@@ -21,4 +21,31 @@ services:
       CERT_VERSION: '1'
       CERT_PATH: './pkg/storage/certificates'
     ports: 
+      - "8081:8080"
+
+  http:
+    container_name: "http"
+    build: 
+      context: "./"
+      dockerfile: "./docker/http.Dockerfile"
+    environment:
+      HTTP_ADDRESS: ':8080'
+      JWT_ADDRESS: 'auth:8081'
+      GRPC_ADDRESS: 'grpc:50051'
+    links:
+      - "auth:auth"
+      - "grpc:grpc"
+    depends_on:
+          - "grpc"
+    ports: 
       - "8080:8080"
+
+  grpc:
+    container_name: "grpc"
+    build: 
+      context: "./"
+      dockerfile: "./docker/grpc.Dockerfile"
+    environment:
+      GRPC_SERV_ADDRESS: ':50051'
+    ports: 
+      - "50051:50051"
