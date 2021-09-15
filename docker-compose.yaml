@@ -29,9 +29,9 @@ services:
       context: "./"
       dockerfile: "./docker/http.Dockerfile"
     environment:
-      HTTP_ADDRESS: '127.0.0.1:8080'
-      JWT_ADDRESS: '127.0.0.1:8081'
-      GRPC_ADDRESS: '127.0.0.1:50051'
+      HTTP_ADDRESS: ':8080'
+      JWT_ADDRESS: ':8081'
+      GRPC_ADDRESS: ':50051'
     links:
       - "auth:auth"
     ports: 
