@@ -54,20 +54,20 @@ func (s HTTPService) ParseToken(tokenHeader string) error {
 		}
 		defer resp.Body.Close()
 
-		var publickey tokenResp
-		if err = json.NewDecoder(resp.Body).Decode(&publickey); err != nil {
+		var publickeyJson tokenResp
+		if err = json.NewDecoder(resp.Body).Decode(&publickeyJson); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal public key: %w", err)
 		}
 
-		block, _ := pem.Decode(publickey.PbKey)
+		block, _ := pem.Decode(publickeyJson.PbKey)
 		pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 
-		publicKey, ok := pubInterface.(*rsa.PublicKey)
+		publicKeyForToken, ok := pubInterface.(*rsa.PublicKey)
 		if !ok {
 			return nil, fmt.Errorf("failed to convert public key: %w", err)
 		}
 
-		return publicKey, nil
+		return publicKeyForToken, nil
 	})
 
 	if err != nil {
