@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"google.golang.org/grpc"
 	"github.com/stasBigunenko/monorepa/pkg/grpc/grpcstart"
+	"google.golang.org/grpc"
 	"net"
 	"os/signal"
 	"syscall"
