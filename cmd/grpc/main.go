@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"google.golang.org/grpc"
-	"monorepa/pkg/grpc/grpcstart"
+	"github.com/stasBigunenko/monorepa/pkg/grpc/grpcstart"
 	"net"
 	"os/signal"
 	"syscall"
