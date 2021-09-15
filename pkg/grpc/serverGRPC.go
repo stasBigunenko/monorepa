@@ -4,8 +4,8 @@ import (
 	"context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	pb "monorepa/pkg/grpc/proto"
-	"monorepa/pkg/storage"
+	pb "github.com/stasBigunenko/monorepa/pkg/grpc/proto"
+	"github.com/stasBigunenko/monorepa/pkg/storage"
 )
 
 // Server GRPC

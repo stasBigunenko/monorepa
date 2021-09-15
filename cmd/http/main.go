@@ -3,14 +3,14 @@ package main
 import (
 	"context"
 	"log"
-	httphandler "monorepa/pkg/http/handler"
+	httphandler "github.com/stasBigunenko/monorepa/pkg/http/handler"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
-	grpccontroller "monorepa/pkg/grpc/controller"
-	pb "monorepa/pkg/grpc/proto"
+	grpccontroller "github.com/stasBigunenko/monorepa/pkg/grpc/controller"
+	pb "github.com/stasBigunenko/monorepa/pkg/grpc/proto"
 
 	"google.golang.org/grpc"
 )

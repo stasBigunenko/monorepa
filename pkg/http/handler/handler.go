@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-	"monorepa/model"
+	"github.com/stasBigunenko/monorepa/model"
 	"net/http"
 
 	"github.com/gorilla/mux"
