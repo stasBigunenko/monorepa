@@ -7,11 +7,11 @@ import (
 	grpc2 "github.com/stasBigunenko/monorepa/pkg/grpc"
 	pb "github.com/stasBigunenko/monorepa/pkg/grpc/proto"
 
-	"os/signal"
-	"syscall"
-	"net"
 	"github.com/stasBigunenko/monorepa/pkg/storage"
 	"google.golang.org/grpc"
+	"net"
+	"os/signal"
+	"syscall"
 )
 
 type Config struct {
