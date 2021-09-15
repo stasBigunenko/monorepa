@@ -4,13 +4,13 @@ import (
 	"log"
 	"os"
 
-	grpc2 "monorepa/pkg/grpc"
-	pb "monorepa/pkg/grpc/proto"
+	grpc2 "github.com/stasBigunenko/monorepa/pkg/grpc"
+	pb "github.com/stasBigunenko/monorepa/pkg/grpc/proto"
 
 	"os/signal"
 	"syscall"
 	"net"
-	"monorepa/pkg/storage"
+	"github.com/stasBigunenko/monorepa/pkg/storage"
 	"google.golang.org/grpc"
 )
 
