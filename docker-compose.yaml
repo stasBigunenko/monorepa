@@ -30,7 +30,7 @@ services:
       dockerfile: "./docker/http.Dockerfile"
     environment:
       HTTP_ADDRESS: ':8080'
-      JWT_ADDRESS: ':8081'
+      JWT_ADDRESS: 'auth:8081'
       GRPC_ADDRESS: ':50051'
     links:
       - "auth:auth"
