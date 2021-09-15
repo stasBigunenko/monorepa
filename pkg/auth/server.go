@@ -2,17 +2,18 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"github.com/stasBigunenko/monorepa/pkg/auth/middleware"
-	"github.com/stasBigunenko/monorepa/pkg/auth/routes"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 
+	"github.com/stasBigunenko/monorepa/pkg/auth/middleware"
+	"github.com/stasBigunenko/monorepa/pkg/auth/routes"
+
 	"github.com/gorilla/mux"
+	er "github.com/stasBigunenko/monorepa/errors"
 )
 
 type Server struct {
@@ -34,7 +35,7 @@ func New(ctx context.Context) *Server {
 func (s *Server) ServerAddrConfig() error {
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
-		return errors.New("wrong port")
+		return er.WrongPort
 	}
 
 	s.config.Host = os.Getenv("SERVER_HOST")

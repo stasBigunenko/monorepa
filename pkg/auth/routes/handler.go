@@ -3,9 +3,12 @@ package routes
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"net/http"
+
+	er "github.com/stasBigunenko/monorepa/errors"
 	"github.com/stasBigunenko/monorepa/model"
 	"github.com/stasBigunenko/monorepa/service/auth"
-	"net/http"
 
 	"github.com/gorilla/mux"
 )
@@ -39,10 +42,7 @@ func (h *HandlerItemsServ) GetJWTToken(w http.ResponseWriter, r *http.Request) {
 
 	token, err := h.services.Login(user)
 	if err != nil {
-		/**
-		 * change to global err
-		 */
-		if err.Error() == "wrong password" {
+		if errors.Is(err, er.WrongPassword) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
