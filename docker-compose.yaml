@@ -21,4 +21,18 @@ services:
       CERT_VERSION: '1'
       CERT_PATH: './pkg/storage/certificates'
     ports: 
+      - "8081:8080"
+
+  http:
+    container_name: "http"
+    build: 
+      context: "./"
+      dockerfile: "./docker/http.Dockerfile"
+    environment:
+      HTTP_ADDRESS: '127.0.0.1:8080'
+      JWT_ADDRESS: '127.0.0.1:8081'
+      GRPC_ADDRESS: '127.0.0.1:50051'
+    links:
+      - "auth:auth"
+    ports: 
       - "8080:8080"
