@@ -48,7 +48,7 @@ func (s HTTPService) ParseToken(tokenHeader string) error {
 			return nil, fmt.Errorf("token expired")
 		}
 
-		resp, err := http.Get(path.Join(s.JwtServiceAddr, claims.KeyVersion))
+		resp, err := http.Get(path.Join(path.Join(s.JwtServiceAddr, "/get-cert"), claims.KeyVersion))
 		if err != nil {
 			return nil, fmt.Errorf("failed to connect to jwt server: %w", err)
 		}

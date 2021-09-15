@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
-	httphandler "github.com/stasBigunenko/monorepa/pkg/http/handler"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	httphandler "github.com/stasBigunenko/monorepa/pkg/http/handler"
 
 	grpccontroller "github.com/stasBigunenko/monorepa/pkg/grpc/controller"
 	pb "github.com/stasBigunenko/monorepa/pkg/grpc/proto"
@@ -29,7 +30,7 @@ func getCfg() Config {
 
 	jwtAddr := os.Getenv("JWT_ADDRESS")
 	if jwtAddr == "" {
-		jwtAddr = "127.0.0.1:8081/get-cert"
+		jwtAddr = "127.0.0.1:8081"
 	}
 
 	grpcAddr := os.Getenv("GRPC_ADDRESS")
