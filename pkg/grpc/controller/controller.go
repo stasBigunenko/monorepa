@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"monorepa/model"
-	pb "monorepa/pkg/grpc/proto"
+	"github.com/stasBigunenko/monorepa/model"
+	pb "github.com/stasBigunenko/monorepa/pkg/grpc/proto"
 
 	"github.com/google/uuid"
 )

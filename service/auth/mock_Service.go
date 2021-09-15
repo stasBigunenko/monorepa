@@ -3,7 +3,7 @@
 package auth
 
 import (
-	model "monorepa/model"
+	model "github.com/stasBigunenko/monorepa/model"
 
 	mock "github.com/stretchr/testify/mock"
 )

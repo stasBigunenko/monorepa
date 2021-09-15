@@ -2,9 +2,9 @@ package httphandler
 
 import (
 	"encoding/json"
+	"github.com/stasBigunenko/monorepa/model"
 	"io/ioutil"
 	"log"
-	"monorepa/model"
 	"net/http"
 
 	"github.com/gorilla/mux"

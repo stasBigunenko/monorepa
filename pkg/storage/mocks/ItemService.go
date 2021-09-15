@@ -4,7 +4,7 @@ package mocks
 
 import (
 	context "context"
-	storage "monorepa/pkg/storage"
+	storage "github.com/stasBigunenko/monorepa/pkg/storage"
 
 	mock "github.com/stretchr/testify/mock"
 )

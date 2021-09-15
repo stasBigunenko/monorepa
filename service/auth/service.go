@@ -2,8 +2,8 @@ package auth
 
 import (
 	"errors"
-	"monorepa/model"
-	"monorepa/service/auth/jwt"
+	"github.com/stasBigunenko/monorepa/model"
+	"github.com/stasBigunenko/monorepa/service/auth/jwt"
 )
 
 // init item services

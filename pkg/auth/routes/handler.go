@@ -3,8 +3,8 @@ package routes
 import (
 	"context"
 	"encoding/json"
-	"monorepa/model"
-	"monorepa/service/auth"
+	"github.com/stasBigunenko/monorepa/model"
+	"github.com/stasBigunenko/monorepa/service/auth"
 	"net/http"
 
 	"github.com/gorilla/mux"
