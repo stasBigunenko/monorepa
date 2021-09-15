@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	pb "monorepa/pkg/grpc/proto"
@@ -13,16 +12,6 @@ import (
 
 type gRPCClient struct {
 	client pb.GrpcServiceClient
-}
-
-func new(addr string) *gRPCClient {
-	gc := &gRPCClient{}
-
-	conn, _ := grpc.Dial(addr, grpc.WithInsecure())
-
-	gc.client = pb.NewGrpcServiceClient(conn)
-
-	return gc
 }
 
 func (gc *gRPCClient) getItems(_ context.Context, un string) ([]storage.Item, error) {
