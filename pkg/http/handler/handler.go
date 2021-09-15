@@ -2,15 +2,15 @@ package httphandler
 
 import (
 	"encoding/json"
-	"github.com/stasBigunenko/monorepa/model"
 	"io/ioutil"
 	"log"
 	"net/http"
 
+	"github.com/stasBigunenko/monorepa/model"
+
 	"github.com/gorilla/mux"
 
-	"monorepa/model"
-	tokenservice "monorepa/service/http"
+	tokenservice "github.com/stasBigunenko/monorepa/service/http"
 )
 
 type ItemsGrpcService interface {

@@ -13,7 +13,7 @@ import (
 
 	"github.com/golang-jwt/jwt"
 
-	jwtservice "monorepa/service/auth/jwt"
+	jwtservice "github.com/stasBigunenko/monorepa/service/auth/jwt"
 )
 
 type HTTPService struct {
