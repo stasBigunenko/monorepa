@@ -31,8 +31,21 @@ services:
     environment:
       HTTP_ADDRESS: ':8080'
       JWT_ADDRESS: 'auth:8081'
-      GRPC_ADDRESS: ':50051'
+      GRPC_ADDRESS: 'grpc:50051'
     links:
       - "auth:auth"
+      - "grpc:grpc"
+    depends_on:
+          - "grpc"
     ports: 
       - "8080:8080"
+
+  grpc:
+    container_name: "grpc"
+    build: 
+      context: "./"
+      dockerfile: "./docker/grpc.Dockerfile"
+    environment:
+      GRPC_SERV_ADDRESS: ':50051'
+    ports: 
+      - "50051:50051"
