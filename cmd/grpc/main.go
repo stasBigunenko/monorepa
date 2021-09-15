@@ -4,11 +4,8 @@ import (
 	"log"
 	"os"
 
-	grpc2 "github.com/stasBigunenko/monorepa/pkg/grpc"
-	pb "github.com/stasBigunenko/monorepa/pkg/grpc/proto"
-
-	"github.com/stasBigunenko/monorepa/pkg/storage"
 	"google.golang.org/grpc"
+	"monorepa/pkg/grpc/grpcstart"
 	"net"
 	"os/signal"
 	"syscall"
@@ -37,23 +34,18 @@ func main() {
 		log.Fatalf("failed to listen: %s", err)
 	}
 
-	d := storage.NewStorage()
-	data := storage.ItemService(d)
-
-	// create GRPC server
-	s := grpc.NewServer()
-	pb.RegisterGrpcServiceServer(s, grpc2.NewGRPC(data))
+	srv := grpcstart.GrpcStart()
 
 	sigC := make(chan os.Signal, 1)
 	defer close(sigC)
 	go func() {
 		<-sigC
-		s.GracefulStop()
+		srv.GracefulStop()
 	}()
 	signal.Notify(sigC, syscall.SIGINT, syscall.SIGTERM)
 
 	// start server
-	if err := s.Serve(lis); err != nil && err != grpc.ErrServerStopped {
+	if err := srv.Serve(lis); err != nil && err != grpc.ErrServerStopped {
 		log.Printf("error: grpc server failed: %s", err)
 	}
 }
