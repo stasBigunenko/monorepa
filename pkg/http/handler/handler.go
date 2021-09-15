@@ -2,27 +2,37 @@ package httphandler
 
 import (
 	"encoding/json"
-	"github.com/stasBigunenko/monorepa/model"
 	"io/ioutil"
 	"log"
 	"net/http"
 
+	"github.com/stasBigunenko/monorepa/model"
+
 	"github.com/gorilla/mux"
+
+	tokenservice "github.com/stasBigunenko/monorepa/service/http"
 )
 
 type ItemsGrpcService interface {
 	GetItems(name string) ([]model.Item, error)
 }
 
+type TokenService interface {
+	ParseToken(tokenPart string) error
+}
+
 type HTTPHandler struct {
 	ItemsService   ItemsGrpcService
+	TokenService   TokenService
 	JwtServiceAddr string
 }
 
 func New(service ItemsGrpcService, addr string) HTTPHandler {
 	return HTTPHandler{
-		ItemsService:   service,
-		JwtServiceAddr: addr,
+		ItemsService: service,
+		TokenService: tokenservice.HTTPService{
+			JwtServiceAddr: addr,
+		},
 	}
 }
 
@@ -91,7 +101,16 @@ func (h HTTPHandler) authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		log.Println("Auth starting...")
 
-		// here goes auth
+		tokenHeader := req.Header.Get("Authorization")
+		if tokenHeader == "" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		if err := h.TokenService.ParseToken(tokenHeader); err != nil {
+			h.reportError(w, http.StatusInternalServerError, err)
+			return
+		}
 
 		next.ServeHTTP(w, req)
 	})

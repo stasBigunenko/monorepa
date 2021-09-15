@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
-	httphandler "github.com/stasBigunenko/monorepa/pkg/http/handler"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	httphandler "github.com/stasBigunenko/monorepa/pkg/http/handler"
 
 	grpccontroller "github.com/stasBigunenko/monorepa/pkg/grpc/controller"
 	pb "github.com/stasBigunenko/monorepa/pkg/grpc/proto"
