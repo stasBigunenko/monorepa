@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
-	"github.com/stasBigunenko/monorepa/model"
-	"github.com/stasBigunenko/monorepa/service/auth"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/stasBigunenko/monorepa/model"
+	"github.com/stasBigunenko/monorepa/service/auth"
+
 	"github.com/gorilla/mux"
+	er "github.com/stasBigunenko/monorepa/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -72,7 +73,7 @@ func TestUserTokenGen(t *testing.T) {
 			serviceFuncResp: func(mc *auth.MockService, items []byte) {
 				mc.On("Login",
 					mock.Anything,
-				).Return("", errors.New("wrong password"))
+				).Return("", er.WrongPassword)
 			},
 			request: request{
 				endpoint: "/login",
@@ -92,12 +93,12 @@ func TestUserTokenGen(t *testing.T) {
 			},
 		},
 		{
-			name:    "Wirhout user password",
+			name:    "Without user password",
 			service: &auth.MockService{},
 			serviceFuncResp: func(mc *auth.MockService, items []byte) {
 				mc.On("Login",
 					mock.Anything,
-				).Return("", errors.New("wrong password"))
+				).Return("", er.WrongPassword)
 			},
 			request: request{
 				endpoint: "/login",
@@ -207,10 +208,10 @@ func TestGetCertificateKey(t *testing.T) {
 			serviceFuncResp: func(mc *auth.MockService) {
 				mc.On("GetCert",
 					mock.Anything,
-				).Return([]byte{}, errors.New("some err"))
+				).Return([]byte{}, er.WrongPassword)
 			},
 			request: request{
-				endpoint: "/get-cert/foo=bar&baz=bar",
+				endpoint: "/get-cert/1",
 				method:   "GET",
 			},
 			want: wantResp{

@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"errors"
+	er "github.com/stasBigunenko/monorepa/errors"
 	"github.com/stasBigunenko/monorepa/model"
 	"github.com/stasBigunenko/monorepa/service/auth/jwt"
 )
@@ -19,7 +19,7 @@ func userVerify(password string) bool {
 // Create JWT tocken for user
 func (s *Session) Login(user model.User) (string, error) {
 	if ok := userVerify(user.Password); !ok {
-		return "", errors.New("wrong password")
+		return "", er.WrongPassword
 	}
 
 	conf, err := jwt.NewJTWConfig()
