@@ -4,10 +4,10 @@ import (
 	"context"
 	"github.com/stretchr/testify/require"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/test/bufconn"
 	monorepa "github.com/stasBigunenko/monorepa/pkg/grpc/proto"
 	"github.com/stasBigunenko/monorepa/pkg/storage"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/test/bufconn"
 	"net"
 	"testing"
 )

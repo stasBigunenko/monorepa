@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"log"
 	httphandler "github.com/stasBigunenko/monorepa/pkg/http/handler"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
