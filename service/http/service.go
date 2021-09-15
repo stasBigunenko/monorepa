@@ -7,7 +7,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"net/http"
-	"path"
 	"strings"
 	"time"
 
@@ -32,13 +31,12 @@ func (s HTTPService) ParseToken(tokenHeader string) error {
 
 	if splitted[0] != "bearer" {
 		return fmt.Errorf("malformed auth token, the first part is not bearer")
-
 	}
 
 	tokenPart := splitted[1]
 
 	token, err := jwt.ParseWithClaims(tokenPart, &jwtservice.UserClaims{}, func(token *jwt.Token) (interface{}, error) {
-		claims, ok := token.Claims.(jwtservice.UserClaims)
+		claims, ok := token.Claims.(*jwtservice.UserClaims)
 		if !ok {
 			return nil, fmt.Errorf("wrong format of claims")
 		}
@@ -48,7 +46,7 @@ func (s HTTPService) ParseToken(tokenHeader string) error {
 			return nil, fmt.Errorf("token expired")
 		}
 
-		resp, err := http.Get(path.Join(path.Join(s.JwtServiceAddr, "/get-cert"), claims.KeyVersion))
+		resp, err := http.Get("http://" + s.JwtServiceAddr + "/get-cert/" + claims.KeyVersion)
 		if err != nil {
 			return nil, fmt.Errorf("failed to connect to jwt server: %w", err)
 		}
@@ -61,6 +59,9 @@ func (s HTTPService) ParseToken(tokenHeader string) error {
 
 		block, _ := pem.Decode(publickeyJSON.PbKey)
 		pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
+		if err != nil {
+			return nil, fmt.Errorf("failed to decode public key: %w", err)
+		}
 
 		publicKeyForToken, ok := pubInterface.(*rsa.PublicKey)
 		if !ok {

@@ -36,12 +36,13 @@ func New(service ItemsGrpcService, addr string) HTTPHandler {
 	}
 }
 
-// if not internal server error, we provide err message to the user
+// if internal server error, we provide err message to log, else to the user
 func (h HTTPHandler) reportError(w http.ResponseWriter, status int, err error) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if status == http.StatusInternalServerError {
 		w.WriteHeader(http.StatusInternalServerError)
+		log.Print(err)
 		return
 	}
 
