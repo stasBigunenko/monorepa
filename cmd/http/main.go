@@ -29,7 +29,7 @@ func getCfg() Config {
 
 	jwtAddr := os.Getenv("JWT_ADDRESS")
 	if jwtAddr == "" {
-		jwtAddr = "127.0.0.1:8081"
+		jwtAddr = "127.0.0.1:8081/get-cert"
 	}
 
 	grpcAddr := os.Getenv("GRPC_ADDRESS")
