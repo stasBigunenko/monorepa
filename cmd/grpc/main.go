@@ -1,14 +1,16 @@
 package main
 
 import (
-	"log"
 	"os"
 
-	"github.com/stasBigunenko/monorepa/pkg/grpc/grpcstart"
-	"google.golang.org/grpc"
+	log "github.com/sirupsen/logrus"
+
 	"net"
 	"os/signal"
 	"syscall"
+
+	"github.com/stasBigunenko/monorepa/pkg/grpc/grpcstart"
+	"google.golang.org/grpc"
 )
 
 type Config struct {
@@ -26,12 +28,21 @@ func getConfig() Config {
 	}
 }
 
+func init() {
+	// Log as JSON instead of the default ASCII formatter.
+	log.SetFormatter(&log.JSONFormatter{})
+
+	// Output to stdout instead of the default stderr
+	// Can be any io.Writer, see below for File example
+	log.SetOutput(os.Stdout)
+}
+
 func main() {
 	config := getConfig()
 
 	lis, err := net.Listen("tcp", config.gRPCServAddress)
 	if err != nil {
-		log.Fatalf("failed to listen: %s", err)
+		log.Fatal("failed to listen: %s", err)
 	}
 
 	srv := grpcstart.GrpcStart()
@@ -46,6 +57,6 @@ func main() {
 
 	// start server
 	if err := srv.Serve(lis); err != nil && err != grpc.ErrServerStopped {
-		log.Printf("error: grpc server failed: %s", err)
+		log.Error("error: grpc server failed: %s", err)
 	}
 }

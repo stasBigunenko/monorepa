@@ -3,8 +3,9 @@ package httphandler
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/stasBigunenko/monorepa/model"
 
@@ -42,7 +43,7 @@ func (h HTTPHandler) reportError(w http.ResponseWriter, status int, err error) {
 
 	if status == http.StatusInternalServerError {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Print(err)
+		log.Error(err)
 		return
 	}
 
@@ -100,7 +101,7 @@ func (h HTTPHandler) ListItems(w http.ResponseWriter, req *http.Request) {
 
 func (h HTTPHandler) authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		log.Println("Auth starting...")
+		log.Info("Auth starting...")
 
 		tokenHeader := req.Header.Get("Authorization")
 		if tokenHeader == "" {
