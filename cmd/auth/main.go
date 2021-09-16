@@ -63,7 +63,7 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	go func() {
 		oscall := <-c
-		log.Warn("system call:%+v", oscall)
+		log.Warn("system call: ", oscall)
 		cancel()
 	}()
 

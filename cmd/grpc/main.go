@@ -42,7 +42,7 @@ func main() {
 
 	lis, err := net.Listen("tcp", config.gRPCServAddress)
 	if err != nil {
-		log.Fatal("failed to listen: %s", err)
+		log.Fatal("failed to listen: ", err)
 	}
 
 	srv := grpcstart.GrpcStart()
@@ -57,6 +57,6 @@ func main() {
 
 	// start server
 	if err := srv.Serve(lis); err != nil && err != grpc.ErrServerStopped {
-		log.Error("error: grpc server failed: %s", err)
+		log.Error("error: grpc server failed: ", err)
 	}
 }
