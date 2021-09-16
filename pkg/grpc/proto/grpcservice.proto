@@ -14,7 +14,7 @@ service UserService {
 }
 
 message Obj {
-  string user_id = 1;
+  string id = 1;
   string name = 2;
 }
 
@@ -23,5 +23,5 @@ message Username {
 }
 
 message UserID {
-  string user_id = 1;
+  string id = 1;
 }
