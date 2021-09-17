@@ -84,7 +84,7 @@ func (s AccountGRPCСontroller) GetAccount(id uuid.UUID) (model.Account, error) 
 	return model.Account{
 		ID:      accountID,
 		UserID:  userID,
-		Balance: resp.Balance,
+		Balance: int(resp.Balance),
 	}, nil
 }
 
@@ -112,7 +112,7 @@ func (s AccountGRPCСontroller) GetUserAccounts(userID uuid.UUID) ([]model.Accou
 		accounts = append(accounts, model.Account{
 			ID:      accountID,
 			UserID:  userID,
-			Balance: resp.Balance,
+			Balance: int(account.Balance),
 		})
 	}
 
@@ -140,7 +140,7 @@ func (s AccountGRPCСontroller) GetAllAccounts() ([]model.Account, error) {
 		accounts = append(accounts, model.Account{
 			ID:      accountID,
 			UserID:  userID,
-			Balance: resp.Balance,
+			Balance: int(account.Balance),
 		})
 	}
 
@@ -151,7 +151,7 @@ func (s AccountGRPCСontroller) UpdateAccount(account model.Account) error {
 	_, err := s.client.UpdateAccount(context.Background(), &pb.Account{
 		Id:      account.ID.String(),
 		UserID:  account.UserID.String(),
-		Balance: account.Balance,
+		Balance: int32(account.Balance),
 	})
 
 	if err != nil {
