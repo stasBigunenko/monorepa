@@ -3,11 +3,22 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/stasBigunenko/monorepa/pkg/auth"
-	"log"
 	"os"
 	"os/signal"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/stasBigunenko/monorepa/pkg/auth"
 )
+
+func init() {
+	// Log as JSON instead of the default ASCII formatter.
+	log.SetFormatter(&log.JSONFormatter{})
+
+	// Output to stdout instead of the default stderr
+	// Can be any io.Writer, see below for File example
+	log.SetOutput(os.Stdout)
+}
 
 func defaultEnvConfig() {
 	// serever
@@ -40,7 +51,6 @@ func main() {
 	}
 
 	// init server and config
-
 	server := auth.New(ctx)
 	if err := server.ServerAddrConfig(); err != nil {
 		log.Fatal("Can`t get config of server: ", err)
@@ -53,7 +63,7 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	go func() {
 		oscall := <-c
-		log.Printf("system call:%+v", oscall)
+		log.Warn("system call: ", oscall)
 		cancel()
 	}()
 
