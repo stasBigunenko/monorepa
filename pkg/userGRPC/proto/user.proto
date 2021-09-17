@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package userGRPC;
+option go_package = "github.com/stasBigunenko/monorepa/pkg/userGRPC/proto";
+
+import "google/protobuf/empty.proto";
+
+service UserGRPCService {
+  rpc Get(Id) returns (User) {}
+  rpc GetAllUsers(google.protobuf.Empty) returns (AllUsers) {}
+  rpc Create(Name) returns (User) {}
+  rpc Update(User) returns (User) {}
+  rpc Delete(Id) returns (google.protobuf.Empty) {}
+}
+
+message User {
+  string id = 1;
+  string name = 2;
+}
+
+message Name {
+  string name = 1;
+}
+
+message Id {
+  string id = 1;
+}
+
+message AllUsers {
+  repeated User allUsers = 1;
+}

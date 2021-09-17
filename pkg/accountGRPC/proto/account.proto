@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package accountGRPC;
+option go_package = "github.com/stasBigunenko/monorepa/pkg/account/proto";
+
+import "google/protobuf/empty.proto";
+
+service AccountGRPCService {
+  rpc GetAccount (AccountID) returns (Account) {}
+  rpc GetUserAccounts (UserID) returns (AllAccounts) {}
+  rpc GetAllUsers (google.protobuf.Empty) returns (AllAccounts) {}
+  rpc CreateAccount (UserID) returns (Account) {}
+  rpc UpdateAccount (Account) returns (Account) {}
+  rpc DeleteAccount (AccountID) returns (google.protobuf.Empty) {}
+}
+
+message UserID {
+  string userID = 1;
+}
+
+message AccountID {
+  string id = 1;
+}
+
+message Account {
+  string id = 1;
+  string userID = 2;
+  string balance = 3;
+}
+
+message AllAccounts {
+  repeated Account accounts = 1;
+}

@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	log "github.com/sirupsen/logrus"
 
 	httphandler "github.com/stasBigunenko/monorepa/pkg/http/handler"
 
@@ -45,12 +46,21 @@ func getCfg() Config {
 	}
 }
 
+func init() {
+	// Log as JSON instead of the default ASCII formatter.
+	log.SetFormatter(&log.JSONFormatter{})
+
+	// Output to stdout instead of the default stderr
+	// Can be any io.Writer, see below for File example
+	log.SetOutput(os.Stdout)
+}
+
 func main() {
 	cfg := getCfg()
 
 	conn, err := grpc.Dial(cfg.GRPCAddress, grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("did not connect to grpc: %v", err)
+		log.Fatal("did not connect to grpc: ", err)
 	}
 	defer conn.Close()
 
@@ -72,6 +82,6 @@ func main() {
 	signal.Notify(sigC, syscall.SIGINT, syscall.SIGTERM)
 
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Printf("error: http server failed: %s", err)
+		log.Error("error: http server failed: ", err)
 	}
 }

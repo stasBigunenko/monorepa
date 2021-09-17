@@ -8,8 +8,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	authMock "github.com/stasBigunenko/monorepa/mocks/service/auth"
 	"github.com/stasBigunenko/monorepa/model"
-	"github.com/stasBigunenko/monorepa/service/auth"
 
 	"github.com/gorilla/mux"
 	er "github.com/stasBigunenko/monorepa/errors"
@@ -33,22 +33,22 @@ func TestUserTokenGen(t *testing.T) {
 
 	testCases := []struct {
 		name            string
-		service         *auth.MockService // service to mock
-		serviceFuncResp func(*auth.MockService, []byte)
+		service         *authMock.Service // service to mock
+		serviceFuncResp func(*authMock.Service, []byte)
 		request         request
 		want            wantResp
 	}{
 		{
 			name:    "Normal request",
-			service: &auth.MockService{},
-			serviceFuncResp: func(mc *auth.MockService, items []byte) {
+			service: &authMock.Service{},
+			serviceFuncResp: func(mc *authMock.Service, items []byte) {
 				mc.On("Login",
 					mock.Anything,
 				).Return("qwerty.qwerty.qwerty", nil)
 			},
 			request: request{
 				endpoint: "/login",
-				method:   "GET",
+				method:   "POST",
 				body: func() []byte {
 					user := model.User{
 						Name:     "Bob",
@@ -69,15 +69,15 @@ func TestUserTokenGen(t *testing.T) {
 		},
 		{
 			name:    "Wirhout user data",
-			service: &auth.MockService{},
-			serviceFuncResp: func(mc *auth.MockService, items []byte) {
+			service: &authMock.Service{},
+			serviceFuncResp: func(mc *authMock.Service, items []byte) {
 				mc.On("Login",
 					mock.Anything,
 				).Return("", er.WrongPassword)
 			},
 			request: request{
 				endpoint: "/login",
-				method:   "GET",
+				method:   "POST",
 				body: func() []byte {
 					res, _ := json.Marshal(nil)
 					return res
@@ -94,15 +94,15 @@ func TestUserTokenGen(t *testing.T) {
 		},
 		{
 			name:    "Without user password",
-			service: &auth.MockService{},
-			serviceFuncResp: func(mc *auth.MockService, items []byte) {
+			service: &authMock.Service{},
+			serviceFuncResp: func(mc *authMock.Service, items []byte) {
 				mc.On("Login",
 					mock.Anything,
 				).Return("", er.WrongPassword)
 			},
 			request: request{
 				endpoint: "/login",
-				method:   "GET",
+				method:   "POST",
 				body: func() []byte {
 					user := model.User{
 						Name: "Bob",
@@ -180,15 +180,15 @@ func TestGetCertificateKey(t *testing.T) {
 
 	testCases := []struct {
 		name            string
-		service         *auth.MockService // service to mock
-		serviceFuncResp func(*auth.MockService)
+		service         *authMock.Service // service to mock
+		serviceFuncResp func(*authMock.Service)
 		request         request
 		want            wantResp
 	}{
 		{
 			name:    "Normal request",
-			service: &auth.MockService{},
-			serviceFuncResp: func(mc *auth.MockService) {
+			service: &authMock.Service{},
+			serviceFuncResp: func(mc *authMock.Service) {
 				mc.On("GetCert",
 					mock.Anything,
 				).Return([]byte("qwerty.qwerty.qwerty"), nil)
@@ -204,8 +204,8 @@ func TestGetCertificateKey(t *testing.T) {
 		},
 		{
 			name:    "Internal error",
-			service: &auth.MockService{},
-			serviceFuncResp: func(mc *auth.MockService) {
+			service: &authMock.Service{},
+			serviceFuncResp: func(mc *authMock.Service) {
 				mc.On("GetCert",
 					mock.Anything,
 				).Return([]byte{}, er.WrongPassword)

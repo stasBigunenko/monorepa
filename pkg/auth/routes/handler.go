@@ -28,7 +28,7 @@ func New(ctx context.Context, router *mux.Router) *HandlerItemsServ {
 }
 
 func (h *HandlerItemsServ) HandlerItems() {
-	h.router.HandleFunc("/login", h.GetJWTToken).Methods("GET")
+	h.router.HandleFunc("/login", h.GetJWTToken).Methods("POST")
 	h.router.HandleFunc("/get-cert/{version}", h.GetCertKey).Methods("GET")
 }
 
@@ -89,6 +89,4 @@ func (h *HandlerItemsServ) GetCertKey(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
 }

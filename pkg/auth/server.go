@@ -3,11 +3,12 @@ package auth
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/stasBigunenko/monorepa/pkg/auth/middleware"
 	"github.com/stasBigunenko/monorepa/pkg/auth/routes"
@@ -77,7 +78,7 @@ func (s *Server) Start(ctx context.Context) error {
 		}
 	}()
 
-	fmt.Println("Server is running on: " + s.getHTTPAddress())
+	log.Info("Server is running on: " + s.getHTTPAddress())
 
 	<-ctx.Done() // wait end of work
 
@@ -85,7 +86,7 @@ func (s *Server) Start(ctx context.Context) error {
 	 * start graceful shutdown
 	 */
 
-	log.Println("Server stopped")
+	log.Warn("Server stopped")
 
 	ctxShutDown, cancel := context.WithTimeout(context.Background(), time.Duration(cancelTimeout)*time.Second)
 	defer cancel()
@@ -94,6 +95,6 @@ func (s *Server) Start(ctx context.Context) error {
 		return err
 	}
 
-	log.Printf("Server exited properly")
+	log.Warn("Server exited properly")
 	return nil
 }
