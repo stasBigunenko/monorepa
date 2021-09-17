@@ -14,7 +14,7 @@ import (
 	"github.com/stasBigunenko/monorepa/pkg/auth/routes"
 
 	"github.com/gorilla/mux"
-	er "github.com/stasBigunenko/monorepa/errors"
+	er "github.com/stasBigunenko/monorepa/customErrors"
 )
 
 type Server struct {

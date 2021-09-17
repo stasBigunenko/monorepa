@@ -6,7 +6,7 @@ import (
 	"errors"
 	"net/http"
 
-	er "github.com/stasBigunenko/monorepa/errors"
+	er "github.com/stasBigunenko/monorepa/customErrors"
 	"github.com/stasBigunenko/monorepa/model"
 	"github.com/stasBigunenko/monorepa/service/auth"
 

@@ -1,4 +1,4 @@
-package errors
+package customErrors
 
 const (
 	WrongPassword UserValidationError = "wrong password"

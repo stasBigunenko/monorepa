@@ -1,4 +1,4 @@
-package errors
+package customErrors
 
 const (
 	WrongPort ServerError = "wrong port"
