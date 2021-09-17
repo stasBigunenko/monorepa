@@ -23,14 +23,14 @@ type tokenResp struct {
 	PbKey []byte `json:"publicKey"`
 }
 
-func (s HTTPService) ParseToken(tokenHeader string) error {
+func (s HTTPService) ParseToken(tokenHeader string) (string, error) {
 	splitted := strings.Split(tokenHeader, " ")
 	if len(splitted) != 2 {
-		return fmt.Errorf("malformed auth token, could not split two parts")
+		return "", fmt.Errorf("malformed auth token, could not split two parts")
 	}
 
 	if splitted[0] != "bearer" {
-		return fmt.Errorf("malformed auth token, the first part is not bearer")
+		return "", fmt.Errorf("malformed auth token, the first part is not bearer")
 	}
 
 	tokenPart := splitted[1]
@@ -72,12 +72,17 @@ func (s HTTPService) ParseToken(tokenHeader string) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("failed to parse token: %w", err)
+		return "", fmt.Errorf("failed to parse token: %w", err)
 	}
 
 	if !token.Valid {
-		return fmt.Errorf("token is not valid: %w", err)
+		return "", fmt.Errorf("token is not valid: %w", err)
 	}
 
-	return nil
+	claims, ok := token.Claims.(*jwtservice.UserClaims)
+	if !ok {
+		return "", fmt.Errorf("wrong format of claims")
+	}
+
+	return claims.Name, nil
 }

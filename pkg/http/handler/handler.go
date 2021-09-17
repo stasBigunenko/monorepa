@@ -1,8 +1,9 @@
 package httphandler
 
 import (
+	"context"
 	"encoding/json"
-	"io/ioutil"
+	"errors"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -19,8 +20,14 @@ type ItemsGrpcService interface {
 }
 
 type TokenService interface {
-	ParseToken(tokenPart string) error
+	ParseToken(tokenPart string) (string, error)
 }
+
+type key int
+
+const (
+	nameKey key = iota
+)
 
 type HTTPHandler struct {
 	ItemsService   ItemsGrpcService
@@ -70,20 +77,14 @@ func (h HTTPHandler) GetRouter() *mux.Router {
 
 // Returns the list of items
 func (h HTTPHandler) ListItems(w http.ResponseWriter, req *http.Request) {
-	p, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+	name := req.Context().Value(nameKey)
+	nameStr, ok := name.(string)
+	if !ok {
+		h.reportError(w, http.StatusInternalServerError, errors.New("failed to convert name to string"))
 		return
 	}
 
-	var person Person
-
-	if err = json.Unmarshal(p, &person); err != nil {
-		h.reportError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	items, err := h.ItemsService.GetItems(person.Name)
+	items, err := h.ItemsService.GetItems(nameStr)
 	if err != nil {
 		h.reportError(w, http.StatusInternalServerError, err)
 		return
@@ -109,11 +110,13 @@ func (h HTTPHandler) authMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		if err := h.TokenService.ParseToken(tokenHeader); err != nil {
+		name, err := h.TokenService.ParseToken(tokenHeader)
+		if err != nil {
 			h.reportError(w, http.StatusInternalServerError, err)
 			return
 		}
 
-		next.ServeHTTP(w, req)
+		ctx := context.WithValue(req.Context(), nameKey, name)
+		next.ServeHTTP(w, req.WithContext(ctx))
 	})
 }
