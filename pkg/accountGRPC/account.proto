@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package accountGRPC;
+option go_package = "github.com/stasBigunenko/monorepa/pkg/account/proto";
+
+import "google/protobuf/empty.proto";
+
+service UserGRPCService {
+  rpc Get(User_id) returns (Accounts) {}
+  rpc Create(User_id) returns (Obj) {}
+  rpc Update(Balance) returns (Balance) {}
+  rpc Delete(User_id) returns (google.protobuf.Empty) {}
+}
+
+message Obj {
+  string id = 1;
+  string user_id = 2;
+  string balance = 3;
+}
+
+message User_id {
+  string user_id = 1;
+}
+
+message Balance {
+  string id = 1;
+  string balance = 2;
+}
+
+message Accounts {
+  repeated Balance accounts = 1;
+}

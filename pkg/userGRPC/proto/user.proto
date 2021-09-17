@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package userGRPC;
+option go_package = "github.com/stasBigunenko/monorepa/pkg/userGRPC/proto";
+
+import "google/protobuf/empty.proto";
+
+service UserGRPCService {
+  rpc Get(Id) returns (Obj) {}
+  rpc Create(Name) returns (Obj) {}
+  rpc Update(Obj) returns (Obj) {}
+  rpc Delete(Id) returns (google.protobuf.Empty) {}
+}
+
+message Obj {
+  string id = 1;
+  string name = 2;
+}
+
+message Name {
+  string name = 1;
+}
+
+message Id {
+  string id = 1;
+}
