@@ -6,27 +6,32 @@ option go_package = "github.com/stasBigunenko/monorepa/pkg/account/proto";
 import "google/protobuf/empty.proto";
 
 service AccountGRPCService {
-  rpc Get(User_id) returns (Accounts) {}
-  rpc Create(User_id) returns (Obj) {}
-  rpc Update(Balance) returns (Balance) {}
-  rpc Delete(User_id) returns (google.protobuf.Empty) {}
+  rpc GetAccount (AccountID) returns (Account) {}
+  rpc GetUserAccounts (UserID) returns (AllAccounts) {}
+  rpc CreateAccount (UserID) returns (UserAccount) {}
+  rpc UpdateAccount (Account) returns (Account) {}
+  rpc DeleteAccount (AccountID) returns (google.protobuf.Empty) {}
 }
 
-message Obj {
+message UserAccount {
   string id = 1;
-  string user_id = 2;
+  string userID = 2;
   string balance = 3;
 }
 
-message User_id {
-  string user_id = 1;
+message UserID {
+  string userID = 1;
 }
 
-message Balance {
+message AccountID {
+  string id = 1;
+}
+
+message Account {
   string id = 1;
   string balance = 2;
 }
 
-message Accounts {
-  repeated Balance accounts = 1;
+message AllAccounts {
+  repeated Account accounts = 1;
 }

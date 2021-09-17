@@ -6,13 +6,14 @@ option go_package = "github.com/stasBigunenko/monorepa/pkg/userGRPC/proto";
 import "google/protobuf/empty.proto";
 
 service UserGRPCService {
-  rpc Get(Id) returns (Obj) {}
-  rpc Create(Name) returns (Obj) {}
-  rpc Update(Obj) returns (Obj) {}
+  rpc Get(Id) returns (User) {}
+  rpc GetAllUsers(google.protobuf.Empty) returns (AllUsers) {}
+  rpc Create(Name) returns (User) {}
+  rpc Update(User) returns (User) {}
   rpc Delete(Id) returns (google.protobuf.Empty) {}
 }
 
-message Obj {
+message User {
   string id = 1;
   string name = 2;
 }
@@ -23,4 +24,8 @@ message Name {
 
 message Id {
   string id = 1;
+}
+
+message AllUsers {
+  repeated User allUsers = 1;
 }
