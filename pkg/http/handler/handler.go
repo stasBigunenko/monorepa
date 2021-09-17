@@ -3,6 +3,7 @@ package httphandler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
@@ -76,8 +77,13 @@ func (h HTTPHandler) GetRouter() *mux.Router {
 // Returns the list of items
 func (h HTTPHandler) ListItems(w http.ResponseWriter, req *http.Request) {
 	name := req.Context().Value(nameKey)
+	nameStr, ok := name.(string)
+	if !ok {
+		h.reportError(w, http.StatusInternalServerError, errors.New("failed to convert name to string"))
+		return
+	}
 
-	items, err := h.ItemsService.GetItems(name.(string))
+	items, err := h.ItemsService.GetItems(nameStr)
 	if err != nil {
 		h.reportError(w, http.StatusInternalServerError, err)
 		return
