@@ -48,7 +48,7 @@ func TestUserTokenGen(t *testing.T) {
 			},
 			request: request{
 				endpoint: "/login",
-				method:   "GET",
+				method:   "POST",
 				body: func() []byte {
 					user := model.User{
 						Name:     "Bob",
@@ -77,7 +77,7 @@ func TestUserTokenGen(t *testing.T) {
 			},
 			request: request{
 				endpoint: "/login",
-				method:   "GET",
+				method:   "POST",
 				body: func() []byte {
 					res, _ := json.Marshal(nil)
 					return res
@@ -102,7 +102,7 @@ func TestUserTokenGen(t *testing.T) {
 			},
 			request: request{
 				endpoint: "/login",
-				method:   "GET",
+				method:   "POST",
 				body: func() []byte {
 					user := model.User{
 						Name: "Bob",
