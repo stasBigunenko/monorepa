@@ -25,7 +25,7 @@ message AccountID {
 message Account {
   string id = 1;
   string userID = 2;
-  string balance = 3;
+  int32 balance = 3;
 }
 
 message AllAccounts {
