@@ -5,7 +5,7 @@ option go_package = "github.com/stasBigunenko/monorepa/pkg/account/proto";
 
 import "google/protobuf/empty.proto";
 
-service UserGRPCService {
+service AccountGRPCService {
   rpc Get(User_id) returns (Accounts) {}
   rpc Create(User_id) returns (Obj) {}
   rpc Update(Balance) returns (Balance) {}
