@@ -8,15 +8,10 @@ import "google/protobuf/empty.proto";
 service AccountGRPCService {
   rpc GetAccount (AccountID) returns (Account) {}
   rpc GetUserAccounts (UserID) returns (AllAccounts) {}
-  rpc CreateAccount (UserID) returns (UserAccount) {}
+  rpc GetAllUsers (google.protobuf.Empty) returns (AllAccounts) {}
+  rpc CreateAccount (UserID) returns (Account) {}
   rpc UpdateAccount (Account) returns (Account) {}
   rpc DeleteAccount (AccountID) returns (google.protobuf.Empty) {}
-}
-
-message UserAccount {
-  string id = 1;
-  string userID = 2;
-  string balance = 3;
 }
 
 message UserID {
@@ -29,7 +24,8 @@ message AccountID {
 
 message Account {
   string id = 1;
-  string balance = 2;
+  string userID = 2;
+  string balance = 3;
 }
 
 message AllAccounts {
