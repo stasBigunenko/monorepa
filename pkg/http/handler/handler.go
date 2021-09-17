@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/stasBigunenko/monorepa/model"
@@ -15,8 +16,21 @@ import (
 	tokenservice "github.com/stasBigunenko/monorepa/service/http"
 )
 
-type ItemsGrpcService interface {
-	GetItems(name string) ([]model.Item, error)
+type AccountGrpcService interface {
+	CreateAccount(userID uuid.UUID) (uuid.UUID, error)
+	GetAccount(id uuid.UUID) (model.Account, error)
+	GetUserAccounts(userID uuid.UUID) ([]model.Account, error)
+	GetAllAccounts() ([]model.Account, error)
+	UpdateAccount(account model.Account) error
+	DeleteAccount(id uuid.UUID) error
+}
+
+type UserGrpcService interface {
+	CreateUser(name string) (uuid.UUID, error)
+	GetUser(id uuid.UUID) (model.UserHTTP, error)
+	GetAllUsers() ([]model.UserHTTP, error)
+	UpdateUser(user model.UserHTTP) error
+	DeleteUser(id uuid.UUID) error
 }
 
 type TokenService interface {
@@ -30,14 +44,16 @@ const (
 )
 
 type HTTPHandler struct {
-	ItemsService   ItemsGrpcService
-	TokenService   TokenService
-	JwtServiceAddr string
+	AccountsService AccountGrpcService
+	UsersService    UserGrpcService
+	TokenService    TokenService
+	JwtServiceAddr  string
 }
 
-func New(service ItemsGrpcService, addr string) HTTPHandler {
+func New(accountService AccountGrpcService, userService UserGrpcService, addr string) HTTPHandler {
 	return HTTPHandler{
-		ItemsService: service,
+		AccountsService: accountService,
+		UsersService:    userService,
 		TokenService: tokenservice.HTTPService{
 			JwtServiceAddr: addr,
 		},
@@ -69,19 +85,18 @@ func (h HTTPHandler) reportError(w http.ResponseWriter, status int, err error) {
 func (h HTTPHandler) GetRouter() *mux.Router {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/items", h.ListItems).Methods("GET")
-
 	router.HandleFunc("/users", h.AddUser).Methods("POST")
 	router.HandleFunc("/users/{id}", h.GetUser).Methods("GET")
+	router.HandleFunc("/users", h.ListUsers).Methods("GET")
 	router.HandleFunc("/users/{id}", h.UpdateUser).Methods("PUT")
 	router.HandleFunc("/users/{id}", h.DeleteUser).Methods("DELETE")
-	router.HandleFunc("/users", h.ListUsers).Methods("GET")
 
 	router.HandleFunc("/accounts", h.AddAccount).Methods("POST")
 	router.HandleFunc("/accounts/{id}", h.GetAccount).Methods("GET")
 	router.HandleFunc("/accounts/{id}", h.UpdateAccount).Methods("PUT")
 	router.HandleFunc("/accounts/{id}", h.DeleteAccount).Methods("DELETE")
 	router.HandleFunc("/accounts", h.ListAccounts).Methods("GET")
+	//	router.HandleFunc("/accounts", h.UserAccounts).Methods("GET")
 
 	router.Use(h.authMiddleware)
 
@@ -105,29 +120,6 @@ func (h HTTPHandler) DeleteUser(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h HTTPHandler) ListUsers(w http.ResponseWriter, req *http.Request) {
-}
-
-// ******** //
-// Accounts //
-// ******** //
-
-func (h HTTPHandler) AddAccount(w http.ResponseWriter, req *http.Request) {
-}
-
-func (h HTTPHandler) GetAccount(w http.ResponseWriter, req *http.Request) {
-}
-
-func (h HTTPHandler) UpdateAccount(w http.ResponseWriter, req *http.Request) {
-}
-
-func (h HTTPHandler) DeleteAccount(w http.ResponseWriter, req *http.Request) {
-}
-
-func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
-}
-
-// Returns the list of items
-func (h HTTPHandler) ListItems(w http.ResponseWriter, req *http.Request) {
 	name := req.Context().Value(nameKey)
 	nameStr, ok := name.(string)
 	if !ok {
@@ -149,6 +141,26 @@ func (h HTTPHandler) ListItems(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(res) //nolint:errcheck
+
+}
+
+// ******** //
+// Accounts //
+// ******** //
+
+func (h HTTPHandler) AddAccount(w http.ResponseWriter, req *http.Request) {
+}
+
+func (h HTTPHandler) GetAccount(w http.ResponseWriter, req *http.Request) {
+}
+
+func (h HTTPHandler) UpdateAccount(w http.ResponseWriter, req *http.Request) {
+}
+
+func (h HTTPHandler) DeleteAccount(w http.ResponseWriter, req *http.Request) {
+}
+
+func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h HTTPHandler) authMiddleware(next http.Handler) http.Handler {
