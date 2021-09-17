@@ -1,7 +1,7 @@
 package auth
 
 import (
-	er "github.com/stasBigunenko/monorepa/errors"
+	er "github.com/stasBigunenko/monorepa/customErrors"
 	"github.com/stasBigunenko/monorepa/model"
 	"github.com/stasBigunenko/monorepa/service/auth/jwt"
 )

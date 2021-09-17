@@ -12,7 +12,7 @@ import (
 	"github.com/stasBigunenko/monorepa/model"
 
 	"github.com/gorilla/mux"
-	er "github.com/stasBigunenko/monorepa/errors"
+	er "github.com/stasBigunenko/monorepa/customErrors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
