@@ -1,0 +1,11 @@
+- add json logging + request id in logs
+- use incoming and outgoing context for grpc (save request id here)
+- folder mock for mocks
+- one more GRPC service with whatever logic. HTTP makes aggregation from both, merge and give to client
+- CRUD in http, grpc (create and send to 2 services - one holds 2 fields and another - 3)
+- UserService (profile), AccountService (accout - balance)
+- change login to post, add UI for login and password, another UI to work with a cretain item
+
+MORE
+- agg grpaphQL
+
