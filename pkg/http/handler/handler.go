@@ -3,7 +3,6 @@ package httphandler
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -92,11 +91,12 @@ func (h HTTPHandler) GetRouter() *mux.Router {
 	router.HandleFunc("/users/{id}", h.DeleteUser).Methods("DELETE")
 
 	router.HandleFunc("/accounts", h.AddAccount).Methods("POST")
+	router.HandleFunc("/accounts/me", h.MyAccounts).Methods("GET")
 	router.HandleFunc("/accounts/{id}", h.GetAccount).Methods("GET")
 	router.HandleFunc("/accounts/{id}", h.UpdateAccount).Methods("PUT")
 	router.HandleFunc("/accounts/{id}", h.DeleteAccount).Methods("DELETE")
-	router.HandleFunc("/accounts", h.ListAccounts).Methods("GET")
-	//	router.HandleFunc("/accounts", h.UserAccounts).Methods("GET")
+	router.HandleFunc("/accounts", h.ListAccounts).Methods("GET") //--userid =
+	//router.HandleFunc("/accounts/{userid}", h.UserAccounts).Methods("GET")
 
 	router.Use(h.authMiddleware)
 
@@ -120,14 +120,14 @@ func (h HTTPHandler) DeleteUser(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h HTTPHandler) ListUsers(w http.ResponseWriter, req *http.Request) {
-	name := req.Context().Value(nameKey)
-	nameStr, ok := name.(string)
-	if !ok {
-		h.reportError(w, http.StatusInternalServerError, errors.New("failed to convert name to string"))
-		return
-	}
+	// name := req.Context().Value(nameKey)
+	// nameStr, ok := name.(string)
+	// if !ok {
+	// 	h.reportError(w, http.StatusInternalServerError, errors.New("failed to convert name to string"))
+	// 	return
+	// }
 
-	items, err := h.ItemsService.GetItems(nameStr)
+	items, err := h.UsersService.GetAllUsers()
 	if err != nil {
 		h.reportError(w, http.StatusInternalServerError, err)
 		return
