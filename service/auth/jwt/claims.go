@@ -3,14 +3,10 @@ package jwt
 import (
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/stasBigunenko/monorepa/model"
 )
 
-type UserClaims struct {
-	Name       string `json:"name"`
-	KeyVersion string `json:"keyVersion"`
-	jwt.StandardClaims
-}
+type UserClaims model.JWTUserClaims
 
 func (cl *UserClaims) addExpTime(duration int) {
 	cl.ExpiresAt = time.Now().Add(time.Duration(duration) * time.Minute).Unix()
