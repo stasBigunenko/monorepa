@@ -70,6 +70,19 @@ func (h HTTPHandler) GetRouter() *mux.Router {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/items", h.ListItems).Methods("GET")
+
+	router.HandleFunc("/users", h.AddUser).Methods("POST")
+	router.HandleFunc("/users/{id}", h.GetUser).Methods("GET")
+	router.HandleFunc("/users/{id}", h.UpdateUser).Methods("PUT")
+	router.HandleFunc("/users/{id}", h.DeleteUser).Methods("DELETE")
+	router.HandleFunc("/users", h.ListUsers).Methods("GET")
+
+	router.HandleFunc("/accounts", h.AddAccount).Methods("POST")
+	router.HandleFunc("/accounts/{id}", h.GetAccount).Methods("GET")
+	router.HandleFunc("/accounts/{id}", h.UpdateAccount).Methods("PUT")
+	router.HandleFunc("/accounts/{id}", h.DeleteAccount).Methods("DELETE")
+	router.HandleFunc("/accounts", h.ListAccounts).Methods("GET")
+
 	router.Use(h.authMiddleware)
 
 	return router
@@ -78,6 +91,40 @@ func (h HTTPHandler) GetRouter() *mux.Router {
 // ***** //
 // Users //
 // ***** //
+
+func (h HTTPHandler) AddUser(w http.ResponseWriter, req *http.Request) {
+}
+
+func (h HTTPHandler) GetUser(w http.ResponseWriter, req *http.Request) {
+}
+
+func (h HTTPHandler) UpdateUser(w http.ResponseWriter, req *http.Request) {
+}
+
+func (h HTTPHandler) DeleteUser(w http.ResponseWriter, req *http.Request) {
+}
+
+func (h HTTPHandler) ListUsers(w http.ResponseWriter, req *http.Request) {
+}
+
+// ******** //
+// Accounts //
+// ******** //
+
+func (h HTTPHandler) AddAccount(w http.ResponseWriter, req *http.Request) {
+}
+
+func (h HTTPHandler) GetAccount(w http.ResponseWriter, req *http.Request) {
+}
+
+func (h HTTPHandler) UpdateAccount(w http.ResponseWriter, req *http.Request) {
+}
+
+func (h HTTPHandler) DeleteAccount(w http.ResponseWriter, req *http.Request) {
+}
+
+func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
+}
 
 // Returns the list of items
 func (h HTTPHandler) ListItems(w http.ResponseWriter, req *http.Request) {
