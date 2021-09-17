@@ -75,6 +75,10 @@ func (h HTTPHandler) GetRouter() *mux.Router {
 	return router
 }
 
+// ***** //
+// Users //
+// ***** //
+
 // Returns the list of items
 func (h HTTPHandler) ListItems(w http.ResponseWriter, req *http.Request) {
 	name := req.Context().Value(nameKey)
