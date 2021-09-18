@@ -3,6 +3,8 @@ package httphandler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -91,12 +93,14 @@ func (h HTTPHandler) GetRouter() *mux.Router {
 	router.HandleFunc("/users/{id}", h.DeleteUser).Methods("DELETE")
 
 	router.HandleFunc("/accounts", h.AddAccount).Methods("POST")
-	router.HandleFunc("/accounts/me", h.MyAccounts).Methods("GET")
 	router.HandleFunc("/accounts/{id}", h.GetAccount).Methods("GET")
 	router.HandleFunc("/accounts/{id}", h.UpdateAccount).Methods("PUT")
 	router.HandleFunc("/accounts/{id}", h.DeleteAccount).Methods("DELETE")
-	router.HandleFunc("/accounts", h.ListAccounts).Methods("GET") //--userid =
-	//router.HandleFunc("/accounts/{userid}", h.UserAccounts).Methods("GET")
+	router.HandleFunc("/accounts", h.ListAccounts).Methods("GET")
+
+	// TODO: router.HandleFunc("/accounts/me", h.MyAccounts).Methods("GET")
+	// TODO: /accounts add param --userid =
+	// TODO: get user with all her accounts (aggregation query)
 
 	router.Use(h.authMiddleware)
 
@@ -108,32 +112,121 @@ func (h HTTPHandler) GetRouter() *mux.Router {
 // ***** //
 
 func (h HTTPHandler) AddUser(w http.ResponseWriter, req *http.Request) {
-}
+	log.Info("Command AddUSer received...")
 
-func (h HTTPHandler) GetUser(w http.ResponseWriter, req *http.Request) {
-}
+	name, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
 
-func (h HTTPHandler) UpdateUser(w http.ResponseWriter, req *http.Request) {
-}
+	var user model.UserHTTP
+	if err = json.Unmarshal(name, &user); err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
 
-func (h HTTPHandler) DeleteUser(w http.ResponseWriter, req *http.Request) {
-}
-
-func (h HTTPHandler) ListUsers(w http.ResponseWriter, req *http.Request) {
-	// name := req.Context().Value(nameKey)
-	// nameStr, ok := name.(string)
-	// if !ok {
-	// 	h.reportError(w, http.StatusInternalServerError, errors.New("failed to convert name to string"))
-	// 	return
-	// }
-
-	items, err := h.UsersService.GetAllUsers()
+	accountID, err := h.UsersService.CreateUser(user.Name)
 	if err != nil {
 		h.reportError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	res, err := json.Marshal(items)
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Location", fmt.Sprintf("/accounts/%d", accountID))
+	w.WriteHeader(http.StatusCreated)
+
+}
+
+func (h HTTPHandler) GetUser(w http.ResponseWriter, req *http.Request) {
+	log.Info("Command GetUser received...")
+
+	vars := mux.Vars(req)
+	id, err := uuid.Parse(vars["id"])
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	user, err := h.UsersService.GetUser(id)
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	u, err := json.Marshal(user)
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(u) //nolint:errcheck
+
+}
+
+func (h HTTPHandler) UpdateUser(w http.ResponseWriter, req *http.Request) {
+	log.Info("Command UpdateUser received")
+
+	vars := mux.Vars(req)
+	id, err := uuid.Parse(vars["id"])
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	p, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	user := model.UserHTTP{}
+	if err = json.Unmarshal(p, &user); err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	user.ID = id
+
+	err = h.UsersService.UpdateUser(user)
+	if err != nil {
+		h.reportError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h HTTPHandler) DeleteUser(w http.ResponseWriter, req *http.Request) {
+	log.Info("Command DeleteUser received...")
+
+	vars := mux.Vars(req)
+	id, err := uuid.Parse(vars["id"])
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := h.UsersService.DeleteUser(id); err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h HTTPHandler) ListUsers(w http.ResponseWriter, req *http.Request) {
+	log.Info("Command ListUsers received...")
+
+	users, err := h.UsersService.GetAllUsers()
+	if err != nil {
+		h.reportError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	res, err := json.Marshal(users)
 	if err != nil {
 		h.reportError(w, http.StatusInternalServerError, err)
 		return
@@ -141,7 +234,6 @@ func (h HTTPHandler) ListUsers(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(res) //nolint:errcheck
-
 }
 
 // ******** //
@@ -149,18 +241,127 @@ func (h HTTPHandler) ListUsers(w http.ResponseWriter, req *http.Request) {
 // ******** //
 
 func (h HTTPHandler) AddAccount(w http.ResponseWriter, req *http.Request) {
+	log.Info("Command AddAccount received...")
+
+	userID, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	var account model.Account
+	if err = json.Unmarshal(userID, &account); err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	accountID, err := h.AccountsService.CreateAccount(account.UserID)
+	if err != nil {
+		h.reportError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Location", fmt.Sprintf("/accounts/%d", accountID))
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (h HTTPHandler) GetAccount(w http.ResponseWriter, req *http.Request) {
+	log.Info("Command GetAccount received...")
+
+	vars := mux.Vars(req)
+	id, err := uuid.Parse(vars["id"])
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	account, err := h.AccountsService.GetAccount(id)
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	a, err := json.Marshal(account)
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(a) //nolint:errcheck
 }
 
 func (h HTTPHandler) UpdateAccount(w http.ResponseWriter, req *http.Request) {
+	log.Info("Command UpdateAccount received...")
+
+	vars := mux.Vars(req)
+	id, err := uuid.Parse(vars["id"])
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	p, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	account := model.Account{}
+	if err = json.Unmarshal(p, &account); err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	account.ID = id
+
+	err = h.AccountsService.UpdateAccount(account)
+	if err != nil {
+		h.reportError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h HTTPHandler) DeleteAccount(w http.ResponseWriter, req *http.Request) {
+	log.Info("Command DeleteAccount received...")
+
+	vars := mux.Vars(req)
+	id, err := uuid.Parse(vars["id"])
+	if err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := h.AccountsService.DeleteAccount(id); err != nil {
+		h.reportError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
+	log.Info("Command ListAccount received...")
+
+	accounts, err := h.AccountsService.GetAllAccounts()
+
+	if err != nil {
+		h.reportError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	res, err := json.Marshal(accounts)
+	if err != nil {
+		h.reportError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(res) //nolint:errcheck
 }
 
 func (h HTTPHandler) authMiddleware(next http.Handler) http.Handler {
