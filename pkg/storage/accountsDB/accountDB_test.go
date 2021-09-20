@@ -112,10 +112,10 @@ func TestModificateAccountDB(t *testing.T) {
 	})
 
 	t.Run("DeleteAccount", func(t *testing.T) {
-		acc.DeleteAccount(context.Background(), account1.ID)
+		err := acc.DeleteAccount(context.Background(), account1.ID)
 		require.Empty(t, model.Account{})
 
-		err := acc.DeleteAccount(context.Background(), account1.ID)
+		err = acc.DeleteAccount(context.Background(), account1.ID)
 		require.Errorf(t, err, "should be not found")
 	})
 }

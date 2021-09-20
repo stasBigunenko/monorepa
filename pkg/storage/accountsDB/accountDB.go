@@ -30,12 +30,12 @@ func (as *AccountStorage) GetAccount(_ context.Context, id uuid.UUID) (model.Acc
 	return val, nil
 }
 
-func (as *AccountStorage) GetUserAccounts(_ context.Context, user_id uuid.UUID) ([]model.Account, error) {
+func (as *AccountStorage) GetUserAccounts(_ context.Context, userID uuid.UUID) ([]model.Account, error) {
 	as.mu.Lock()
 	accounts := []model.Account{}
 
 	for _, account := range as.MapAccount {
-		if user_id == account.UserID {
+		if userID == account.UserID {
 			accounts = append(accounts, account)
 		}
 	}
