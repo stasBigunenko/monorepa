@@ -3,17 +3,17 @@ package httphandler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/stasBigunenko/monorepa/customErrors"
 	"github.com/stasBigunenko/monorepa/model"
-
-	"github.com/gorilla/mux"
-
 	tokenservice "github.com/stasBigunenko/monorepa/service/http"
 )
 
@@ -61,25 +61,33 @@ func New(accountService AccountGrpcService, userService UserGrpcService, addr st
 	}
 }
 
-// if internal server error, we provide err message to log, else to the user
-func (h HTTPHandler) reportError(w http.ResponseWriter, status int, err error) {
-	w.Header().Set("Content-Type", "application/json")
+func (h HTTPHandler) reportError(w http.ResponseWriter, err error) {
+	var status int
+
+	switch {
+	case errors.Is(err, customErrors.UUIDError) || errors.Is(err, customErrors.JSONError) || errors.Is(err, customErrors.AlreadyExists):
+		status = http.StatusBadRequest
+	case errors.Is(err, customErrors.NotFound):
+		status = http.StatusNotFound
+	case errors.Is(err, customErrors.DeadlineExceeded):
+		status = http.StatusGatewayTimeout
+	default:
+		status = http.StatusInternalServerError
+	}
+
+	w.WriteHeader(status)
 
 	if status == http.StatusInternalServerError {
-		w.WriteHeader(http.StatusInternalServerError)
 		log.Error(err)
 		return
 	}
 
-	res, err := json.Marshal(Error{
-		Message: err.Error(),
-	})
-
+	res, err := json.Marshal(err)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(res) //nolint:errcheck
 }
 
@@ -116,19 +124,19 @@ func (h HTTPHandler) AddUser(w http.ResponseWriter, req *http.Request) {
 
 	name, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, err)
 		return
 	}
 
 	var user model.UserHTTP
 	if err = json.Unmarshal(name, &user); err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, err)
 		return
 	}
 
 	accountID, err := h.UsersService.CreateUser(user.Name)
 	if err != nil {
-		h.reportError(w, http.StatusInternalServerError, err)
+		h.reportError(w, err)
 		return
 	}
 
@@ -144,19 +152,19 @@ func (h HTTPHandler) GetUser(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.UUIDError))
 		return
 	}
 
 	user, err := h.UsersService.GetUser(id)
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, err)
 		return
 	}
 
 	u, err := json.Marshal(user)
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.JSONError))
 		return
 	}
 
@@ -171,19 +179,19 @@ func (h HTTPHandler) UpdateUser(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.UUIDError))
 		return
 	}
 
 	p, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, err)
 		return
 	}
 
 	user := model.UserHTTP{}
 	if err = json.Unmarshal(p, &user); err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.JSONError))
 		return
 	}
 
@@ -191,7 +199,7 @@ func (h HTTPHandler) UpdateUser(w http.ResponseWriter, req *http.Request) {
 
 	err = h.UsersService.UpdateUser(user)
 	if err != nil {
-		h.reportError(w, http.StatusInternalServerError, err)
+		h.reportError(w, err)
 		return
 	}
 
@@ -204,12 +212,12 @@ func (h HTTPHandler) DeleteUser(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.UUIDError))
 		return
 	}
 
 	if err := h.UsersService.DeleteUser(id); err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, err)
 		return
 	}
 
@@ -222,13 +230,13 @@ func (h HTTPHandler) ListUsers(w http.ResponseWriter, req *http.Request) {
 
 	users, err := h.UsersService.GetAllUsers()
 	if err != nil {
-		h.reportError(w, http.StatusInternalServerError, err)
+		h.reportError(w, err)
 		return
 	}
 
 	res, err := json.Marshal(users)
 	if err != nil {
-		h.reportError(w, http.StatusInternalServerError, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.JSONError))
 		return
 	}
 
@@ -245,19 +253,19 @@ func (h HTTPHandler) AddAccount(w http.ResponseWriter, req *http.Request) {
 
 	userID, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, err)
 		return
 	}
 
 	var account model.Account
 	if err = json.Unmarshal(userID, &account); err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.JSONError))
 		return
 	}
 
 	accountID, err := h.AccountsService.CreateAccount(account.UserID)
 	if err != nil {
-		h.reportError(w, http.StatusInternalServerError, err)
+		h.reportError(w, err)
 		return
 	}
 
@@ -272,19 +280,19 @@ func (h HTTPHandler) GetAccount(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.UUIDError))
 		return
 	}
 
 	account, err := h.AccountsService.GetAccount(id)
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, err)
 		return
 	}
 
 	a, err := json.Marshal(account)
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.JSONError))
 		return
 	}
 
@@ -298,19 +306,19 @@ func (h HTTPHandler) UpdateAccount(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.UUIDError))
 		return
 	}
 
 	p, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, err)
 		return
 	}
 
 	account := model.Account{}
 	if err = json.Unmarshal(p, &account); err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.JSONError))
 		return
 	}
 
@@ -318,7 +326,7 @@ func (h HTTPHandler) UpdateAccount(w http.ResponseWriter, req *http.Request) {
 
 	err = h.AccountsService.UpdateAccount(account)
 	if err != nil {
-		h.reportError(w, http.StatusInternalServerError, err)
+		h.reportError(w, err)
 		return
 	}
 
@@ -331,12 +339,12 @@ func (h HTTPHandler) DeleteAccount(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
 	if err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.UUIDError))
 		return
 	}
 
 	if err := h.AccountsService.DeleteAccount(id); err != nil {
-		h.reportError(w, http.StatusBadRequest, err)
+		h.reportError(w, err)
 		return
 	}
 
@@ -348,15 +356,14 @@ func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
 	log.Info("Command ListAccount received...")
 
 	accounts, err := h.AccountsService.GetAllAccounts()
-
 	if err != nil {
-		h.reportError(w, http.StatusInternalServerError, err)
+		h.reportError(w, err)
 		return
 	}
 
 	res, err := json.Marshal(accounts)
 	if err != nil {
-		h.reportError(w, http.StatusInternalServerError, err)
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.JSONError))
 		return
 	}
 
@@ -376,7 +383,7 @@ func (h HTTPHandler) authMiddleware(next http.Handler) http.Handler {
 
 		name, err := h.TokenService.ParseToken(tokenHeader)
 		if err != nil {
-			h.reportError(w, http.StatusInternalServerError, err)
+			h.reportError(w, err)
 			return
 		}
 
