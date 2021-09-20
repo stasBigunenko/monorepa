@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	customerrors "github.com/stasBigunenko/monorepa/errors"
+	customerrors "github.com/stasBigunenko/monorepa/customErrors"
 	"github.com/stasBigunenko/monorepa/model"
 	pb "github.com/stasBigunenko/monorepa/pkg/accountGRPC/proto"
 )
@@ -30,15 +30,12 @@ func (s AccountGRPCСontroller) formatError(err error, message string) error {
 		return fmt.Errorf("%s, failed to parse status or not a grpc error type: %w", message, err)
 	}
 
-	if st.Code() == codes.NotFound {
+	switch st.Code() {
+	case codes.NotFound:
 		return fmt.Errorf("%s: %w", message, customerrors.NotFound)
-	}
-
-	if st.Code() == codes.AlreadyExists {
+	case codes.AlreadyExists:
 		return fmt.Errorf("%s: %w", message, customerrors.AlreadyExists)
-	}
-
-	if st.Code() == codes.DeadlineExceeded {
+	case codes.DeadlineExceeded:
 		return fmt.Errorf("%s: %w", message, customerrors.DeadlineExceeded)
 	}
 
