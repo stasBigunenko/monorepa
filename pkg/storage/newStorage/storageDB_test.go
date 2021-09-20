@@ -10,7 +10,7 @@ import (
 )
 
 func TestStorageDB(t *testing.T) {
-	acc := DB()
+	acc := NewDB()
 
 	id1 := uuid.New()
 	userID1 := uuid.New()
@@ -84,7 +84,7 @@ func TestStorageDB(t *testing.T) {
 }
 
 func TestNewStoreModificate(t *testing.T) {
-	acc2 := DB()
+	acc2 := NewDB()
 
 	id1 := uuid.New()
 	userID1 := uuid.New()
