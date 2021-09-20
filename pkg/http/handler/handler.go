@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -355,7 +356,27 @@ func (h HTTPHandler) DeleteAccount(w http.ResponseWriter, req *http.Request) {
 func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
 	log.Info("Command ListAccount received...")
 
-	accounts, err := h.AccountsService.GetAllAccounts()
+	withUser := true
+	p, err := ioutil.ReadAll(req.Body)
+	if err == io.EOF {
+		withUser = false
+	} else if err != nil {
+		h.reportError(w, err)
+		return
+	}
+
+	var accounts []model.Account
+	if withUser {
+		account := model.Account{}
+		if err = json.Unmarshal(p, &account); err != nil {
+			h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.JSONError))
+			return
+		}
+		accounts, err = h.AccountsService.GetUserAccounts(account.UserID)
+	} else {
+		accounts, err = h.AccountsService.GetAllAccounts()
+	}
+
 	if err != nil {
 		h.reportError(w, err)
 		return
