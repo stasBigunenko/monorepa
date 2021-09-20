@@ -106,9 +106,7 @@ func (h HTTPHandler) GetRouter() *mux.Router {
 	router.HandleFunc("/accounts/{id}", h.DeleteAccount).Methods("DELETE")
 	router.HandleFunc("/accounts", h.ListAccounts).Methods("GET")
 
-	// TODO: router.HandleFunc("/accounts/me", h.MyAccounts).Methods("GET")
-	// TODO: /accounts add param --userid =
-	// TODO: get user with all her accounts (aggregation query)
+	router.HandleFunc("/accounts_and_user/{id}", h.GetAggregate).Methods("GET")
 
 	router.Use(h.authMiddleware)
 
@@ -348,17 +346,17 @@ func (h HTTPHandler) DeleteAccount(w http.ResponseWriter, req *http.Request) {
 func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
 	log.Info("Command ListAccount received...")
 
-	withUser := true
+	forUser := true
 	p, err := ioutil.ReadAll(req.Body)
 	if err == io.EOF {
-		withUser = false
+		forUser = false
 	} else if err != nil {
 		h.reportError(w, err)
 		return
 	}
 
 	var accounts []model.Account
-	if withUser {
+	if forUser {
 		account := model.Account{}
 		if err = json.Unmarshal(p, &account); err != nil {
 			h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.JSONError))
@@ -382,6 +380,46 @@ func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
 
 	w.Write(res) //nolint:errcheck
 }
+
+func (h HTTPHandler) GetAggregate(w http.ResponseWriter, req *http.Request) {
+	log.Info("Command GetAggregate received...")
+
+	vars := mux.Vars(req)
+	id, err := uuid.Parse(vars["id"])
+	if err != nil {
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.UUIDError))
+		return
+	}
+
+	accounts, err := h.AccountsService.GetUserAccounts(id)
+	if err != nil {
+		h.reportError(w, err)
+		return
+	}
+
+	user, err := h.UsersService.GetUser(id)
+	if err != nil {
+		h.reportError(w, err)
+		return
+	}
+
+	aggregated := model.UserAndAccounts{
+		User:     user,
+		Accounts: accounts,
+	}
+
+	res, err := json.Marshal(aggregated)
+	if err != nil {
+		h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.JSONError))
+		return
+	}
+
+	w.Write(res) //nolint:errcheck
+}
+
+// ******** //
+// Middleware //
+// ******** //
 
 func (h HTTPHandler) authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
