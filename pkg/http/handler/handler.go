@@ -88,7 +88,6 @@ func (h HTTPHandler) reportError(w http.ResponseWriter, err error) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Write(res) //nolint:errcheck
 }
 
@@ -141,7 +140,6 @@ func (h HTTPHandler) AddUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Location", fmt.Sprintf("/accounts/%d", accountID))
 	w.WriteHeader(http.StatusCreated)
 
@@ -169,7 +167,6 @@ func (h HTTPHandler) GetUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Write(u) //nolint:errcheck
 
 }
@@ -222,7 +219,6 @@ func (h HTTPHandler) DeleteUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -241,7 +237,6 @@ func (h HTTPHandler) ListUsers(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Write(res) //nolint:errcheck
 }
 
@@ -270,7 +265,6 @@ func (h HTTPHandler) AddAccount(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Location", fmt.Sprintf("/accounts/%d", accountID))
 	w.WriteHeader(http.StatusCreated)
 }
@@ -297,7 +291,6 @@ func (h HTTPHandler) GetAccount(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Write(a) //nolint:errcheck
 }
 
@@ -349,7 +342,6 @@ func (h HTTPHandler) DeleteAccount(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -388,7 +380,6 @@ func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Write(res) //nolint:errcheck
 }
 
@@ -407,6 +398,8 @@ func (h HTTPHandler) authMiddleware(next http.Handler) http.Handler {
 			h.reportError(w, err)
 			return
 		}
+
+		w.Header().Set("Content-Type", "application/json")
 
 		ctx := context.WithValue(req.Context(), nameKey, name)
 		next.ServeHTTP(w, req.WithContext(ctx))
