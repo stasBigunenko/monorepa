@@ -52,8 +52,8 @@ type HTTPHandler struct {
 	JwtServiceAddr  string
 }
 
-func New(accountService AccountGrpcService, userService UserGrpcService, addr string) HTTPHandler {
-	return HTTPHandler{
+func New(accountService AccountGrpcService, userService UserGrpcService, addr string) *HTTPHandler {
+	return &HTTPHandler{
 		AccountsService: accountService,
 		UsersService:    userService,
 		TokenService: tokenservice.HTTPService{
