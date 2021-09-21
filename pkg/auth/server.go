@@ -60,9 +60,10 @@ func (s *Server) getHTTPAddress() string {
 
 func (s *Server) Start(ctx context.Context) error {
 	// init server
+
 	server := &http.Server{
 		Addr:         s.getHTTPAddress(),
-		Handler:      middleware.JSONRespHeaders(s.router),
+		Handler:      middleware.JSONRespHeaders(middleware.AccessControlMiddleware(s.router)),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}

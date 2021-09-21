@@ -5,8 +5,9 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"github.com/stasBigunenko/monorepa/model"
 	"testing"
+
+	"github.com/stasBigunenko/monorepa/model"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/stretchr/testify/assert"
