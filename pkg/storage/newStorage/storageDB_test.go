@@ -145,6 +145,12 @@ func TestStorageDB_Update(t *testing.T) {
 			param2: j2,
 			want:   j2,
 		},
+		{
+			name:   "Not forun (error)",
+			param1: uuid.New(),
+			param2: j2,
+			want:   nil,
+		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
