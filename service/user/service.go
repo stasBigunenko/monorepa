@@ -12,18 +12,18 @@ import (
 	"github.com/stasBigunenko/monorepa/model"
 )
 
-type UserService struct {
+type UsrService struct {
 	Us      model.UserHTTP
 	storage newStorage.NewStore
 }
 
-func NewUserService(s newStorage.NewStore) *UserService {
-	return &UserService{
+func NewUsrService(s newStorage.NewStore) *UsrService {
+	return &UsrService{
 		storage: s,
 	}
 }
 
-func (u *UserService) Get(_ context.Context, id uuid.UUID) (model.UserHTTP, error) {
+func (u *UsrService) Get(_ context.Context, id uuid.UUID) (model.UserHTTP, error) {
 
 	res, err := u.storage.Get(context.Background(), id)
 	if res == nil && err == nil || err != nil {
@@ -38,7 +38,7 @@ func (u *UserService) Get(_ context.Context, id uuid.UUID) (model.UserHTTP, erro
 	return u.Us, nil
 }
 
-func (u *UserService) GetAll(_ context.Context) ([]model.UserHTTP, error) {
+func (u *UsrService) GetAll(_ context.Context) ([]model.UserHTTP, error) {
 
 	res, err := u.storage.GetAll(context.Background())
 	if err != nil {
@@ -58,7 +58,7 @@ func (u *UserService) GetAll(_ context.Context) ([]model.UserHTTP, error) {
 	return ac, nil
 }
 
-func (u *UserService) Create(_ context.Context, b string) (model.UserHTTP, error) {
+func (u *UsrService) Create(_ context.Context, b string) (model.UserHTTP, error) {
 
 	for _, r := range b {
 		if !unicode.IsLetter(r) {
@@ -81,13 +81,16 @@ func (u *UserService) Create(_ context.Context, b string) (model.UserHTTP, error
 	}
 
 	err = json.Unmarshal(res, &u.Us)
+	if err != nil {
+		return model.UserHTTP{}, status.Error(codes.Internal, "internal problem")
+	}
 
 	u.Us.ID = id
 
 	return u.Us, nil
 }
 
-func (u *UserService) Update(_ context.Context, user model.UserHTTP) (model.UserHTTP, error) {
+func (u *UsrService) Update(_ context.Context, user model.UserHTTP) (model.UserHTTP, error) {
 	id := user.ID
 
 	bt, err := json.Marshal(user)
@@ -108,9 +111,9 @@ func (u *UserService) Update(_ context.Context, user model.UserHTTP) (model.User
 	return u.Us, nil
 }
 
-func (u *UserService) Delete(_ context.Context, id uuid.UUID) error {
+func (u *UsrService) Delete(_ context.Context, id uuid.UUID) error {
 	b, err := u.storage.Delete(context.Background(), id)
-	if err != nil || b == false {
+	if err != nil || !b {
 		return status.Error(codes.Internal, "not found")
 	}
 
