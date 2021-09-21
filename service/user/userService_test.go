@@ -58,7 +58,7 @@ func Test_Create(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUserService(tc.stor)
+			u := NewUsrService(tc.stor)
 			got, err := u.Create(context.Background(), tc.param)
 			if (err != nil) && status.Code(err) != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -103,7 +103,7 @@ func Test_Get(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUserService(tc.stor)
+			u := NewUsrService(tc.stor)
 			got, err := u.Get(context.Background(), id)
 			if err != nil && status.Code(err) != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -143,7 +143,7 @@ func TestUserService_Delete(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUserService(tc.stor)
+			u := NewUsrService(tc.stor)
 			err := u.Delete(context.Background(), tc.param)
 			if err != nil {
 				assert.Error(t, err)
@@ -186,7 +186,7 @@ func TestUserService_GetAll(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUserService(tc.stor)
+			u := NewUsrService(tc.stor)
 			got, err := u.GetAll(context.Background())
 			if (err != nil) && status.Code(err) != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -231,7 +231,7 @@ func TestUserService_Update(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUserService(tc.stor)
+			u := NewUsrService(tc.stor)
 			got, err := u.Update(context.Background(), m)
 			if (err != nil) && status.Code(err) != tc.wantErr {
 				t.Errorf("SomeLogic error = %v, wantErr %v", err.Error(), tc.wantErr)
