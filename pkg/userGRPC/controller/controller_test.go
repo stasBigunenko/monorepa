@@ -71,7 +71,7 @@ func TestUserGRPCСontroller_CreateUser(t *testing.T) {
 			s := UserGRPCСontroller{
 				client: tt.fields.client,
 			}
-			got, err := s.CreateUser(tt.args.name)
+			got, err := s.CreateUser(tt.args.name, context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("UserGRPCСontroller.CreateUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -142,7 +142,7 @@ func TestUserGRPCСontroller_GetUser(t *testing.T) {
 			s := UserGRPCСontroller{
 				client: tt.fields.client,
 			}
-			got, err := s.GetUser(tt.args.id)
+			got, err := s.GetUser(tt.args.id, context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("UserGRPCСontroller.GetUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -207,7 +207,7 @@ func TestUserGRPCСontroller_GetAllUsers(t *testing.T) {
 			s := UserGRPCСontroller{
 				client: tt.fields.client,
 			}
-			got, err := s.GetAllUsers()
+			got, err := s.GetAllUsers(context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("UserGRPCСontroller.GetAllUsers() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -273,7 +273,7 @@ func TestUserGRPCСontroller_UpdateUser(t *testing.T) {
 			s := UserGRPCСontroller{
 				client: tt.fields.client,
 			}
-			if err := s.UpdateUser(tt.args.user); (err != nil) != tt.wantErr {
+			if err := s.UpdateUser(tt.args.user, context.Background()); (err != nil) != tt.wantErr {
 				t.Errorf("UserGRPCСontroller.UpdateUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -328,7 +328,7 @@ func TestUserGRPCСontroller_DeleteUser(t *testing.T) {
 			s := UserGRPCСontroller{
 				client: tt.fields.client,
 			}
-			if err := s.DeleteUser(tt.args.id); (err != nil) != tt.wantErr {
+			if err := s.DeleteUser(tt.args.id, context.Background()); (err != nil) != tt.wantErr {
 				t.Errorf("UserGRPCСontroller.DeleteUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

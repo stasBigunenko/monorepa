@@ -15,6 +15,7 @@ import (
 	httphandler "github.com/stasBigunenko/monorepa/pkg/http/handler"
 	userscontroller "github.com/stasBigunenko/monorepa/pkg/userGRPC/controller"
 	pbusers "github.com/stasBigunenko/monorepa/pkg/userGRPC/proto"
+	loggingservice "github.com/stasBigunenko/monorepa/service/loggingService"
 )
 
 type Config struct {
@@ -64,10 +65,11 @@ func main() {
 	}
 	defer conn.Close()
 
-	userService := userscontroller.New(pbusers.NewUserGRPCServiceClient(conn))
-	accountService := accountscontroller.New(pbaccounts.NewAccountGRPCServiceClient(conn))
+	loggingService := loggingservice.New()
+	userService := userscontroller.New(pbusers.NewUserGRPCServiceClient(conn), loggingService)
+	accountService := accountscontroller.New(pbaccounts.NewAccountGRPCServiceClient(conn), loggingService)
 
-	h := httphandler.New(accountService, userService, cfg.JWTAddress)
+	h := httphandler.New(accountService, userService, loggingService, cfg.JWTAddress)
 
 	srv := http.Server{
 		Addr:    cfg.HTTPAddress,

@@ -72,7 +72,7 @@ func TestAccountGRPCСontroller_CreateAccount(t *testing.T) {
 			s := AccountGRPCСontroller{
 				client: tt.fields.client,
 			}
-			got, err := s.CreateAccount(tt.args.userID)
+			got, err := s.CreateAccount(tt.args.userID, context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AccountGRPCСontroller.CreateAccount() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -145,7 +145,7 @@ func TestAccountGRPCСontroller_GetAccount(t *testing.T) {
 			s := AccountGRPCСontroller{
 				client: tt.fields.client,
 			}
-			got, err := s.GetAccount(tt.args.id)
+			got, err := s.GetAccount(tt.args.id, context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AccountGRPCСontroller.GetAccount() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -221,7 +221,7 @@ func TestAccountGRPCСontroller_GetUserAccounts(t *testing.T) {
 			s := AccountGRPCСontroller{
 				client: tt.fields.client,
 			}
-			got, err := s.GetUserAccounts(tt.args.id)
+			got, err := s.GetUserAccounts(tt.args.id, context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AccountGRPCСontroller.GetAllAccounts() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -287,7 +287,7 @@ func TestAccountGRPCСontroller_GetAllAccounts(t *testing.T) {
 			s := AccountGRPCСontroller{
 				client: tt.fields.client,
 			}
-			got, err := s.GetAllAccounts()
+			got, err := s.GetAllAccounts(context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AccountGRPCСontroller.GetAllAccounts() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -355,7 +355,7 @@ func TestAccountGRPCСontroller_UpdateAccount(t *testing.T) {
 			s := AccountGRPCСontroller{
 				client: tt.fields.client,
 			}
-			if err := s.UpdateAccount(tt.args.Account); (err != nil) != tt.wantErr {
+			if err := s.UpdateAccount(tt.args.Account, context.Background()); (err != nil) != tt.wantErr {
 				t.Errorf("AccountGRPCСontroller.UpdateAccount() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -410,7 +410,7 @@ func TestAccountGRPCСontroller_DeleteAccount(t *testing.T) {
 			s := AccountGRPCСontroller{
 				client: tt.fields.client,
 			}
-			if err := s.DeleteAccount(tt.args.id); (err != nil) != tt.wantErr {
+			if err := s.DeleteAccount(tt.args.id, context.Background()); (err != nil) != tt.wantErr {
 				t.Errorf("AccountGRPCСontroller.DeleteAccount() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

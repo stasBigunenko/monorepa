@@ -42,7 +42,7 @@ func (s AccountGRPCСontroller) formatError(err error, message string) error {
 	return fmt.Errorf("%s: %s", message, err.Error())
 }
 
-func (s AccountGRPCСontroller) CreateAccount(userID uuid.UUID) (uuid.UUID, error) {
+func (s AccountGRPCСontroller) CreateAccount(userID uuid.UUID, ctx context.Context) (uuid.UUID, error) {
 	resp, err := s.client.CreateAccount(context.Background(), &pb.UserID{
 		UserID: userID.String(),
 	})
@@ -59,7 +59,7 @@ func (s AccountGRPCСontroller) CreateAccount(userID uuid.UUID) (uuid.UUID, erro
 	return id, nil
 }
 
-func (s AccountGRPCСontroller) GetAccount(id uuid.UUID) (model.Account, error) {
+func (s AccountGRPCСontroller) GetAccount(id uuid.UUID, ctx context.Context) (model.Account, error) {
 	resp, err := s.client.GetAccount(context.Background(), &pb.AccountID{
 		Id: id.String(),
 	})
@@ -85,7 +85,7 @@ func (s AccountGRPCСontroller) GetAccount(id uuid.UUID) (model.Account, error) 
 	}, nil
 }
 
-func (s AccountGRPCСontroller) GetUserAccounts(userID uuid.UUID) ([]model.Account, error) {
+func (s AccountGRPCСontroller) GetUserAccounts(userID uuid.UUID, ctx context.Context) ([]model.Account, error) {
 	resp, err := s.client.GetUserAccounts(context.Background(), &pb.UserID{
 		UserID: userID.String(),
 	})
@@ -116,7 +116,7 @@ func (s AccountGRPCСontroller) GetUserAccounts(userID uuid.UUID) ([]model.Accou
 	return accounts, nil
 }
 
-func (s AccountGRPCСontroller) GetAllAccounts() ([]model.Account, error) {
+func (s AccountGRPCСontroller) GetAllAccounts(ctx context.Context) ([]model.Account, error) {
 	resp, err := s.client.GetAllUsers(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		return nil, s.formatError(err, "failed to get all accounts")
@@ -144,7 +144,7 @@ func (s AccountGRPCСontroller) GetAllAccounts() ([]model.Account, error) {
 	return accounts, nil
 }
 
-func (s AccountGRPCСontroller) UpdateAccount(account model.Account) error {
+func (s AccountGRPCСontroller) UpdateAccount(account model.Account, ctx context.Context) error {
 	_, err := s.client.UpdateAccount(context.Background(), &pb.Account{
 		Id:      account.ID.String(),
 		UserID:  account.UserID.String(),
@@ -158,7 +158,7 @@ func (s AccountGRPCСontroller) UpdateAccount(account model.Account) error {
 	return nil
 }
 
-func (s AccountGRPCСontroller) DeleteAccount(id uuid.UUID) error {
+func (s AccountGRPCСontroller) DeleteAccount(id uuid.UUID, ctx context.Context) error {
 	_, err := s.client.DeleteAccount(context.Background(), &pb.AccountID{
 		Id: id.String(),
 	})

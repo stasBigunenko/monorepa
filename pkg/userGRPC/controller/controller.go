@@ -42,7 +42,7 @@ func (s UserGRPCСontroller) formatError(err error, message string) error {
 	return fmt.Errorf("%s: %s", message, err.Error())
 }
 
-func (s UserGRPCСontroller) CreateUser(name string) (uuid.UUID, error) {
+func (s UserGRPCСontroller) CreateUser(name string, ctx context.Context) (uuid.UUID, error) {
 	resp, err := s.client.Create(context.Background(), &pb.Name{
 		Name: name,
 	})
@@ -59,7 +59,7 @@ func (s UserGRPCСontroller) CreateUser(name string) (uuid.UUID, error) {
 	return userID, nil
 }
 
-func (s UserGRPCСontroller) GetUser(id uuid.UUID) (model.UserHTTP, error) {
+func (s UserGRPCСontroller) GetUser(id uuid.UUID, ctx context.Context) (model.UserHTTP, error) {
 	resp, err := s.client.Get(context.Background(), &pb.Id{
 		Id: id.String(),
 	})
@@ -79,7 +79,7 @@ func (s UserGRPCСontroller) GetUser(id uuid.UUID) (model.UserHTTP, error) {
 	}, nil
 }
 
-func (s UserGRPCСontroller) GetAllUsers() ([]model.UserHTTP, error) {
+func (s UserGRPCСontroller) GetAllUsers(ctx context.Context) ([]model.UserHTTP, error) {
 	resp, err := s.client.GetAllUsers(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		return nil, s.formatError(err, "failed to get all users")
@@ -101,7 +101,7 @@ func (s UserGRPCСontroller) GetAllUsers() ([]model.UserHTTP, error) {
 	return users, nil
 }
 
-func (s UserGRPCСontroller) UpdateUser(user model.UserHTTP) error {
+func (s UserGRPCСontroller) UpdateUser(user model.UserHTTP, ctx context.Context) error {
 	_, err := s.client.Update(context.Background(), &pb.User{
 		Id:   user.ID.String(),
 		Name: user.Name,
@@ -114,7 +114,7 @@ func (s UserGRPCСontroller) UpdateUser(user model.UserHTTP) error {
 	return nil
 }
 
-func (s UserGRPCСontroller) DeleteUser(id uuid.UUID) error {
+func (s UserGRPCСontroller) DeleteUser(id uuid.UUID, ctx context.Context) error {
 	_, err := s.client.Delete(context.Background(), &pb.Id{
 		Id: id.String(),
 	})
