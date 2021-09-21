@@ -18,8 +18,8 @@ type AccountGRPCСontroller struct {
 	client pb.AccountGRPCServiceClient
 }
 
-func New(cli pb.AccountGRPCServiceClient) AccountGRPCСontroller {
-	return AccountGRPCСontroller{
+func New(cli pb.AccountGRPCServiceClient) *AccountGRPCСontroller {
+	return &AccountGRPCСontroller{
 		client: cli,
 	}
 }
