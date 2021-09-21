@@ -5,133 +5,183 @@ import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/stasBigunenko/monorepa/model"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
 
-func TestStorageDB(t *testing.T) {
+func TestStorageDB_Get(t *testing.T) {
 	acc := NewDB()
+	id := uuid.New()
+	userID := uuid.New()
+	m := model.Account{ID: id, UserID: userID, Balance: 0}
+	j, _ := json.Marshal(m)
+	acc.Data[id] = j
+	nf := uuid.New()
 
-	id1 := uuid.New()
-	userID1 := uuid.New()
-	account1 := model.Account{
-		ID:      id1,
-		UserID:  userID1,
-		Balance: 3000,
+	tests := []struct {
+		name  string
+		param uuid.UUID
+		want  []byte
+	}{
+		{
+			name:  "Everything ok",
+			param: id,
+			want:  j,
+		},
+		{
+			name:  "not found",
+			param: nf,
+			want:  nil,
+		},
 	}
-	res1, _ := json.Marshal(account1)
-	acc.Data[id1] = res1
-
-	id2 := uuid.New()
-	userID2 := uuid.New()
-	account2 := model.Account{
-		ID:      id2,
-		UserID:  userID2,
-		Balance: 1500,
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got, _ := acc.Get(context.Background(), tc.param)
+			assert.Equal(t, tc.want, got)
+		})
 	}
-	res2, _ := json.Marshal(account2)
-	acc.Data[id2] = res2
-
-	id3 := uuid.New()
-	account3 := model.Account{
-		ID:      id3,
-		UserID:  userID2,
-		Balance: 100,
-	}
-	res3, _ := json.Marshal(account3)
-	acc.Data[id3] = res3
-
-	accountsSet := []model.Account{
-		account2,
-		account3,
-	}
-	resSetUser := [][]byte{}
-	for _, val := range accountsSet {
-		res, _ := json.Marshal(val)
-		resSetUser = append(resSetUser, res)
-	}
-
-	accountsSet2 := []model.Account{
-		account1,
-		account2,
-		account3,
-	}
-	resSetAll := [][]byte{}
-	for _, val := range accountsSet2 {
-		res, _ := json.Marshal(val)
-		resSetAll = append(resSetAll, res)
-	}
-
-	t.Run("Get", func(t *testing.T) {
-		val, _ := acc.Get(context.Background(), id1)
-		require.Equal(t, res1, val, "account should be")
-
-		_, err := acc.Get(context.Background(), uuid.New())
-		require.Empty(t, err)
-	})
-
-	t.Run("GetUser", func(t *testing.T) {
-
-		val, _ := acc.GetUser(context.Background(), userID2)
-		require.Equal(t, resSetUser, val, "should be slice of model.Account with the same userID")
-	})
-
-	t.Run("GetAll", func(t *testing.T) {
-
-		val, _ := acc.GetAll(context.Background())
-		require.Equal(t, resSetAll, val, "cann't show all users")
-	})
 }
 
-func TestNewStoreModificate(t *testing.T) {
-	acc2 := NewDB()
-
-	id1 := uuid.New()
-	userID1 := uuid.New()
-	account1 := model.Account{
-		ID:      id1,
-		UserID:  userID1,
-		Balance: 3000,
+func TestStorageDB_GetUser(t *testing.T) {
+	acc := NewDB()
+	id := uuid.New()
+	userID := uuid.New()
+	m := model.Account{ID: id, UserID: userID, Balance: 0}
+	j, _ := json.Marshal(m)
+	acc.Data[id] = j
+	res := [][]byte{
+		j,
 	}
-	res1, _ := json.Marshal(account1)
-	acc2.Data[id1] = res1
 
-	id2 := uuid.New()
-	userID2 := uuid.New()
-	account2 := model.Account{
-		ID:      id2,
-		UserID:  userID2,
-		Balance: 1500,
+	tests := []struct {
+		name string
+		want [][]byte
+	}{
+		{
+			name: "Everything ok",
+			want: res,
+		},
 	}
-	res2, _ := json.Marshal(account2)
-	acc2.Data[id2] = res2
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got, _ := acc.GetUser(context.Background(), userID)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
 
-	t.Run("Update", func(t *testing.T) {
-		account1.Balance = 20
-		resUpd, _ := json.Marshal(account1)
+func TestStorageDB_GetAll(t *testing.T) {
+	acc := NewDB()
+	id := uuid.New()
+	userID := uuid.New()
+	m := model.Account{ID: id, UserID: userID, Balance: 0}
+	j, _ := json.Marshal(m)
+	acc.Data[id] = j
+	res := [][]byte{
+		j,
+	}
 
-		val, _ := acc2.Update(context.Background(), id1, resUpd)
-		require.Equal(t, resUpd, val, "should update account according id")
+	tests := []struct {
+		name string
+		want [][]byte
+	}{
+		{
+			name: "Everything ok",
+			want: res,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got, _ := acc.GetAll(context.Background())
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
 
-		errUpd := account1
-		errUpd.ID = uuid.New()
-		resErrUpd, _ := json.Marshal(errUpd)
-		_, err := acc2.Update(context.Background(), errUpd.ID, resErrUpd)
-		require.Empty(t, err, "should be nil")
-	})
+func TestStorageDB_Create(t *testing.T) {
+	acc := NewDB()
+	username := "Jim"
+	r, _ := json.Marshal(username)
 
-	t.Run("Delete", func(t *testing.T) {
-		_, err := acc2.Delete(context.Background(), id2)
-		require.Empty(t, err)
+	tests := []struct {
+		name  string
+		param []byte
+		want  [][]byte
+	}{
+		{
+			name:  "Everything ok",
+			param: r,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
 
-		b, _ := acc2.Delete(context.Background(), id2)
-		require.Equal(t, false, b, "should be false")
-	})
+			val, _, _ := acc.Create(context.Background(), tc.param)
+			require.NotNil(t, val, "should be no error")
+		})
+	}
+}
 
-	t.Run("Create", func(t *testing.T) {
-		username := "Jim"
-		r, _ := json.Marshal(username)
-		val, _, _ := acc2.Create(context.Background(), r)
-		require.NotNil(t, val, "should be no error")
-	})
+func TestStorageDB_Update(t *testing.T) {
+	acc := NewDB()
+	id := uuid.New()
+	userID := uuid.New()
+	m := model.Account{ID: id, UserID: userID, Balance: 0}
+	j, _ := json.Marshal(m)
+	acc.Data[id] = j
+	m.Balance = 10
+	j2, _ := json.Marshal(m)
+
+	tests := []struct {
+		name   string
+		param1 uuid.UUID
+		param2 []byte
+		want   []byte
+	}{
+		{
+			name:   "Everything ok",
+			param1: id,
+			param2: j2,
+			want:   j2,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got, _ := acc.Update(context.Background(), tc.param1, tc.param2)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestStorageDB_Delete(t *testing.T) {
+	acc := NewDB()
+	id := uuid.New()
+	userID := uuid.New()
+	m := model.Account{ID: id, UserID: userID, Balance: 0}
+	j, _ := json.Marshal(m)
+	acc.Data[id] = j
+
+	tests := []struct {
+		name  string
+		param uuid.UUID
+		want  bool
+	}{
+		{
+			name:  "Everything ok",
+			param: id,
+			want:  true,
+		},
+		{
+			name:  "not found",
+			param: id,
+			want:  false,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got, _ := acc.Delete(context.Background(), id)
+			assert.Equal(t, tc.want, got)
+		})
+	}
 }
