@@ -121,11 +121,11 @@ func TestNewStoreModificate(t *testing.T) {
 	})
 
 	t.Run("Delete", func(t *testing.T) {
-		err := acc2.Delete(context.Background(), id2)
+		_, err := acc2.Delete(context.Background(), id2)
 		require.Empty(t, err)
 
-		err = acc2.Delete(context.Background(), id2)
-		require.Empty(t, err, "should be nil")
+		b, _ := acc2.Delete(context.Background(), id2)
+		require.Equal(t, false, b, "should be false")
 	})
 
 	t.Run("Create", func(t *testing.T) {

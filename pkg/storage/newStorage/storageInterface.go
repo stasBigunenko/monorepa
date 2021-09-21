@@ -11,5 +11,5 @@ type NewStore interface {
 	GetAll(context.Context) ([][]byte, error)
 	Create(context.Context, []byte) ([]byte, uuid.UUID, error)
 	Update(context.Context, uuid.UUID, []byte) ([]byte, error)
-	Delete(context.Context, uuid.UUID) error
+	Delete(context.Context, uuid.UUID) (bool, error)
 }

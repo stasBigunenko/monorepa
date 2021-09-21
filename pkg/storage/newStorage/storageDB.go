@@ -92,15 +92,15 @@ func (sdb *StorageDB) Update(_ context.Context, id uuid.UUID, b []byte) ([]byte,
 	return b, nil
 }
 
-func (sdb *StorageDB) Delete(_ context.Context, id uuid.UUID) error {
+func (sdb *StorageDB) Delete(_ context.Context, id uuid.UUID) (bool, error) {
 	sdb.mu.Lock()
 	defer sdb.mu.Unlock()
 
 	if _, ok := sdb.Data[id]; !ok {
-		return nil
+		return false, nil
 	}
 
 	delete(sdb.Data, id)
 
-	return nil
+	return true, nil
 }
