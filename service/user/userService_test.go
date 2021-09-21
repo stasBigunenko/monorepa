@@ -8,8 +8,6 @@ import (
 	"github.com/stasBigunenko/monorepa/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"testing"
 )
 
@@ -32,35 +30,34 @@ func Test_Create(t *testing.T) {
 		param   string
 		stor    *mockNewStore.NewStore
 		want    model.UserHTTP
-		wantErr codes.Code
+		wantErr string
 	}{
 		{
-			name:    "Everything good",
-			param:   "Andrew",
-			stor:    ui,
-			want:    model.UserHTTP{ID: id, Name: "Andrew"},
-			wantErr: codes.OK,
+			name:  "Everything good",
+			param: "Andrew",
+			stor:  ui,
+			want:  model.UserHTTP{ID: id, Name: "Andrew"},
 		},
 		{
-			name:    "Everything good",
+			name:    "Everything bad",
 			param:   "12",
 			stor:    ui2,
 			want:    model.UserHTTP{},
-			wantErr: codes.InvalidArgument,
+			wantErr: "invalid username",
 		},
 		{
 			name:    "Everything good",
 			param:   "S",
 			stor:    ui3,
 			want:    model.UserHTTP{},
-			wantErr: codes.InvalidArgument,
+			wantErr: "invalid username",
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			u := NewUsrService(tc.stor)
 			got, err := u.Create(context.Background(), tc.param)
-			if (err != nil) && status.Code(err) != tc.wantErr {
+			if (err != nil) && err.Error() != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
 				return
 			}
@@ -83,7 +80,7 @@ func Test_Get(t *testing.T) {
 		name    string
 		stor    *mockNewStore.NewStore
 		want    model.UserHTTP
-		wantErr codes.Code
+		wantErr string
 	}{
 		{
 			name: "Everything ok",
@@ -92,20 +89,19 @@ func Test_Get(t *testing.T) {
 				ID:   id,
 				Name: "Andrew",
 			},
-			wantErr: codes.OK,
 		},
 		{
-			name:    "Everything ok",
+			name:    "Everything bad",
 			stor:    ui2,
 			want:    model.UserHTTP{},
-			wantErr: codes.Internal,
+			wantErr: "not found",
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			u := NewUsrService(tc.stor)
 			got, err := u.Get(context.Background(), id)
-			if err != nil && status.Code(err) != tc.wantErr {
+			if err != nil && err.Error() != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
 				return
 			}
@@ -127,18 +123,17 @@ func TestUserService_Delete(t *testing.T) {
 		stor    *mockNewStore.NewStore
 		param   uuid.UUID
 		result  []byte
-		wantErr codes.Code
+		wantErr string
 	}{
 		{
-			name:    "Everything ok",
-			stor:    ui,
-			param:   id,
-			wantErr: codes.OK,
+			name:  "Everything ok",
+			stor:  ui,
+			param: id,
 		},
 		{
 			name:    "false",
 			stor:    ui2,
-			wantErr: codes.Internal,
+			wantErr: "not found",
 		},
 	}
 	for _, tc := range tests {
@@ -175,20 +170,19 @@ func TestUserService_GetAll(t *testing.T) {
 		name    string
 		stor    *mockNewStore.NewStore
 		want    []model.UserHTTP
-		wantErr codes.Code
+		wantErr string
 	}{
 		{
-			name:    "Everything ok",
-			stor:    ui,
-			want:    m,
-			wantErr: codes.OK,
+			name: "Everything ok",
+			stor: ui,
+			want: m,
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			u := NewUsrService(tc.stor)
 			got, err := u.GetAll(context.Background())
-			if (err != nil) && status.Code(err) != tc.wantErr {
+			if (err != nil) && err.Error() != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
 				return
 			}
@@ -212,28 +206,27 @@ func TestUserService_Update(t *testing.T) {
 		stor    *mockNewStore.NewStore
 		param   model.UserHTTP
 		want    model.UserHTTP
-		wantErr codes.Code
+		wantErr string
 	}{
 		{
-			name:    "Everything ok",
-			stor:    ui,
-			param:   m,
-			want:    m,
-			wantErr: codes.OK,
+			name:  "Everything ok",
+			stor:  ui,
+			param: m,
+			want:  m,
 		},
 		{
 			name:    "Not found",
 			stor:    ui2,
 			param:   m,
 			want:    model.UserHTTP{},
-			wantErr: codes.Internal,
+			wantErr: "not found",
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			u := NewUsrService(tc.stor)
 			got, err := u.Update(context.Background(), m)
-			if (err != nil) && status.Code(err) != tc.wantErr {
+			if (err != nil) && err.Error() != tc.wantErr {
 				t.Errorf("SomeLogic error = %v, wantErr %v", err.Error(), tc.wantErr)
 				return
 			}
