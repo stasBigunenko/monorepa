@@ -8,13 +8,13 @@ import (
 	"syscall"
 
 	log "github.com/sirupsen/logrus"
-
-	httphandler "github.com/stasBigunenko/monorepa/pkg/http/handler"
-
-	grpccontroller "github.com/stasBigunenko/monorepa/pkg/grpc/controller"
-	pb "github.com/stasBigunenko/monorepa/pkg/grpc/proto"
-
 	"google.golang.org/grpc"
+
+	accountscontroller "github.com/stasBigunenko/monorepa/pkg/accountGRPC/controller"
+	pbaccounts "github.com/stasBigunenko/monorepa/pkg/accountGRPC/proto"
+	httphandler "github.com/stasBigunenko/monorepa/pkg/http/handler"
+	userscontroller "github.com/stasBigunenko/monorepa/pkg/userGRPC/controller"
+	pbusers "github.com/stasBigunenko/monorepa/pkg/userGRPC/proto"
 )
 
 type Config struct {
@@ -64,9 +64,10 @@ func main() {
 	}
 	defer conn.Close()
 
-	service := grpccontroller.New(pb.NewGrpcServiceClient(conn))
+	userService := userscontroller.New(pbusers.NewUserGRPCServiceClient(conn))
+	accountService := accountscontroller.New(pbaccounts.NewAccountGRPCServiceClient(conn))
 
-	h := httphandler.New(service, cfg.JWTAddress)
+	h := httphandler.New(accountService, userService, cfg.JWTAddress)
 
 	srv := http.Server{
 		Addr:    cfg.HTTPAddress,

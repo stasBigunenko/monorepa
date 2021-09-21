@@ -28,7 +28,7 @@ func New(ctx context.Context, router *mux.Router) *HandlerItemsServ {
 }
 
 func (h *HandlerItemsServ) HandlerItems() {
-	h.router.HandleFunc("/login", h.GetJWTToken).Methods("POST")
+	h.router.HandleFunc("/login", h.GetJWTToken).Methods("POST", "OPTIONS")
 	h.router.HandleFunc("/get-cert/{version}", h.GetCertKey).Methods("GET")
 }
 
@@ -52,6 +52,7 @@ func (h *HandlerItemsServ) GetJWTToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("token", token)
+	w.Header().Set("Access-Control-Expose-Headers", "token")
 	w.WriteHeader(http.StatusCreated)
 }
 
