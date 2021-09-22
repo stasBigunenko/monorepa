@@ -10,7 +10,6 @@ import (
 )
 
 type UsrService struct {
-	Us      model.UserHTTP
 	storage newStorage.NewStore
 }
 
@@ -27,12 +26,14 @@ func (u *UsrService) Get(_ context.Context, id uuid.UUID) (model.UserHTTP, error
 		return model.UserHTTP{}, errors.New("not found")
 	}
 
-	err = json.Unmarshal(res, &u.Us)
+	var m model.UserHTTP
+
+	err = json.Unmarshal(res, &m)
 	if err != nil {
 		return model.UserHTTP{}, errors.New("unmarshal problem")
 	}
 
-	return u.Us, nil
+	return m, nil
 }
 
 func (u *UsrService) GetAll(_ context.Context) ([]model.UserHTTP, error) {
@@ -44,13 +45,15 @@ func (u *UsrService) GetAll(_ context.Context) ([]model.UserHTTP, error) {
 
 	ac := []model.UserHTTP{}
 
+	var m model.UserHTTP
+
 	for _, val := range res {
-		err := json.Unmarshal(val, &u.Us)
+		err := json.Unmarshal(val, &m)
 		if err != nil {
 			return nil, errors.New("unmarshal problem")
 		}
 
-		ac = append(ac, u.Us)
+		ac = append(ac, m)
 	}
 	return ac, nil
 }
@@ -71,14 +74,16 @@ func (u *UsrService) Create(_ context.Context, name string) (model.UserHTTP, err
 		return model.UserHTTP{}, errors.New("storage problem")
 	}
 
-	err = json.Unmarshal(res, &u.Us)
+	var m model.UserHTTP
+
+	err = json.Unmarshal(res, &m)
 	if err != nil {
 		return model.UserHTTP{}, errors.New("unmarshal problem")
 	}
 
-	u.Us.ID = id
+	m.ID = id
 
-	return u.Us, nil
+	return m, nil
 }
 
 func (u *UsrService) Update(_ context.Context, user model.UserHTTP) (model.UserHTTP, error) {
@@ -94,12 +99,14 @@ func (u *UsrService) Update(_ context.Context, user model.UserHTTP) (model.UserH
 		return model.UserHTTP{}, errors.New("not found")
 	}
 
-	err = json.Unmarshal(res, &u.Us)
+	var m model.UserHTTP
+
+	err = json.Unmarshal(res, &m)
 	if err != nil {
 		return model.UserHTTP{}, errors.New("unmarshal problem")
 	}
 
-	return u.Us, nil
+	return m, nil
 }
 
 func (u *UsrService) Delete(_ context.Context, id uuid.UUID) error {
