@@ -16,8 +16,9 @@ func Test_Create(t *testing.T) {
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
-	j, _ := json.Marshal(userID)
-	ui.On("Create", context.Background(), j).Return(j, id, nil)
+	mm := model.Account{UserID: userID, Balance: 0}
+	mj, _ := json.Marshal(mm)
+	ui.On("Create", context.Background(), mj).Return(mj, id, nil)
 
 	tests := []struct {
 		name    string
@@ -77,7 +78,7 @@ func Test_Get(t *testing.T) {
 			name:    "Everything ok",
 			stor:    ui2,
 			want:    model.Account{},
-			wantErr: "couldn't unmarshal data",
+			wantErr: "couldn't get account",
 		},
 	}
 	for _, tc := range tests {

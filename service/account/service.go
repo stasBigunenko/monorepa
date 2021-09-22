@@ -10,7 +10,6 @@ import (
 )
 
 type AccService struct {
-	Acc     model.Account
 	storage newStorage.NewStore
 }
 
@@ -20,82 +19,98 @@ func NewAccService(s newStorage.NewStore) *AccService {
 	}
 }
 
-func (a *AccService) Get(_ context.Context, id uuid.UUID) (model.Account, error) {
+func (a *AccService) Get(c context.Context, id uuid.UUID) (model.Account, error) {
 
-	res, err := a.storage.Get(context.Background(), id)
-	if (err != nil && err == nil) || err != nil {
+	res, err := a.storage.Get(c, id)
+	if err != nil {
+		return model.Account{}, err
+	}
+
+	if res == nil {
 		return model.Account{}, errors.New("couldn't get account")
 	}
 
-	err = json.Unmarshal(res, &a.Acc)
+	var acc model.Account
+
+	err = json.Unmarshal(res, &acc)
 	if err != nil {
 		return model.Account{}, errors.New("couldn't unmarshal data")
 	}
 
-	return a.Acc, nil
+	return acc, nil
 
 }
 
-func (a *AccService) GetUser(_ context.Context, userID uuid.UUID) ([]model.Account, error) {
-	res, err := a.storage.GetUser(context.Background(), userID)
-	if err != nil || (res == nil && err == nil) {
+func (a *AccService) GetUser(c context.Context, userID uuid.UUID) ([]model.Account, error) {
+	res, err := a.storage.GetUser(c, userID)
+	if err != nil {
+		return []model.Account{}, err
+	}
+
+	if res == nil {
 		return []model.Account{}, errors.New("storage problem")
 	}
 
-	var ac []model.Account
+	var acs []model.Account
 
 	for _, val := range res {
-		var a model.Account
-		err := json.Unmarshal(val, &a)
+		var acc model.Account
+		err := json.Unmarshal(val, &acc)
 		if err != nil {
 			return []model.Account{}, errors.New("couldn't unmarshal data")
 		}
-		ac = append(ac, a)
+		acs = append(acs, acc)
 	}
 
-	return ac, nil
+	return acs, nil
 }
 
-func (a *AccService) GetAll(_ context.Context) ([]model.Account, error) {
+func (a *AccService) GetAll(c context.Context) ([]model.Account, error) {
 
-	res, err := a.storage.GetAll(context.Background())
+	res, err := a.storage.GetAll(c)
 	if err != nil {
-		return nil, errors.New("storage problem")
+		return nil, err
 	}
 
-	ac := []model.Account{}
+	acs := []model.Account{}
 
 	for _, val := range res {
-		err := json.Unmarshal(val, &a.Acc)
+		var acc model.Account
+		err := json.Unmarshal(val, &acc)
 		if err != nil {
 			return nil, errors.New("couldn't unmarshal data")
 		}
 
-		ac = append(ac, a.Acc)
+		acs = append(acs, acc)
 	}
-	return ac, nil
+	return acs, nil
 }
 
-func (a *AccService) Create(_ context.Context, userID uuid.UUID) (model.Account, error) {
+func (a *AccService) Create(c context.Context, userID uuid.UUID) (model.Account, error) {
 
-	jUsrID, err := json.Marshal(userID)
+	acc := model.Account{UserID: userID, Balance: 0}
+
+	jUsrID, err := json.Marshal(acc)
+	if err != nil {
+		return model.Account{}, errors.New("couldn't marshal data")
+	}
+
+	res, id, err := a.storage.Create(c, jUsrID)
+	if err != nil {
+		return model.Account{}, err
+	}
+
+	err = json.Unmarshal(res, &acc)
 	if err != nil {
 		return model.Account{}, errors.New("couldn't unmarshal data")
 	}
 
-	_, id, err := a.storage.Create(context.Background(), jUsrID)
-	if err != nil {
-		return model.Account{}, errors.New("storage problem")
-	}
+	acc.ID = id
 
-	a.Acc.ID = id
-	a.Acc.UserID = userID
-	a.Acc.Balance = 0
-
-	return a.Acc, nil
+	return acc, nil
 }
 
-func (a *AccService) Update(_ context.Context, account model.Account) (model.Account, error) {
+func (a *AccService) Update(c context.Context, account model.Account) (model.Account, error) {
 	id := account.ID
 
 	j, err := json.Marshal(account)
@@ -103,23 +118,30 @@ func (a *AccService) Update(_ context.Context, account model.Account) (model.Acc
 		return model.Account{}, errors.New("couldn't marshal data")
 	}
 
-	res, err := a.storage.Update(context.Background(), id, j)
+	res, err := a.storage.Update(c, id, j)
 	if err != nil {
-		return model.Account{}, errors.New("not found")
+		return model.Account{}, err
 	}
 
-	err = json.Unmarshal(res, &a.Acc)
+	var acc model.Account
+
+	err = json.Unmarshal(res, &acc)
 	if err != nil {
 		return model.Account{}, errors.New("couldn't unmarshal data")
 	}
 
-	return a.Acc, nil
+	return acc, nil
 }
 
-func (a *AccService) Delete(_ context.Context, id uuid.UUID) error {
-	b, err := a.storage.Delete(context.Background(), id)
+func (a *AccService) Delete(c context.Context, id uuid.UUID) error {
+	b, err := a.storage.Delete(c, id)
 	if err != nil || !b {
+		return err
+	}
+
+	if !b {
 		return errors.New("not found")
 	}
+
 	return nil
 }
