@@ -14,13 +14,19 @@ import (
 	pb "github.com/stasBigunenko/monorepa/pkg/userGRPC/proto"
 )
 
-type UserGRPCСontroller struct {
-	client pb.UserGRPCServiceClient
+type LoggingService interface {
+	WriteLog(ctx context.Context, message string)
 }
 
-func New(cli pb.UserGRPCServiceClient) *UserGRPCСontroller {
+type UserGRPCСontroller struct {
+	client         pb.UserGRPCServiceClient
+	loggingService LoggingService
+}
+
+func New(cli pb.UserGRPCServiceClient, loggingService LoggingService) *UserGRPCСontroller {
 	return &UserGRPCСontroller{
-		client: cli,
+		client:         cli,
+		loggingService: loggingService,
 	}
 }
 
@@ -42,7 +48,8 @@ func (s UserGRPCСontroller) formatError(err error, message string) error {
 	return fmt.Errorf("%s: %s", message, err.Error())
 }
 
-func (s UserGRPCСontroller) CreateUser(name string, ctx context.Context) (uuid.UUID, error) {
+func (s UserGRPCСontroller) CreateUser(ctx context.Context, name string) (uuid.UUID, error) {
+	s.loggingService.WriteLog(ctx, "GRPC Client: Command CreateUser received...")
 	resp, err := s.client.Create(context.Background(), &pb.Name{
 		Name: name,
 	})
@@ -59,7 +66,8 @@ func (s UserGRPCСontroller) CreateUser(name string, ctx context.Context) (uuid.
 	return userID, nil
 }
 
-func (s UserGRPCСontroller) GetUser(id uuid.UUID, ctx context.Context) (model.UserHTTP, error) {
+func (s UserGRPCСontroller) GetUser(ctx context.Context, id uuid.UUID) (model.UserHTTP, error) {
+	s.loggingService.WriteLog(ctx, "GRPC Client: Command GetUser received...")
 	resp, err := s.client.Get(context.Background(), &pb.Id{
 		Id: id.String(),
 	})
@@ -80,6 +88,7 @@ func (s UserGRPCСontroller) GetUser(id uuid.UUID, ctx context.Context) (model.U
 }
 
 func (s UserGRPCСontroller) GetAllUsers(ctx context.Context) ([]model.UserHTTP, error) {
+	s.loggingService.WriteLog(ctx, "GRPC Client: Command GetAllUsers received...")
 	resp, err := s.client.GetAllUsers(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		return nil, s.formatError(err, "failed to get all users")
@@ -101,7 +110,8 @@ func (s UserGRPCСontroller) GetAllUsers(ctx context.Context) ([]model.UserHTTP,
 	return users, nil
 }
 
-func (s UserGRPCСontroller) UpdateUser(user model.UserHTTP, ctx context.Context) error {
+func (s UserGRPCСontroller) UpdateUser(ctx context.Context, user model.UserHTTP) error {
+	s.loggingService.WriteLog(ctx, "GRPC Client: Command UpdateUser received...")
 	_, err := s.client.Update(context.Background(), &pb.User{
 		Id:   user.ID.String(),
 		Name: user.Name,
@@ -114,7 +124,8 @@ func (s UserGRPCСontroller) UpdateUser(user model.UserHTTP, ctx context.Context
 	return nil
 }
 
-func (s UserGRPCСontroller) DeleteUser(id uuid.UUID, ctx context.Context) error {
+func (s UserGRPCСontroller) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	s.loggingService.WriteLog(ctx, "GRPC Client: Command DeleteUser received...")
 	_, err := s.client.Delete(context.Background(), &pb.Id{
 		Id: id.String(),
 	})

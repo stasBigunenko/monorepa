@@ -14,13 +14,19 @@ import (
 	pb "github.com/stasBigunenko/monorepa/pkg/accountGRPC/proto"
 )
 
-type AccountGRPCСontroller struct {
-	client pb.AccountGRPCServiceClient
+type LoggingService interface {
+	WriteLog(ctx context.Context, message string)
 }
 
-func New(cli pb.AccountGRPCServiceClient) *AccountGRPCСontroller {
+type AccountGRPCСontroller struct {
+	client         pb.AccountGRPCServiceClient
+	loggingService LoggingService
+}
+
+func New(cli pb.AccountGRPCServiceClient, loggingService LoggingService) *AccountGRPCСontroller {
 	return &AccountGRPCСontroller{
-		client: cli,
+		client:         cli,
+		loggingService: loggingService,
 	}
 }
 
@@ -42,7 +48,8 @@ func (s AccountGRPCСontroller) formatError(err error, message string) error {
 	return fmt.Errorf("%s: %s", message, err.Error())
 }
 
-func (s AccountGRPCСontroller) CreateAccount(userID uuid.UUID, ctx context.Context) (uuid.UUID, error) {
+func (s AccountGRPCСontroller) CreateAccount(ctx context.Context, userID uuid.UUID) (uuid.UUID, error) {
+	s.loggingService.WriteLog(ctx, "GRPC Client: Command CreateAccount received...")
 	resp, err := s.client.CreateAccount(context.Background(), &pb.UserID{
 		UserID: userID.String(),
 	})
@@ -59,7 +66,8 @@ func (s AccountGRPCСontroller) CreateAccount(userID uuid.UUID, ctx context.Cont
 	return id, nil
 }
 
-func (s AccountGRPCСontroller) GetAccount(id uuid.UUID, ctx context.Context) (model.Account, error) {
+func (s AccountGRPCСontroller) GetAccount(ctx context.Context, id uuid.UUID) (model.Account, error) {
+	s.loggingService.WriteLog(ctx, "GRPC Client: Command GetAccount received...")
 	resp, err := s.client.GetAccount(context.Background(), &pb.AccountID{
 		Id: id.String(),
 	})
@@ -85,7 +93,8 @@ func (s AccountGRPCСontroller) GetAccount(id uuid.UUID, ctx context.Context) (m
 	}, nil
 }
 
-func (s AccountGRPCСontroller) GetUserAccounts(userID uuid.UUID, ctx context.Context) ([]model.Account, error) {
+func (s AccountGRPCСontroller) GetUserAccounts(ctx context.Context, userID uuid.UUID) ([]model.Account, error) {
+	s.loggingService.WriteLog(ctx, "GRPC Client: Command GetUserAccounts received...")
 	resp, err := s.client.GetUserAccounts(context.Background(), &pb.UserID{
 		UserID: userID.String(),
 	})
@@ -117,6 +126,7 @@ func (s AccountGRPCСontroller) GetUserAccounts(userID uuid.UUID, ctx context.Co
 }
 
 func (s AccountGRPCСontroller) GetAllAccounts(ctx context.Context) ([]model.Account, error) {
+	s.loggingService.WriteLog(ctx, "GRPC Client: Command GetAllAccounts received...")
 	resp, err := s.client.GetAllUsers(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		return nil, s.formatError(err, "failed to get all accounts")
@@ -144,7 +154,8 @@ func (s AccountGRPCСontroller) GetAllAccounts(ctx context.Context) ([]model.Acc
 	return accounts, nil
 }
 
-func (s AccountGRPCСontroller) UpdateAccount(account model.Account, ctx context.Context) error {
+func (s AccountGRPCСontroller) UpdateAccount(ctx context.Context, account model.Account) error {
+	s.loggingService.WriteLog(ctx, "GRPC Client: Command UpdateAccount received...")
 	_, err := s.client.UpdateAccount(context.Background(), &pb.Account{
 		Id:      account.ID.String(),
 		UserID:  account.UserID.String(),
@@ -158,7 +169,8 @@ func (s AccountGRPCСontroller) UpdateAccount(account model.Account, ctx context
 	return nil
 }
 
-func (s AccountGRPCСontroller) DeleteAccount(id uuid.UUID, ctx context.Context) error {
+func (s AccountGRPCСontroller) DeleteAccount(ctx context.Context, id uuid.UUID) error {
+	s.loggingService.WriteLog(ctx, "GRPC Client: Command DeleteAccount received...")
 	_, err := s.client.DeleteAccount(context.Background(), &pb.AccountID{
 		Id: id.String(),
 	})

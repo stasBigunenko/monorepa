@@ -20,20 +20,20 @@ import (
 )
 
 type AccountGrpcService interface {
-	CreateAccount(userID uuid.UUID, ctx context.Context) (uuid.UUID, error)
-	GetAccount(id uuid.UUID, ctx context.Context) (model.Account, error)
-	GetUserAccounts(userID uuid.UUID, ctx context.Context) ([]model.Account, error)
+	CreateAccount(ctx context.Context, userID uuid.UUID) (uuid.UUID, error)
+	GetAccount(ctx context.Context, id uuid.UUID) (model.Account, error)
+	GetUserAccounts(ctx context.Context, userID uuid.UUID) ([]model.Account, error)
 	GetAllAccounts(ctx context.Context) ([]model.Account, error)
-	UpdateAccount(account model.Account, ctx context.Context) error
-	DeleteAccount(id uuid.UUID, ctx context.Context) error
+	UpdateAccount(ctx context.Context, account model.Account) error
+	DeleteAccount(ctx context.Context, id uuid.UUID) error
 }
 
 type UserGrpcService interface {
-	CreateUser(name string, ctx context.Context) (uuid.UUID, error)
-	GetUser(id uuid.UUID, ctx context.Context) (model.UserHTTP, error)
+	CreateUser(ctx context.Context, name string) (uuid.UUID, error)
+	GetUser(ctx context.Context, id uuid.UUID) (model.UserHTTP, error)
 	GetAllUsers(ctx context.Context) ([]model.UserHTTP, error)
-	UpdateUser(user model.UserHTTP, ctx context.Context) error
-	DeleteUser(id uuid.UUID, ctx context.Context) error
+	UpdateUser(ctx context.Context, user model.UserHTTP) error
+	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
 type TokenService interface {
@@ -41,7 +41,7 @@ type TokenService interface {
 }
 
 type LoggingService interface {
-	WriteLog(w http.ResponseWriter, req *http.Request, message string)
+	WriteLog(ctx context.Context, message string)
 }
 
 type ContextKey string
@@ -127,7 +127,7 @@ func (h HTTPHandler) GetRouter() *mux.Router {
 // ***** //
 
 func (h HTTPHandler) AddUser(w http.ResponseWriter, req *http.Request) {
-	h.LoggingService.WriteLog(w, req, "Command AddUSer received...")
+	h.LoggingService.WriteLog(req.Context(), "HTTTP: Command AddUSer received...")
 
 	name, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -141,7 +141,7 @@ func (h HTTPHandler) AddUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	accountID, err := h.UsersService.CreateUser(user.Name, req.Context())
+	accountID, err := h.UsersService.CreateUser(req.Context(), user.Name)
 	if err != nil {
 		h.reportError(w, err)
 		return
@@ -153,7 +153,7 @@ func (h HTTPHandler) AddUser(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h HTTPHandler) GetUser(w http.ResponseWriter, req *http.Request) {
-	h.LoggingService.WriteLog(w, req, "Command GetUser received...")
+	h.LoggingService.WriteLog(req.Context(), "HTTTP: Command GetUser received...")
 
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
@@ -162,7 +162,7 @@ func (h HTTPHandler) GetUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	user, err := h.UsersService.GetUser(id, req.Context())
+	user, err := h.UsersService.GetUser(req.Context(), id)
 	if err != nil {
 		h.reportError(w, err)
 		return
@@ -179,7 +179,7 @@ func (h HTTPHandler) GetUser(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h HTTPHandler) UpdateUser(w http.ResponseWriter, req *http.Request) {
-	h.LoggingService.WriteLog(w, req, "Command UpdateUser received...")
+	h.LoggingService.WriteLog(req.Context(), "HTTTP: Command UpdateUser received...")
 
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
@@ -202,7 +202,7 @@ func (h HTTPHandler) UpdateUser(w http.ResponseWriter, req *http.Request) {
 
 	user.ID = id
 
-	err = h.UsersService.UpdateUser(user, req.Context())
+	err = h.UsersService.UpdateUser(req.Context(), user)
 	if err != nil {
 		h.reportError(w, err)
 		return
@@ -212,7 +212,7 @@ func (h HTTPHandler) UpdateUser(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h HTTPHandler) DeleteUser(w http.ResponseWriter, req *http.Request) {
-	h.LoggingService.WriteLog(w, req, "Command DeleteUser received...")
+	h.LoggingService.WriteLog(req.Context(), "HTTTP: Command DeleteUser received...")
 
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
@@ -221,7 +221,7 @@ func (h HTTPHandler) DeleteUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if err := h.UsersService.DeleteUser(id, req.Context()); err != nil {
+	if err := h.UsersService.DeleteUser(req.Context(), id); err != nil {
 		h.reportError(w, err)
 		return
 	}
@@ -230,7 +230,7 @@ func (h HTTPHandler) DeleteUser(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h HTTPHandler) ListUsers(w http.ResponseWriter, req *http.Request) {
-	h.LoggingService.WriteLog(w, req, "Command ListUsers received...")
+	h.LoggingService.WriteLog(req.Context(), "HTTTP: Command ListUsers received...")
 
 	users, err := h.UsersService.GetAllUsers(req.Context())
 	if err != nil {
@@ -252,7 +252,7 @@ func (h HTTPHandler) ListUsers(w http.ResponseWriter, req *http.Request) {
 // ******** //
 
 func (h HTTPHandler) AddAccount(w http.ResponseWriter, req *http.Request) {
-	h.LoggingService.WriteLog(w, req, "Command AddAccount received...")
+	h.LoggingService.WriteLog(req.Context(), "HTTTP: Command AddAccount received...")
 
 	userID, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -266,7 +266,7 @@ func (h HTTPHandler) AddAccount(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	accountID, err := h.AccountsService.CreateAccount(account.UserID, req.Context())
+	accountID, err := h.AccountsService.CreateAccount(req.Context(), account.UserID)
 	if err != nil {
 		h.reportError(w, err)
 		return
@@ -277,7 +277,7 @@ func (h HTTPHandler) AddAccount(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h HTTPHandler) GetAccount(w http.ResponseWriter, req *http.Request) {
-	h.LoggingService.WriteLog(w, req, "Command GetAccount received...")
+	h.LoggingService.WriteLog(req.Context(), "HTTTP: Command GetAccount received...")
 
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
@@ -286,7 +286,7 @@ func (h HTTPHandler) GetAccount(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	account, err := h.AccountsService.GetAccount(id, req.Context())
+	account, err := h.AccountsService.GetAccount(req.Context(), id)
 	if err != nil {
 		h.reportError(w, err)
 		return
@@ -302,7 +302,7 @@ func (h HTTPHandler) GetAccount(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h HTTPHandler) UpdateAccount(w http.ResponseWriter, req *http.Request) {
-	h.LoggingService.WriteLog(w, req, "Command UpdateAccount received...")
+	h.LoggingService.WriteLog(req.Context(), "HTTTP: Command UpdateAccount received...")
 
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
@@ -325,7 +325,7 @@ func (h HTTPHandler) UpdateAccount(w http.ResponseWriter, req *http.Request) {
 
 	account.ID = id
 
-	err = h.AccountsService.UpdateAccount(account, req.Context())
+	err = h.AccountsService.UpdateAccount(req.Context(), account)
 	if err != nil {
 		h.reportError(w, err)
 		return
@@ -335,7 +335,7 @@ func (h HTTPHandler) UpdateAccount(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h HTTPHandler) DeleteAccount(w http.ResponseWriter, req *http.Request) {
-	h.LoggingService.WriteLog(w, req, "Command DeleteAccount received...")
+	h.LoggingService.WriteLog(req.Context(), "HTTTP: Command DeleteAccount received...")
 
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
@@ -344,7 +344,7 @@ func (h HTTPHandler) DeleteAccount(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if err := h.AccountsService.DeleteAccount(id, req.Context()); err != nil {
+	if err := h.AccountsService.DeleteAccount(req.Context(), id); err != nil {
 		h.reportError(w, err)
 		return
 	}
@@ -353,7 +353,7 @@ func (h HTTPHandler) DeleteAccount(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
-	h.LoggingService.WriteLog(w, req, "Command ListAccount received...")
+	h.LoggingService.WriteLog(req.Context(), "HTTTP: Command ListAccount received...")
 
 	forUser := true
 	p, err := ioutil.ReadAll(req.Body)
@@ -371,7 +371,7 @@ func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
 			h.reportError(w, fmt.Errorf("%s: %w", err, customErrors.JSONError))
 			return
 		}
-		accounts, err = h.AccountsService.GetUserAccounts(account.UserID, req.Context())
+		accounts, err = h.AccountsService.GetUserAccounts(req.Context(), account.UserID)
 	} else {
 		accounts, err = h.AccountsService.GetAllAccounts(req.Context())
 	}
@@ -391,7 +391,7 @@ func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h HTTPHandler) GetAggregate(w http.ResponseWriter, req *http.Request) {
-	h.LoggingService.WriteLog(w, req, "Command GetAggregate received...")
+	h.LoggingService.WriteLog(req.Context(), "HTTTP: Command GetAggregate received...")
 
 	vars := mux.Vars(req)
 	id, err := uuid.Parse(vars["id"])
@@ -400,13 +400,13 @@ func (h HTTPHandler) GetAggregate(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	accounts, err := h.AccountsService.GetUserAccounts(id, req.Context())
+	accounts, err := h.AccountsService.GetUserAccounts(req.Context(), id)
 	if err != nil {
 		h.reportError(w, err)
 		return
 	}
 
-	user, err := h.UsersService.GetUser(id, req.Context())
+	user, err := h.UsersService.GetUser(req.Context(), id)
 	if err != nil {
 		h.reportError(w, err)
 		return
