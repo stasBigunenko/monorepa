@@ -1,5 +1,6 @@
 import React from "react";
-
+import {TestData} from "./data"
+import Tree from '@naisutech/react-tree'
 
 export class User extends React.Component {
     constructor(props){
@@ -9,6 +10,7 @@ export class User extends React.Component {
   
       this.state = {
         userID: "",
+        show: false
       };
     }
 
@@ -21,13 +23,17 @@ export class User extends React.Component {
     handleSubmit(e) {
         e.preventDefault();
 
-        console.log('token from props', this.props.token)
-        // console.log('token', props.token)
-        console.log("sumbit", e)
+        this.setState({show: true })
     }
     
 
     render() {
+      let {show} = this.state;
+
+      let userInfo = null;
+      if (show) {
+        userInfo = treeComponent(transformDataToTree(TestData))
+      }
         return (
             <div>
             <form onSubmit={this.handleSubmit}>
@@ -40,7 +46,35 @@ export class User extends React.Component {
 
               <button type="submit">Get user</button>
             </form>
+
+            {userInfo}
           </div>        
           )
     }
-}    
+}
+
+
+function treeComponent(data) {
+  return <Tree nodes={data} />
+}
+
+function transformDataToTree(data) {
+  let {user, accounts} = data;
+
+  let items = accounts.map( (el, id)  => {
+    return {
+        "id": id,
+        "label": `User id: ${el.userID}. Balance: ${el.balance}`,
+        "parentId": 0
+      }
+    })
+
+  return [
+    {
+      "id": 0,
+      "parentId": null,
+      "label": `User ${user.name}`,
+      "items": items,
+    }
+  ]
+}
