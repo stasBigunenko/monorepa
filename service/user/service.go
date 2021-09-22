@@ -4,11 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/stasBigunenko/monorepa/pkg/storage/newStorage"
-	"unicode"
-
 	"github.com/google/uuid"
 	"github.com/stasBigunenko/monorepa/model"
+	"github.com/stasBigunenko/monorepa/pkg/storage/newStorage"
 )
 
 type UsrService struct {
@@ -25,7 +23,7 @@ func NewUsrService(s newStorage.NewStore) *UsrService {
 func (u *UsrService) Get(_ context.Context, id uuid.UUID) (model.UserHTTP, error) {
 
 	res, err := u.storage.Get(context.Background(), id)
-	if res == nil && err == nil || err != nil {
+	if (res == nil && err == nil) || err != nil {
 		return model.UserHTTP{}, errors.New("not found")
 	}
 
@@ -57,19 +55,13 @@ func (u *UsrService) GetAll(_ context.Context) ([]model.UserHTTP, error) {
 	return ac, nil
 }
 
-func (u *UsrService) Create(_ context.Context, b string) (model.UserHTTP, error) {
+func (u *UsrService) Create(_ context.Context, name string) (model.UserHTTP, error) {
 
-	for _, r := range b {
-		if !unicode.IsLetter(r) {
-			return model.UserHTTP{}, errors.New("invalid username")
-		}
-	}
-
-	if len(b) <= 2 {
+	if len(name) <= 2 {
 		return model.UserHTTP{}, errors.New("invalid username")
 	}
 
-	bt, err := json.Marshal(b)
+	bt, err := json.Marshal(name)
 	if err != nil {
 		return model.UserHTTP{}, errors.New("marshal problem")
 	}
@@ -98,7 +90,7 @@ func (u *UsrService) Update(_ context.Context, user model.UserHTTP) (model.UserH
 	}
 
 	res, err := u.storage.Update(context.Background(), id, bt)
-	if err != nil || res == nil && err == nil {
+	if err != nil || (res == nil && err == nil) {
 		return model.UserHTTP{}, errors.New("not found")
 	}
 
