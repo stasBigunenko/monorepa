@@ -64,7 +64,11 @@ func (u *UsrService) Create(_ context.Context, name string) (model.UserHTTP, err
 		return model.UserHTTP{}, errors.New("invalid username")
 	}
 
-	bt, err := json.Marshal(name)
+	m := model.UserHTTP{
+		Name: name,
+	}
+
+	bt, err := json.Marshal(m)
 	if err != nil {
 		return model.UserHTTP{}, errors.New("marshal problem")
 	}
@@ -73,8 +77,6 @@ func (u *UsrService) Create(_ context.Context, name string) (model.UserHTTP, err
 	if err != nil {
 		return model.UserHTTP{}, errors.New("storage problem")
 	}
-
-	var m model.UserHTTP
 
 	err = json.Unmarshal(res, &m)
 	if err != nil {
