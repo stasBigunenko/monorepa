@@ -20,7 +20,10 @@ class App extends React.Component {
   render(){
     console.log("state", this.state)
     return (
-      <Login handleUserLogin={this.onLogin}/>
+      <div>
+        <Login handleUserLogin={this.onLogin}/>
+        <hr/>
+      </div>
     );
   }
 }
