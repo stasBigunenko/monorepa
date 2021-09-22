@@ -23,7 +23,7 @@ func NewAccService(s newStorage.NewStore) *AccService {
 func (a *AccService) Get(_ context.Context, id uuid.UUID) (model.Account, error) {
 
 	res, err := a.storage.Get(context.Background(), id)
-	if err != nil && (err == nil || err != nil) {
+	if (err != nil && err == nil) || err != nil {
 		return model.Account{}, errors.New("couldn't get account")
 	}
 
@@ -76,20 +76,20 @@ func (a *AccService) GetAll(_ context.Context) ([]model.Account, error) {
 	return ac, nil
 }
 
-func (a *AccService) Create(_ context.Context, b uuid.UUID) (model.Account, error) {
+func (a *AccService) Create(_ context.Context, userID uuid.UUID) (model.Account, error) {
 
-	br, err := json.Marshal(b)
+	jUsrID, err := json.Marshal(userID)
 	if err != nil {
 		return model.Account{}, errors.New("couldn't unmarshal data")
 	}
 
-	_, id, err := a.storage.Create(context.Background(), br)
+	_, id, err := a.storage.Create(context.Background(), jUsrID)
 	if err != nil {
 		return model.Account{}, errors.New("storage problem")
 	}
 
 	a.Acc.ID = id
-	a.Acc.UserID = b
+	a.Acc.UserID = userID
 	a.Acc.Balance = 0
 
 	return a.Acc, nil
@@ -98,12 +98,12 @@ func (a *AccService) Create(_ context.Context, b uuid.UUID) (model.Account, erro
 func (a *AccService) Update(_ context.Context, account model.Account) (model.Account, error) {
 	id := account.ID
 
-	bt, err := json.Marshal(account)
+	j, err := json.Marshal(account)
 	if err != nil {
 		return model.Account{}, errors.New("couldn't marshal data")
 	}
 
-	res, err := a.storage.Update(context.Background(), id, bt)
+	res, err := a.storage.Update(context.Background(), id, j)
 	if err != nil {
 		return model.Account{}, errors.New("not found")
 	}
