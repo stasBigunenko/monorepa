@@ -149,7 +149,6 @@ func (h HTTPHandler) AddUser(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Location", fmt.Sprintf("/accounts/%d", accountID))
 	w.WriteHeader(http.StatusCreated)
-
 }
 
 func (h HTTPHandler) GetUser(w http.ResponseWriter, req *http.Request) {
@@ -355,13 +354,15 @@ func (h HTTPHandler) DeleteAccount(w http.ResponseWriter, req *http.Request) {
 func (h HTTPHandler) ListAccounts(w http.ResponseWriter, req *http.Request) {
 	h.LoggingService.WriteLog(req.Context(), "HTTTP: Command ListAccount received...")
 
-	forUser := true
+	forUser := false
 	p, err := ioutil.ReadAll(req.Body)
-	if err == io.EOF {
-		forUser = false
-	} else if err != nil {
-		h.reportError(w, err)
-		return
+	if err != nil {
+		if err != io.EOF {
+			forUser = true
+		} else {
+			h.reportError(w, err)
+			return
+		}
 	}
 
 	var accounts []model.Account
