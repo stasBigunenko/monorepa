@@ -6,7 +6,7 @@ import (
 	"github.com/stasBigunenko/monorepa/model"
 )
 
-type AccountInterface interface {
+type AccInterface interface {
 	Get(context.Context, uuid.UUID) (model.Account, error)
 	GetUser(context.Context, uuid.UUID) ([]model.Account, error)
 	GetAll(context.Context) ([]model.Account, error)
