@@ -1,0 +1,197 @@
+package usergrpcserver
+
+import (
+	"context"
+	"github.com/google/uuid"
+	userInt "github.com/stasBigunenko/monorepa/mocks/service/user"
+	"github.com/stasBigunenko/monorepa/model"
+	pb "github.com/stasBigunenko/monorepa/pkg/userGRPC/proto"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"testing"
+)
+
+func Test_Create(t *testing.T) {
+	ui := new(userInt.User)
+	s := "Andrew"
+	uuidS := "00000000-0000-0000-0000-000000000000"
+	id, _ := uuid.Parse(uuidS)
+	m := model.UserHTTP{ID: id, Name: "Andrew"}
+	ui.On("Create", mock.Anything, s).Return(m, nil)
+
+	tests := []struct {
+		name    string
+		stor    *userInt.User
+		param   *pb.Name
+		want    *pb.User
+		wantErr codes.Code
+	}{
+		{
+			name:  "Everything good",
+			param: &pb.Name{Name: "Andrew"},
+			stor:  ui,
+			want:  &pb.User{Id: "00000000-0000-0000-0000-000000000000", Name: "Andrew"},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			u := NewUsersGRPCServer(tc.stor)
+			got, err := u.Create(context.Background(), tc.param)
+			if (err != nil) && status.Code(err) != tc.wantErr {
+				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
+				return
+			}
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func Test_Get(t *testing.T) {
+	ui := new(userInt.User)
+	uuidS := "00000000-0000-0000-0000-000000000000"
+	id, _ := uuid.Parse(uuidS)
+	m := model.UserHTTP{ID: id, Name: "Andrew"}
+	ui.On("Get", context.Background(), id).Return(m, nil)
+
+	tests := []struct {
+		name    string
+		stor    *userInt.User
+		param   *pb.Id
+		want    *pb.User
+		wantErr codes.Code
+	}{
+		{
+			name:  "Everything ok",
+			stor:  ui,
+			param: &pb.Id{Id: "00000000-0000-0000-0000-000000000000"},
+			want:  &pb.User{Id: "00000000-0000-0000-0000-000000000000", Name: "Andrew"},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			u := NewUsersGRPCServer(tc.stor)
+			got, err := u.Get(context.Background(), tc.param)
+			if err != nil && status.Code(err) != tc.wantErr {
+				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
+				return
+			}
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestUserService_Delete(t *testing.T) {
+	ui := new(userInt.User)
+	uuidS := "00000000-0000-0000-0000-000000000000"
+	id, _ := uuid.Parse(uuidS)
+	ui.On("Delete", context.Background(), id).Return(nil)
+
+	tests := []struct {
+		name  string
+		stor  *userInt.User
+		param *pb.Id
+		want  *emptypb.Empty
+	}{
+		{
+			name:  "Everything ok",
+			stor:  ui,
+			param: &pb.Id{Id: "00000000-0000-0000-0000-000000000000"},
+			want:  &emptypb.Empty{},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			u := NewUsersGRPCServer(tc.stor)
+			got, err := u.Delete(context.Background(), tc.param)
+			if err != nil {
+				assert.Error(t, err)
+				return
+			}
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+//
+func TestUserService_GetAllUsers(t *testing.T) {
+	ui := new(userInt.User)
+	id1 := uuid.New()
+	id2 := uuid.New()
+	m1 := model.UserHTTP{ID: id1, Name: "Andrew"}
+	m2 := model.UserHTTP{ID: id2, Name: "Ivan"}
+	m := []model.UserHTTP{
+		m1,
+		m2,
+	}
+
+	u1 := &pb.User{Id: id1.String(), Name: m1.Name}
+	u2 := &pb.User{Id: id2.String(), Name: m2.Name}
+	all := []*pb.User{u1, u2}
+	au := pb.AllUsers{
+		AllUsers: all,
+	}
+
+	ui.On("GetAll", context.Background()).Return(m, nil)
+
+	tests := []struct {
+		name    string
+		stor    *userInt.User
+		want    *pb.AllUsers
+		wantErr codes.Code
+	}{
+		{
+			name: "Everything ok",
+			stor: ui,
+			want: &au,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			u := NewUsersGRPCServer(tc.stor)
+			got, err := u.GetAllUsers(context.Background(), &emptypb.Empty{})
+			if (err != nil) && status.Code(err) != tc.wantErr {
+				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
+				return
+			}
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+//
+func TestUserService_Update(t *testing.T) {
+	ui := new(userInt.User)
+	idd := "00000000-0000-0000-0000-000000000000"
+	id, _ := uuid.Parse(idd)
+	m := model.UserHTTP{ID: id, Name: "Abdula"}
+	ui.On("Update", context.Background(), m).Return(m, nil)
+
+	tests := []struct {
+		name    string
+		stor    *userInt.User
+		param   *pb.User
+		want    *pb.User
+		wantErr codes.Code
+	}{
+		{
+			name:  "Everything ok",
+			stor:  ui,
+			param: &pb.User{Id: idd, Name: "Abdula"},
+			want:  &pb.User{Id: idd, Name: "Abdula"},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			u := NewUsersGRPCServer(tc.stor)
+			got, err := u.Update(context.Background(), tc.param)
+			if (err != nil) && status.Code(err) != tc.wantErr {
+				t.Errorf("SomeLogic error = %v, wantErr %v", err.Error(), tc.wantErr)
+				return
+			}
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
