@@ -2,6 +2,7 @@ package usergrpcserver
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	userInt "github.com/stasBigunenko/monorepa/mocks/service/user"
 	"github.com/stasBigunenko/monorepa/model"
@@ -56,6 +57,10 @@ func Test_Get(t *testing.T) {
 	m := model.UserHTTP{ID: id, Name: "Andrew"}
 	ui.On("Get", context.Background(), id).Return(m, nil)
 
+	ui2 := new(userInt.User)
+	m1 := model.UserHTTP{}
+	ui.On("Get", mock.Anything, mock.Anything).Return(m1, errors.New("ss"))
+
 	tests := []struct {
 		name    string
 		stor    *userInt.User
@@ -69,13 +74,19 @@ func Test_Get(t *testing.T) {
 			param: &pb.Id{Id: "00000000-0000-0000-0000-000000000000"},
 			want:  &pb.User{Id: "00000000-0000-0000-0000-000000000000", Name: "Andrew"},
 		},
+		{
+			name:  "Wrong uuid",
+			stor:  ui2,
+			param: &pb.Id{Id: "00000000-0000-00-000000000000"},
+			want:  &pb.User{},
+		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			u := NewUsersGRPCServer(tc.stor)
 			got, err := u.Get(context.Background(), tc.param)
 			if err != nil && status.Code(err) != tc.wantErr {
-				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
+				assert.Error(t, err)
 				return
 			}
 			assert.Equal(t, tc.want, got)
@@ -99,6 +110,12 @@ func TestUserService_Delete(t *testing.T) {
 			name:  "Everything ok",
 			stor:  ui,
 			param: &pb.Id{Id: "00000000-0000-0000-0000-000000000000"},
+			want:  &emptypb.Empty{},
+		},
+		{
+			name:  "Wrong id",
+			stor:  ui,
+			param: &pb.Id{Id: "000000000-0000-0000-000000000000"},
 			want:  &emptypb.Empty{},
 		},
 	}
@@ -133,8 +150,10 @@ func TestUserService_GetAllUsers(t *testing.T) {
 	au := pb.AllUsers{
 		AllUsers: all,
 	}
-
 	ui.On("GetAll", context.Background()).Return(m, nil)
+
+	ui2 := new(userInt.User)
+	ui2.On("GetAll", context.Background()).Return(nil, errors.New("err"))
 
 	tests := []struct {
 		name    string
@@ -147,13 +166,18 @@ func TestUserService_GetAllUsers(t *testing.T) {
 			stor: ui,
 			want: &au,
 		},
+		{
+			name:    "Error",
+			stor:    ui2,
+			wantErr: codes.Internal,
+		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			u := NewUsersGRPCServer(tc.stor)
 			got, err := u.GetAllUsers(context.Background(), &emptypb.Empty{})
-			if (err != nil) && status.Code(err) != tc.wantErr {
-				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
+			if err != nil && status.Code(err) != tc.wantErr {
+				assert.Error(t, err)
 				return
 			}
 			assert.Equal(t, tc.want, got)
@@ -168,6 +192,8 @@ func TestUserService_Update(t *testing.T) {
 	id, _ := uuid.Parse(idd)
 	m := model.UserHTTP{ID: id, Name: "Abdula"}
 	ui.On("Update", context.Background(), m).Return(m, nil)
+	ui2 := new(userInt.User)
+	ui2.On("Update", context.Background(), m).Return(model.UserHTTP{}, errors.New("err"))
 
 	tests := []struct {
 		name    string
@@ -181,6 +207,12 @@ func TestUserService_Update(t *testing.T) {
 			stor:  ui,
 			param: &pb.User{Id: idd, Name: "Abdula"},
 			want:  &pb.User{Id: idd, Name: "Abdula"},
+		},
+		{
+			name:    "Error",
+			stor:    ui2,
+			param:   &pb.User{Id: idd, Name: "Abdula"},
+			wantErr: codes.Internal,
 		},
 	}
 	for _, tc := range tests {
