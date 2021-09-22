@@ -19,10 +19,13 @@ func NewUsrService(s newStorage.NewStore) *UsrService {
 	}
 }
 
-func (u *UsrService) Get(_ context.Context, id uuid.UUID) (model.UserHTTP, error) {
+func (u *UsrService) Get(c context.Context, id uuid.UUID) (model.UserHTTP, error) {
+	res, err := u.storage.Get(c, id)
+	if err != nil {
+		return model.UserHTTP{}, err
+	}
 
-	res, err := u.storage.Get(context.Background(), id)
-	if (res == nil && err == nil) || err != nil {
+	if res == nil {
 		return model.UserHTTP{}, errors.New("not found")
 	}
 
@@ -36,9 +39,9 @@ func (u *UsrService) Get(_ context.Context, id uuid.UUID) (model.UserHTTP, error
 	return m, nil
 }
 
-func (u *UsrService) GetAll(_ context.Context) ([]model.UserHTTP, error) {
+func (u *UsrService) GetAll(c context.Context) ([]model.UserHTTP, error) {
 
-	res, err := u.storage.GetAll(context.Background())
+	res, err := u.storage.GetAll(c)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
@@ -58,11 +61,7 @@ func (u *UsrService) GetAll(_ context.Context) ([]model.UserHTTP, error) {
 	return ac, nil
 }
 
-func (u *UsrService) Create(_ context.Context, name string) (model.UserHTTP, error) {
-
-	if len(name) <= 2 {
-		return model.UserHTTP{}, errors.New("invalid username")
-	}
+func (u *UsrService) Create(c context.Context, name string) (model.UserHTTP, error) {
 
 	m := model.UserHTTP{
 		Name: name,
@@ -73,9 +72,9 @@ func (u *UsrService) Create(_ context.Context, name string) (model.UserHTTP, err
 		return model.UserHTTP{}, errors.New("marshal problem")
 	}
 
-	res, id, err := u.storage.Create(context.Background(), bt)
+	res, id, err := u.storage.Create(c, bt)
 	if err != nil {
-		return model.UserHTTP{}, errors.New("storage problem")
+		return model.UserHTTP{}, err
 	}
 
 	err = json.Unmarshal(res, &m)
@@ -88,7 +87,7 @@ func (u *UsrService) Create(_ context.Context, name string) (model.UserHTTP, err
 	return m, nil
 }
 
-func (u *UsrService) Update(_ context.Context, user model.UserHTTP) (model.UserHTTP, error) {
+func (u *UsrService) Update(c context.Context, user model.UserHTTP) (model.UserHTTP, error) {
 	id := user.ID
 
 	bt, err := json.Marshal(user)
@@ -96,8 +95,12 @@ func (u *UsrService) Update(_ context.Context, user model.UserHTTP) (model.UserH
 		return model.UserHTTP{}, errors.New("marshal problem")
 	}
 
-	res, err := u.storage.Update(context.Background(), id, bt)
-	if err != nil || (res == nil && err == nil) {
+	res, err := u.storage.Update(c, id, bt)
+	if err != nil {
+		return model.UserHTTP{}, err
+	}
+
+	if res == nil && err == nil {
 		return model.UserHTTP{}, errors.New("not found")
 	}
 
@@ -111,9 +114,13 @@ func (u *UsrService) Update(_ context.Context, user model.UserHTTP) (model.UserH
 	return m, nil
 }
 
-func (u *UsrService) Delete(_ context.Context, id uuid.UUID) error {
-	b, err := u.storage.Delete(context.Background(), id)
-	if err != nil || !b {
+func (u *UsrService) Delete(c context.Context, id uuid.UUID) error {
+	b, err := u.storage.Delete(c, id)
+	if err != nil {
+		return err
+	}
+
+	if !b {
 		return errors.New("not found")
 	}
 

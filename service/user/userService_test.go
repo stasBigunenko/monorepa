@@ -14,16 +14,13 @@ import (
 func Test_Create(t *testing.T) {
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
+	mm := model.UserHTTP{Name: "Andrew"}
+	mj, _ := json.Marshal(mm)
 	m := model.UserHTTP{ID: id, Name: "Andrew"}
-	b, _ := json.Marshal("Andrew")
-	mj, _ := json.Marshal(m)
-	ui.On("Create", context.Background(), b).Return(mj, id, nil)
+	ui.On("Create", mock.Anything, mj).Return(mj, id, nil)
 
 	ui2 := new(mockNewStore.NewStore)
-	ui2.On("Create", context.Background(), "123").Return(nil, nil)
-
-	ui3 := new(mockNewStore.NewStore)
-	ui3.On("Create", context.Background(), "S").Return(nil, nil)
+	ui2.On("Create", mock.Anything, mock.Anything).Return(nil, nil, nil)
 
 	tests := []struct {
 		name    string
@@ -36,21 +33,14 @@ func Test_Create(t *testing.T) {
 			name:  "Everything good",
 			param: "Andrew",
 			stor:  ui,
-			want:  model.UserHTTP{ID: id, Name: "Andrew"},
+			want:  m,
 		},
 		{
 			name:    "Everything bad",
-			param:   "12",
+			param:   "sdda",
 			stor:    ui2,
 			want:    model.UserHTTP{},
-			wantErr: "invalid username",
-		},
-		{
-			name:    "Everything good",
-			param:   "S",
-			stor:    ui3,
-			want:    model.UserHTTP{},
-			wantErr: "invalid username",
+			wantErr: "unmarshal problem",
 		},
 	}
 	for _, tc := range tests {
