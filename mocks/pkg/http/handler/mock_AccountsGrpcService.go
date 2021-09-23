@@ -1,36 +1,34 @@
 package mocks
 
 import (
-	"context"
-
 	"github.com/google/uuid"
 	"github.com/stasBigunenko/monorepa/model"
 )
 
 type MockAccountsGrpcServer struct {
-	MockCreateAccount   func(ctx context.Context, userID uuid.UUID) (uuid.UUID, error)
-	MockGetAccount      func(ctx context.Context, id uuid.UUID) (model.Account, error)
-	MockGetUserAccounts func(ctx context.Context, userID uuid.UUID) ([]model.Account, error)
-	MockGetAllAccounts  func(ctx context.Context) ([]model.Account, error)
-	MockUpdateAccount   func(ctx context.Context, account model.Account) error
-	MockDeleteAccount   func(ctx context.Context, id uuid.UUID) error
+	MockCreateAccount   func(userID uuid.UUID) (uuid.UUID, error)
+	MockGetAccount      func(id uuid.UUID) (model.Account, error)
+	MockGetUserAccounts func(userID uuid.UUID) ([]model.Account, error)
+	MockGetAllAccounts  func() ([]model.Account, error)
+	MockUpdateAccount   func(account model.Account) error
+	MockDeleteAccount   func(id uuid.UUID) error
 }
 
-func (m *MockAccountsGrpcServer) CreateAccount(ctx context.Context, userID uuid.UUID) (uuid.UUID, error) {
-	return m.MockCreateAccount(ctx, userID)
+func (m *MockAccountsGrpcServer) CreateAccount(userID uuid.UUID) (uuid.UUID, error) {
+	return m.MockCreateAccount(userID)
 }
-func (m *MockAccountsGrpcServer) GetAccount(ctx context.Context, id uuid.UUID) (model.Account, error) {
-	return m.MockGetAccount(ctx, id)
+func (m *MockAccountsGrpcServer) GetAccount(id uuid.UUID) (model.Account, error) {
+	return m.MockGetAccount(id)
 }
-func (m *MockAccountsGrpcServer) GetUserAccounts(ctx context.Context, userID uuid.UUID) ([]model.Account, error) {
-	return m.MockGetUserAccounts(ctx, userID)
+func (m *MockAccountsGrpcServer) GetUserAccounts(userID uuid.UUID) ([]model.Account, error) {
+	return m.MockGetUserAccounts(userID)
 }
-func (m *MockAccountsGrpcServer) GetAllAccounts(ctx context.Context) ([]model.Account, error) {
-	return m.MockGetAllAccounts(ctx)
+func (m *MockAccountsGrpcServer) GetAllAccounts() ([]model.Account, error) {
+	return m.MockGetAllAccounts()
 }
-func (m *MockAccountsGrpcServer) UpdateAccount(ctx context.Context, account model.Account) error {
-	return m.MockUpdateAccount(ctx, account)
+func (m *MockAccountsGrpcServer) UpdateAccount(account model.Account) error {
+	return m.MockUpdateAccount(account)
 }
-func (m *MockAccountsGrpcServer) DeleteAccount(ctx context.Context, id uuid.UUID) error {
-	return m.MockDeleteAccount(ctx, id)
+func (m *MockAccountsGrpcServer) DeleteAccount(id uuid.UUID) error {
+	return m.MockDeleteAccount(id)
 }
