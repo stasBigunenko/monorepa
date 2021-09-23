@@ -14,9 +14,15 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+type MockLoggingService struct {
+}
+
+func (MockLoggingService) WriteLog(ctx context.Context, message string) {}
+
 func TestAccountGRPCСontroller_CreateAccount(t *testing.T) {
 	type fields struct {
-		client pb.AccountGRPCServiceClient
+		client         pb.AccountGRPCServiceClient
+		loggingService LoggingService
 	}
 	type args struct {
 		userID uuid.UUID
@@ -70,9 +76,10 @@ func TestAccountGRPCСontroller_CreateAccount(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := AccountGRPCСontroller{
-				client: tt.fields.client,
+				client:         tt.fields.client,
+				loggingService: MockLoggingService{},
 			}
-			got, err := s.CreateAccount(tt.args.userID)
+			got, err := s.CreateAccount(context.Background(), tt.args.userID)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AccountGRPCСontroller.CreateAccount() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -86,7 +93,8 @@ func TestAccountGRPCСontroller_CreateAccount(t *testing.T) {
 
 func TestAccountGRPCСontroller_GetAccount(t *testing.T) {
 	type fields struct {
-		client pb.AccountGRPCServiceClient
+		client         pb.AccountGRPCServiceClient
+		loggingService LoggingService
 	}
 	type args struct {
 		id uuid.UUID
@@ -143,9 +151,10 @@ func TestAccountGRPCСontroller_GetAccount(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := AccountGRPCСontroller{
-				client: tt.fields.client,
+				client:         tt.fields.client,
+				loggingService: MockLoggingService{},
 			}
-			got, err := s.GetAccount(tt.args.id)
+			got, err := s.GetAccount(context.Background(), tt.args.id)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AccountGRPCСontroller.GetAccount() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -159,7 +168,8 @@ func TestAccountGRPCСontroller_GetAccount(t *testing.T) {
 
 func TestAccountGRPCСontroller_GetUserAccounts(t *testing.T) {
 	type fields struct {
-		client pb.AccountGRPCServiceClient
+		client         pb.AccountGRPCServiceClient
+		loggingService LoggingService
 	}
 	type args struct {
 		id uuid.UUID
@@ -219,9 +229,10 @@ func TestAccountGRPCСontroller_GetUserAccounts(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := AccountGRPCСontroller{
-				client: tt.fields.client,
+				client:         tt.fields.client,
+				loggingService: MockLoggingService{},
 			}
-			got, err := s.GetUserAccounts(tt.args.id)
+			got, err := s.GetUserAccounts(context.Background(), tt.args.id)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AccountGRPCСontroller.GetAllAccounts() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -235,7 +246,8 @@ func TestAccountGRPCСontroller_GetUserAccounts(t *testing.T) {
 
 func TestAccountGRPCСontroller_GetAllAccounts(t *testing.T) {
 	type fields struct {
-		client pb.AccountGRPCServiceClient
+		client         pb.AccountGRPCServiceClient
+		loggingService LoggingService
 	}
 	tests := []struct {
 		name    string
@@ -285,9 +297,10 @@ func TestAccountGRPCСontroller_GetAllAccounts(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := AccountGRPCСontroller{
-				client: tt.fields.client,
+				client:         tt.fields.client,
+				loggingService: MockLoggingService{},
 			}
-			got, err := s.GetAllAccounts()
+			got, err := s.GetAllAccounts(context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AccountGRPCСontroller.GetAllAccounts() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -301,7 +314,8 @@ func TestAccountGRPCСontroller_GetAllAccounts(t *testing.T) {
 
 func TestAccountGRPCСontroller_UpdateAccount(t *testing.T) {
 	type fields struct {
-		client pb.AccountGRPCServiceClient
+		client         pb.AccountGRPCServiceClient
+		loggingService LoggingService
 	}
 	type args struct {
 		Account model.Account
@@ -353,9 +367,10 @@ func TestAccountGRPCСontroller_UpdateAccount(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := AccountGRPCСontroller{
-				client: tt.fields.client,
+				client:         tt.fields.client,
+				loggingService: MockLoggingService{},
 			}
-			if err := s.UpdateAccount(tt.args.Account); (err != nil) != tt.wantErr {
+			if err := s.UpdateAccount(context.Background(), tt.args.Account); (err != nil) != tt.wantErr {
 				t.Errorf("AccountGRPCСontroller.UpdateAccount() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -364,7 +379,8 @@ func TestAccountGRPCСontroller_UpdateAccount(t *testing.T) {
 
 func TestAccountGRPCСontroller_DeleteAccount(t *testing.T) {
 	type fields struct {
-		client pb.AccountGRPCServiceClient
+		client         pb.AccountGRPCServiceClient
+		loggingService LoggingService
 	}
 	type args struct {
 		id uuid.UUID
@@ -408,9 +424,10 @@ func TestAccountGRPCСontroller_DeleteAccount(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := AccountGRPCСontroller{
-				client: tt.fields.client,
+				client:         tt.fields.client,
+				loggingService: MockLoggingService{},
 			}
-			if err := s.DeleteAccount(tt.args.id); (err != nil) != tt.wantErr {
+			if err := s.DeleteAccount(context.Background(), tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("AccountGRPCСontroller.DeleteAccount() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

@@ -14,9 +14,15 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+type MockLoggingService struct {
+}
+
+func (MockLoggingService) WriteLog(ctx context.Context, message string) {}
+
 func TestUserGRPCСontroller_CreateUser(t *testing.T) {
 	type fields struct {
-		client pb.UserGRPCServiceClient
+		client         pb.UserGRPCServiceClient
+		loggingService LoggingService
 	}
 	type args struct {
 		name string
@@ -69,9 +75,10 @@ func TestUserGRPCСontroller_CreateUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := UserGRPCСontroller{
-				client: tt.fields.client,
+				client:         tt.fields.client,
+				loggingService: MockLoggingService{},
 			}
-			got, err := s.CreateUser(tt.args.name)
+			got, err := s.CreateUser(context.Background(), tt.args.name)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("UserGRPCСontroller.CreateUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -85,7 +92,8 @@ func TestUserGRPCСontroller_CreateUser(t *testing.T) {
 
 func TestUserGRPCСontroller_GetUser(t *testing.T) {
 	type fields struct {
-		client pb.UserGRPCServiceClient
+		client         pb.UserGRPCServiceClient
+		loggingService LoggingService
 	}
 	type args struct {
 		id uuid.UUID
@@ -140,9 +148,10 @@ func TestUserGRPCСontroller_GetUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := UserGRPCСontroller{
-				client: tt.fields.client,
+				client:         tt.fields.client,
+				loggingService: MockLoggingService{},
 			}
-			got, err := s.GetUser(tt.args.id)
+			got, err := s.GetUser(context.Background(), tt.args.id)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("UserGRPCСontroller.GetUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -156,7 +165,8 @@ func TestUserGRPCСontroller_GetUser(t *testing.T) {
 
 func TestUserGRPCСontroller_GetAllUsers(t *testing.T) {
 	type fields struct {
-		client pb.UserGRPCServiceClient
+		client         pb.UserGRPCServiceClient
+		loggingService LoggingService
 	}
 	tests := []struct {
 		name    string
@@ -205,9 +215,10 @@ func TestUserGRPCСontroller_GetAllUsers(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := UserGRPCСontroller{
-				client: tt.fields.client,
+				client:         tt.fields.client,
+				loggingService: MockLoggingService{},
 			}
-			got, err := s.GetAllUsers()
+			got, err := s.GetAllUsers(context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("UserGRPCСontroller.GetAllUsers() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -221,7 +232,8 @@ func TestUserGRPCСontroller_GetAllUsers(t *testing.T) {
 
 func TestUserGRPCСontroller_UpdateUser(t *testing.T) {
 	type fields struct {
-		client pb.UserGRPCServiceClient
+		client         pb.UserGRPCServiceClient
+		loggingService LoggingService
 	}
 	type args struct {
 		user model.UserHTTP
@@ -271,9 +283,10 @@ func TestUserGRPCСontroller_UpdateUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := UserGRPCСontroller{
-				client: tt.fields.client,
+				client:         tt.fields.client,
+				loggingService: MockLoggingService{},
 			}
-			if err := s.UpdateUser(tt.args.user); (err != nil) != tt.wantErr {
+			if err := s.UpdateUser(context.Background(), tt.args.user); (err != nil) != tt.wantErr {
 				t.Errorf("UserGRPCСontroller.UpdateUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -282,7 +295,8 @@ func TestUserGRPCСontroller_UpdateUser(t *testing.T) {
 
 func TestUserGRPCСontroller_DeleteUser(t *testing.T) {
 	type fields struct {
-		client pb.UserGRPCServiceClient
+		client         pb.UserGRPCServiceClient
+		loggingService LoggingService
 	}
 	type args struct {
 		id uuid.UUID
@@ -326,9 +340,10 @@ func TestUserGRPCСontroller_DeleteUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := UserGRPCСontroller{
-				client: tt.fields.client,
+				client:         tt.fields.client,
+				loggingService: MockLoggingService{},
 			}
-			if err := s.DeleteUser(tt.args.id); (err != nil) != tt.wantErr {
+			if err := s.DeleteUser(context.Background(), tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("UserGRPCСontroller.DeleteUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
