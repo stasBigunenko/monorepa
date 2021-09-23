@@ -64,7 +64,7 @@ function transformDataToTree(data) {
   let items = accounts.map( (el, id)  => {
     return {
         "id": id,
-        "label": `User id: ${el.userID}. Balance: ${el.balance}`,
+        "label": `Account id: ${el.userID}; Balance: ${el.balance}`,
         "parentId": 0
       }
     })
@@ -73,7 +73,7 @@ function transformDataToTree(data) {
     {
       "id": 0,
       "parentId": null,
-      "label": `User ${user.name}`,
+      "label": `Username: ${user.name}`,
       "items": items,
     }
   ]
