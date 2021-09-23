@@ -5,11 +5,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
+
+	"github.com/stasBigunenko/monorepa/model"
 )
-
-type ContextKey string
-
-const ContextKeyRequestID ContextKey = "requestID"
 
 type LoggingService struct {
 }
@@ -19,8 +17,7 @@ func New() LoggingService {
 }
 
 func (h LoggingService) WriteLog(ctx context.Context, message string) {
-	log.Print(ctx)
-	id, ok := ctx.Value(ContextKeyRequestID).(string)
+	id, ok := ctx.Value(model.ContextKeyRequestID).(string)
 	if !ok {
 		log.Info("failed to convert context value and get context id")
 	}
