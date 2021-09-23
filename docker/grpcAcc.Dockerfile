@@ -12,4 +12,4 @@ RUN go mod download
 # Copy the code into the container
 COPY . .
 
-ENTRYPOINT ["go", "run", "./cmd/grpc/main.go"]
+ENTRYPOINT ["go", "run", "./cmd/accountGRPC/main.go"]
