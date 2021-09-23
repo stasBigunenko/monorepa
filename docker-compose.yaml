@@ -38,14 +38,26 @@ services:
       - "auth:auth"
       - "grpc:grpc"
     depends_on:
-          - "grpc"
+          - "grpcAccount"
+          - "grpcUser"
 
-  grpc:
-    container_name: "grpc"
+  grpcAccount:
+    container_name: "grpcAccount"
     build: 
       context: "./"
-      dockerfile: "./docker/grpc.Dockerfile"
+      dockerfile: "./docker/grpcAcc.Dockerfile"
     environment:
-      GRPC_SERV_ADDRESS: ':50051'
+      GRPC_SERV_ADDRESS: ':50053'
     ports: 
-      - "50051:50051"
+      - "50053:50053"
+
+
+  grpcUser:
+    container_name: "grpcUser"
+    build: 
+      context: "./"
+      dockerfile: "./docker/grpcAcc.Dockerfile"
+    environment:
+      GRPC_SERV_ADDRESS: ':50052'
+    ports: 
+      - "50052:50052"
