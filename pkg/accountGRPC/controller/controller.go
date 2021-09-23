@@ -50,7 +50,7 @@ func (s AccountGRPCСontroller) formatError(err error, message string) error {
 
 func (s AccountGRPCСontroller) CreateAccount(ctx context.Context, userID uuid.UUID) (uuid.UUID, error) {
 	s.loggingService.WriteLog(ctx, "GRPC Client: Command CreateAccount received...")
-	resp, err := s.client.CreateAccount(context.Background(), &pb.UserID{
+	resp, err := s.client.CreateAccount(ctx, &pb.UserID{
 		UserID: userID.String(),
 	})
 
@@ -68,7 +68,7 @@ func (s AccountGRPCСontroller) CreateAccount(ctx context.Context, userID uuid.U
 
 func (s AccountGRPCСontroller) GetAccount(ctx context.Context, id uuid.UUID) (model.Account, error) {
 	s.loggingService.WriteLog(ctx, "GRPC Client: Command GetAccount received...")
-	resp, err := s.client.GetAccount(context.Background(), &pb.AccountID{
+	resp, err := s.client.GetAccount(ctx, &pb.AccountID{
 		Id: id.String(),
 	})
 
@@ -95,7 +95,7 @@ func (s AccountGRPCСontroller) GetAccount(ctx context.Context, id uuid.UUID) (m
 
 func (s AccountGRPCСontroller) GetUserAccounts(ctx context.Context, userID uuid.UUID) ([]model.Account, error) {
 	s.loggingService.WriteLog(ctx, "GRPC Client: Command GetUserAccounts received...")
-	resp, err := s.client.GetUserAccounts(context.Background(), &pb.UserID{
+	resp, err := s.client.GetUserAccounts(ctx, &pb.UserID{
 		UserID: userID.String(),
 	})
 
@@ -127,7 +127,7 @@ func (s AccountGRPCСontroller) GetUserAccounts(ctx context.Context, userID uuid
 
 func (s AccountGRPCСontroller) GetAllAccounts(ctx context.Context) ([]model.Account, error) {
 	s.loggingService.WriteLog(ctx, "GRPC Client: Command GetAllAccounts received...")
-	resp, err := s.client.GetAllUsers(context.Background(), &emptypb.Empty{})
+	resp, err := s.client.GetAllUsers(ctx, &emptypb.Empty{})
 	if err != nil {
 		return nil, s.formatError(err, "failed to get all accounts")
 	}
@@ -156,7 +156,7 @@ func (s AccountGRPCСontroller) GetAllAccounts(ctx context.Context) ([]model.Acc
 
 func (s AccountGRPCСontroller) UpdateAccount(ctx context.Context, account model.Account) error {
 	s.loggingService.WriteLog(ctx, "GRPC Client: Command UpdateAccount received...")
-	_, err := s.client.UpdateAccount(context.Background(), &pb.Account{
+	_, err := s.client.UpdateAccount(ctx, &pb.Account{
 		Id:      account.ID.String(),
 		UserID:  account.UserID.String(),
 		Balance: int32(account.Balance),
@@ -171,7 +171,7 @@ func (s AccountGRPCСontroller) UpdateAccount(ctx context.Context, account model
 
 func (s AccountGRPCСontroller) DeleteAccount(ctx context.Context, id uuid.UUID) error {
 	s.loggingService.WriteLog(ctx, "GRPC Client: Command DeleteAccount received...")
-	_, err := s.client.DeleteAccount(context.Background(), &pb.AccountID{
+	_, err := s.client.DeleteAccount(ctx, &pb.AccountID{
 		Id: id.String(),
 	})
 
