@@ -33,15 +33,17 @@ services:
     environment:    
       HTTP_ADDRESS: :8081
       JWT_ADDRESS: auth:8080
-      GRPC_ADDRESS: grpc:50051
+      GRPC_ACCOUNTS_ADDRESS: account:50053
+      GRPC_USERS_ADDRESS: user:50052
     links:
       - "auth:auth"
-      - "grpc:grpc"
+      - "account:account"
+      - "user:user"
     depends_on:
-          - "grpcAccount"
-          - "grpcUser"
+          - "account"
+          - "user"
 
-  grpcAccount:
+  account:
     container_name: "grpcAccount"
     build: 
       context: "./"
@@ -52,7 +54,7 @@ services:
       - "50053:50053"
 
 
-  grpcUser:
+  user:
     container_name: "grpcUser"
     build: 
       context: "./"

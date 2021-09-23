@@ -49,6 +49,7 @@ func (h HTTPHandler) RequestIDMiddleware(next http.Handler) http.Handler {
 		name, ok := ctx.Value(NameKey).(string)
 		if !ok {
 			h.reportError(w, errors.New("failed to generate context value"))
+			return
 		}
 
 		requestID := name + "_" + uuid.New().String()

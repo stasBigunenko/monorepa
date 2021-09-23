@@ -19,9 +19,10 @@ import (
 )
 
 type Config struct {
-	HTTPAddress string
-	JWTAddress  string
-	GRPCAddress string
+	HTTPAddress        string
+	JWTAddress         string
+	GRPCAccountAddress string
+	GRPCUserAddress    string
 }
 
 func getCfg() Config {
@@ -35,15 +36,21 @@ func getCfg() Config {
 		jwtAddr = "127.0.0.1:8081"
 	}
 
-	grpcAddr := os.Getenv("GRPC_ADDRESS")
-	if grpcAddr == "" {
-		grpcAddr = "127.0.0.1:50051"
+	grpcAccAddr := os.Getenv("GRPC_ACCOUNTS_ADDRESS")
+	if grpcAccAddr == "" {
+		grpcAccAddr = "127.0.0.1:50051"
+	}
+
+	grpcUserAddr := os.Getenv("GRPC_USERS_ADDRESS")
+	if grpcUserAddr == "" {
+		grpcUserAddr = "127.0.0.1:50051"
 	}
 
 	return Config{
-		HTTPAddress: httpAddr,
-		JWTAddress:  jwtAddr,
-		GRPCAddress: grpcAddr,
+		HTTPAddress:        httpAddr,
+		JWTAddress:         jwtAddr,
+		GRPCAccountAddress: grpcAccAddr,
+		GRPCUserAddress:    grpcUserAddr,
 	}
 }
 
@@ -59,15 +66,23 @@ func init() {
 func main() {
 	cfg := getCfg()
 
-	conn, err := grpc.Dial(cfg.GRPCAddress, grpc.WithInsecure())
+	connAcc, err := grpc.Dial(cfg.GRPCAccountAddress, grpc.WithInsecure())
 	if err != nil {
-		log.Fatal("did not connect to grpc: ", err)
+		log.Info("did not connect to grpc: ", err)
+		return
 	}
-	defer conn.Close()
+	defer connAcc.Close()
+
+	connUser, err := grpc.Dial(cfg.GRPCAccountAddress, grpc.WithInsecure())
+	if err != nil {
+		log.Info("did not connect to grpc: ", err)
+		return
+	}
+	defer connUser.Close()
 
 	loggingService := loggingservice.New()
-	userService := userscontroller.New(pbusers.NewUserGRPCServiceClient(conn), loggingService)
-	accountService := accountscontroller.New(pbaccounts.NewAccountGRPCServiceClient(conn), loggingService)
+	userService := userscontroller.New(pbusers.NewUserGRPCServiceClient(connUser), loggingService)
+	accountService := accountscontroller.New(pbaccounts.NewAccountGRPCServiceClient(connAcc), loggingService)
 
 	h := httphandler.New(accountService, userService, loggingService, cfg.JWTAddress)
 

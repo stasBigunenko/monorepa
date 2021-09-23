@@ -65,6 +65,8 @@ func main() {
 	}()
 	signal.Notify(sigC, syscall.SIGINT, syscall.SIGTERM)
 
+	log.Info("User server started...")
+
 	// start server
 	if err := s.Serve(lis); err != nil && err != grpc.ErrServerStopped {
 		log.Error("error: grpc server failed: ", err)
