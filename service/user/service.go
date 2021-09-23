@@ -28,7 +28,7 @@ func NewUsrService(s newStorage.NewStore, loggingService LoggingService) *UsrSer
 }
 
 func (u *UsrService) Get(c context.Context, id uuid.UUID) (model.UserHTTP, error) {
-	u.loggingService.WriteLog(c, "GRPC Server: Command Get received...")
+	u.loggingService.WriteLog(c, "User service: Command Get received...")
 
 	res, err := u.storage.Get(c, id)
 	if err != nil {
@@ -50,7 +50,7 @@ func (u *UsrService) Get(c context.Context, id uuid.UUID) (model.UserHTTP, error
 }
 
 func (u *UsrService) GetAll(c context.Context) ([]model.UserHTTP, error) {
-	u.loggingService.WriteLog(c, "GRPC Server: Command GetAll received...")
+	u.loggingService.WriteLog(c, "User service: Command GetAll received...")
 
 	res, err := u.storage.GetAll(c)
 	if err != nil {
@@ -73,7 +73,7 @@ func (u *UsrService) GetAll(c context.Context) ([]model.UserHTTP, error) {
 }
 
 func (u *UsrService) Create(c context.Context, name string) (model.UserHTTP, error) {
-	u.loggingService.WriteLog(c, "GRPC Server: Command Create received...")
+	u.loggingService.WriteLog(c, "User service: Command Create received...")
 
 	m := model.UserHTTP{
 		Name: name,
@@ -100,7 +100,7 @@ func (u *UsrService) Create(c context.Context, name string) (model.UserHTTP, err
 }
 
 func (u *UsrService) Update(c context.Context, user model.UserHTTP) (model.UserHTTP, error) {
-	u.loggingService.WriteLog(c, "GRPC Server: Command Update received...")
+	u.loggingService.WriteLog(c, "User service: Command Update received...")
 
 	id := user.ID
 
@@ -129,7 +129,7 @@ func (u *UsrService) Update(c context.Context, user model.UserHTTP) (model.UserH
 }
 
 func (u *UsrService) Delete(c context.Context, id uuid.UUID) error {
-	u.loggingService.WriteLog(c, "GRPC Server: Command Delete received...")
+	u.loggingService.WriteLog(c, "User service: Command Delete received...")
 
 	b, err := u.storage.Delete(c, id)
 	if err != nil {
