@@ -3,15 +3,19 @@ package user
 import (
 	"context"
 	"encoding/json"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+
 	"github.com/google/uuid"
 	"github.com/stasBigunenko/monorepa/mocks/pkg/storage/mockNewStore"
 	"github.com/stasBigunenko/monorepa/model"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"testing"
+	loggingservice "github.com/stasBigunenko/monorepa/service/loggingService"
 )
 
 func Test_Create(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	mm := model.UserHTTP{Name: "Andrew"}
@@ -45,7 +49,7 @@ func Test_Create(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUsrService(tc.stor)
+			u := NewUsrService(tc.stor, loggingService)
 			got, err := u.Create(context.Background(), tc.param)
 			if (err != nil) && err.Error() != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -57,6 +61,7 @@ func Test_Create(t *testing.T) {
 }
 
 func Test_Get(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	m := model.UserHTTP{ID: id, Name: "Andrew"}
@@ -89,7 +94,7 @@ func Test_Get(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUsrService(tc.stor)
+			u := NewUsrService(tc.stor, loggingService)
 			got, err := u.Get(context.Background(), id)
 			if err != nil && err.Error() != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -101,6 +106,7 @@ func Test_Get(t *testing.T) {
 }
 
 func TestUserService_Delete(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	ui.On("Delete", context.Background(), id).Return(true, nil)
@@ -128,7 +134,7 @@ func TestUserService_Delete(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUsrService(tc.stor)
+			u := NewUsrService(tc.stor, loggingService)
 			err := u.Delete(context.Background(), tc.param)
 			if err != nil {
 				assert.Error(t, err)
@@ -141,6 +147,7 @@ func TestUserService_Delete(t *testing.T) {
 
 //
 func TestUserService_GetAll(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockNewStore.NewStore)
 	m1 := model.UserHTTP{ID: uuid.New(), Name: "Andrew"}
 	m2 := model.UserHTTP{ID: uuid.New(), Name: "Ivan"}
@@ -170,7 +177,7 @@ func TestUserService_GetAll(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUsrService(tc.stor)
+			u := NewUsrService(tc.stor, loggingService)
 			got, err := u.GetAll(context.Background())
 			if (err != nil) && err.Error() != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -182,6 +189,7 @@ func TestUserService_GetAll(t *testing.T) {
 }
 
 func TestUserService_Update(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	m := model.UserHTTP{ID: id, Name: "Abdula"}
@@ -214,7 +222,7 @@ func TestUserService_Update(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUsrService(tc.stor)
+			u := NewUsrService(tc.stor, loggingService)
 			got, err := u.Update(context.Background(), m)
 			if (err != nil) && err.Error() != tc.wantErr {
 				t.Errorf("SomeLogic error = %v, wantErr %v", err.Error(), tc.wantErr)

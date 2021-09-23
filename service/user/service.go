@@ -4,22 +4,32 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+
 	"github.com/google/uuid"
+
 	"github.com/stasBigunenko/monorepa/model"
 	"github.com/stasBigunenko/monorepa/pkg/storage/newStorage"
 )
 
-type UsrService struct {
-	storage newStorage.NewStore
+type LoggingService interface {
+	WriteLog(ctx context.Context, message string)
 }
 
-func NewUsrService(s newStorage.NewStore) *UsrService {
+type UsrService struct {
+	storage        newStorage.NewStore
+	loggingService LoggingService
+}
+
+func NewUsrService(s newStorage.NewStore, loggingService LoggingService) *UsrService {
 	return &UsrService{
-		storage: s,
+		storage:        s,
+		loggingService: loggingService,
 	}
 }
 
 func (u *UsrService) Get(c context.Context, id uuid.UUID) (model.UserHTTP, error) {
+	u.loggingService.WriteLog(c, "GRPC Server: Command Get received...")
+
 	res, err := u.storage.Get(c, id)
 	if err != nil {
 		return model.UserHTTP{}, err
@@ -40,6 +50,7 @@ func (u *UsrService) Get(c context.Context, id uuid.UUID) (model.UserHTTP, error
 }
 
 func (u *UsrService) GetAll(c context.Context) ([]model.UserHTTP, error) {
+	u.loggingService.WriteLog(c, "GRPC Server: Command GetAll received...")
 
 	res, err := u.storage.GetAll(c)
 	if err != nil {
@@ -62,6 +73,7 @@ func (u *UsrService) GetAll(c context.Context) ([]model.UserHTTP, error) {
 }
 
 func (u *UsrService) Create(c context.Context, name string) (model.UserHTTP, error) {
+	u.loggingService.WriteLog(c, "GRPC Server: Command Create received...")
 
 	m := model.UserHTTP{
 		Name: name,
@@ -88,6 +100,8 @@ func (u *UsrService) Create(c context.Context, name string) (model.UserHTTP, err
 }
 
 func (u *UsrService) Update(c context.Context, user model.UserHTTP) (model.UserHTTP, error) {
+	u.loggingService.WriteLog(c, "GRPC Server: Command Update received...")
+
 	id := user.ID
 
 	bt, err := json.Marshal(user)
@@ -115,6 +129,8 @@ func (u *UsrService) Update(c context.Context, user model.UserHTTP) (model.UserH
 }
 
 func (u *UsrService) Delete(c context.Context, id uuid.UUID) error {
+	u.loggingService.WriteLog(c, "GRPC Server: Command Delete received...")
+
 	b, err := u.storage.Delete(c, id)
 	if err != nil {
 		return err
