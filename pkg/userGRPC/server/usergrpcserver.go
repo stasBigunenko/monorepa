@@ -2,30 +2,39 @@ package usergrpcserver
 
 import (
 	"context"
+
 	"github.com/google/uuid"
-	"github.com/stasBigunenko/monorepa/model"
-	pb "github.com/stasBigunenko/monorepa/pkg/userGRPC/proto"
-	"github.com/stasBigunenko/monorepa/service/user"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+
+	"github.com/stasBigunenko/monorepa/model"
+	pb "github.com/stasBigunenko/monorepa/pkg/userGRPC/proto"
+	"github.com/stasBigunenko/monorepa/service/user"
 )
 
 // Server userGRPC
 
+type LoggingService interface {
+	WriteLog(ctx context.Context, message string)
+}
+
 type UserServerGRPC struct {
 	pb.UnimplementedUserGRPCServiceServer
 
-	service user.User
+	service        user.User
+	loggingService LoggingService
 }
 
-func NewUsersGRPCServer(s user.User) UserServerGRPC {
+func NewUsersGRPCServer(s user.User, loggingService LoggingService) UserServerGRPC {
 	return UserServerGRPC{
-		service: s,
+		service:        s,
+		loggingService: loggingService,
 	}
 }
 
 func (s UserServerGRPC) Get(c context.Context, in *pb.Id) (*pb.User, error) {
+	s.loggingService.WriteLog(c, "GRPC Server: Command Get received...")
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
@@ -43,6 +52,7 @@ func (s UserServerGRPC) Get(c context.Context, in *pb.Id) (*pb.User, error) {
 	}, nil
 }
 func (s UserServerGRPC) GetAllUsers(c context.Context, in *emptypb.Empty) (*pb.AllUsers, error) {
+	s.loggingService.WriteLog(c, "GRPC Server: Command GetAllUsers received...")
 
 	users, err := s.service.GetAll(c)
 	if err != nil {
@@ -63,6 +73,7 @@ func (s UserServerGRPC) GetAllUsers(c context.Context, in *emptypb.Empty) (*pb.A
 }
 
 func (s UserServerGRPC) Create(c context.Context, in *pb.Name) (*pb.User, error) {
+	s.loggingService.WriteLog(c, "GRPC Server: Command Create received...")
 
 	res, err := s.service.Create(c, in.Name)
 	if err != nil {
@@ -76,6 +87,7 @@ func (s UserServerGRPC) Create(c context.Context, in *pb.Name) (*pb.User, error)
 }
 
 func (s UserServerGRPC) Update(c context.Context, in *pb.User) (*pb.User, error) {
+	s.loggingService.WriteLog(c, "GRPC Server: Command Update received...")
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
@@ -98,6 +110,7 @@ func (s UserServerGRPC) Update(c context.Context, in *pb.User) (*pb.User, error)
 	}, nil
 }
 func (s UserServerGRPC) Delete(c context.Context, in *pb.Id) (*emptypb.Empty, error) {
+	s.loggingService.WriteLog(c, "GRPC Server: Command Delete received...")
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {

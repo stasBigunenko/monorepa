@@ -3,19 +3,23 @@ package usergrpcserver
 import (
 	"context"
 	"errors"
+	"testing"
+
 	"github.com/google/uuid"
-	userInt "github.com/stasBigunenko/monorepa/mocks/service/user"
-	"github.com/stasBigunenko/monorepa/model"
-	pb "github.com/stasBigunenko/monorepa/pkg/userGRPC/proto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"testing"
+
+	userInt "github.com/stasBigunenko/monorepa/mocks/service/user"
+	"github.com/stasBigunenko/monorepa/model"
+	pb "github.com/stasBigunenko/monorepa/pkg/userGRPC/proto"
+	loggingservice "github.com/stasBigunenko/monorepa/service/loggingService"
 )
 
 func Test_Create(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(userInt.User)
 	s := "Andrew"
 	uuidS := "00000000-0000-0000-0000-000000000000"
@@ -39,7 +43,7 @@ func Test_Create(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUsersGRPCServer(tc.stor)
+			u := NewUsersGRPCServer(tc.stor, loggingService)
 			got, err := u.Create(context.Background(), tc.param)
 			if (err != nil) && status.Code(err) != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -51,6 +55,7 @@ func Test_Create(t *testing.T) {
 }
 
 func Test_Get(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(userInt.User)
 	uuidS := "00000000-0000-0000-0000-000000000000"
 	id, _ := uuid.Parse(uuidS)
@@ -83,7 +88,7 @@ func Test_Get(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUsersGRPCServer(tc.stor)
+			u := NewUsersGRPCServer(tc.stor, loggingService)
 			got, err := u.Get(context.Background(), tc.param)
 			if err != nil && status.Code(err) != tc.wantErr {
 				assert.Error(t, err)
@@ -95,6 +100,7 @@ func Test_Get(t *testing.T) {
 }
 
 func TestUserService_Delete(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(userInt.User)
 	uuidS := "00000000-0000-0000-0000-000000000000"
 	id, _ := uuid.Parse(uuidS)
@@ -121,7 +127,7 @@ func TestUserService_Delete(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUsersGRPCServer(tc.stor)
+			u := NewUsersGRPCServer(tc.stor, loggingService)
 			got, err := u.Delete(context.Background(), tc.param)
 			if err != nil {
 				assert.Error(t, err)
@@ -134,6 +140,7 @@ func TestUserService_Delete(t *testing.T) {
 
 //
 func TestUserService_GetAllUsers(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(userInt.User)
 	id1 := uuid.New()
 	id2 := uuid.New()
@@ -174,7 +181,7 @@ func TestUserService_GetAllUsers(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUsersGRPCServer(tc.stor)
+			u := NewUsersGRPCServer(tc.stor, loggingService)
 			got, err := u.GetAllUsers(context.Background(), &emptypb.Empty{})
 			if err != nil && status.Code(err) != tc.wantErr {
 				assert.Error(t, err)
@@ -187,6 +194,7 @@ func TestUserService_GetAllUsers(t *testing.T) {
 
 //
 func TestUserService_Update(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(userInt.User)
 	idd := "00000000-0000-0000-0000-000000000000"
 	id, _ := uuid.Parse(idd)
@@ -217,7 +225,7 @@ func TestUserService_Update(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUsersGRPCServer(tc.stor)
+			u := NewUsersGRPCServer(tc.stor, loggingService)
 			got, err := u.Update(context.Background(), tc.param)
 			if (err != nil) && status.Code(err) != tc.wantErr {
 				t.Errorf("SomeLogic error = %v, wantErr %v", err.Error(), tc.wantErr)

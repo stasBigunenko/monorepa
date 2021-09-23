@@ -3,19 +3,23 @@ package accountgrpcserver
 import (
 	"context"
 	"errors"
+	"testing"
+
 	"github.com/google/uuid"
-	mockAccInt "github.com/stasBigunenko/monorepa/mocks/service/account"
-	"github.com/stasBigunenko/monorepa/model"
-	pb "github.com/stasBigunenko/monorepa/pkg/accountGRPC/proto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"testing"
+
+	mockAccInt "github.com/stasBigunenko/monorepa/mocks/service/account"
+	"github.com/stasBigunenko/monorepa/model"
+	pb "github.com/stasBigunenko/monorepa/pkg/accountGRPC/proto"
+	loggingservice "github.com/stasBigunenko/monorepa/service/loggingService"
 )
 
 func Test_Create(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockAccInt.AccInterface)
 	uuidS := "00000000-0000-0000-0000-000000000000"
 	id, _ := uuid.Parse(uuidS)
@@ -48,7 +52,7 @@ func Test_Create(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewAccountGRPCServer(tc.stor)
+			u := NewAccountGRPCServer(tc.stor, loggingService)
 			got, err := u.CreateAccount(context.Background(), tc.param)
 			if (err != nil) && status.Code(err) != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -60,6 +64,7 @@ func Test_Create(t *testing.T) {
 }
 
 func Test_Get(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockAccInt.AccInterface)
 	uuidS := "00000000-0000-0000-0000-000000000000"
 	id, _ := uuid.Parse(uuidS)
@@ -92,7 +97,7 @@ func Test_Get(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewAccountGRPCServer(tc.stor)
+			u := NewAccountGRPCServer(tc.stor, loggingService)
 			got, err := u.GetAccount(context.Background(), tc.param)
 			if err != nil && status.Code(err) != tc.wantErr {
 				assert.Error(t, err)
@@ -104,6 +109,7 @@ func Test_Get(t *testing.T) {
 }
 
 func TestAccount_Delete(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockAccInt.AccInterface)
 	uuidS := "00000000-0000-0000-0000-000000000000"
 	id, _ := uuid.Parse(uuidS)
@@ -130,7 +136,7 @@ func TestAccount_Delete(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewAccountGRPCServer(tc.stor)
+			u := NewAccountGRPCServer(tc.stor, loggingService)
 			got, err := u.DeleteAccount(context.Background(), tc.param)
 			if err != nil {
 				assert.Error(t, err)
@@ -142,6 +148,7 @@ func TestAccount_Delete(t *testing.T) {
 }
 
 func TestAccount_GetAllUser(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockAccInt.AccInterface)
 	uuidS := "00000000-0000-0000-0000-000000000000"
 	id, _ := uuid.Parse(uuidS)
@@ -182,7 +189,7 @@ func TestAccount_GetAllUser(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewAccountGRPCServer(tc.stor)
+			u := NewAccountGRPCServer(tc.stor, loggingService)
 			got, err := u.GetAllUsers(context.Background(), &emptypb.Empty{})
 			if err != nil && status.Code(err) != tc.wantErr {
 				assert.Error(t, err)
@@ -194,6 +201,7 @@ func TestAccount_GetAllUser(t *testing.T) {
 }
 
 func TestAccount_Update(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockAccInt.AccInterface)
 	idd := "00000000-0000-0000-0000-000000000000"
 	id, _ := uuid.Parse(idd)
@@ -224,7 +232,7 @@ func TestAccount_Update(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewAccountGRPCServer(tc.stor)
+			u := NewAccountGRPCServer(tc.stor, loggingService)
 			got, err := u.UpdateAccount(context.Background(), tc.param)
 			if (err != nil) && status.Code(err) != tc.wantErr {
 				t.Errorf("SomeLogic error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -236,6 +244,7 @@ func TestAccount_Update(t *testing.T) {
 }
 
 func TestAccount_GetUserAccount(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockAccInt.AccInterface)
 	uuidS := "00000000-0000-0000-0000-000000000000"
 	id, _ := uuid.Parse(uuidS)
@@ -280,7 +289,7 @@ func TestAccount_GetUserAccount(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewAccountGRPCServer(tc.stor)
+			u := NewAccountGRPCServer(tc.stor, loggingService)
 			got, err := u.GetUserAccounts(context.Background(), tc.param)
 			if err != nil && status.Code(err) != tc.wantErr {
 				assert.Error(t, err)

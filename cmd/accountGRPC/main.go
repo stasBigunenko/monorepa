@@ -13,6 +13,7 @@ import (
 	accountgrpcserver "github.com/stasBigunenko/monorepa/pkg/accountGRPC/server"
 	"github.com/stasBigunenko/monorepa/pkg/storage/newStorage"
 	"github.com/stasBigunenko/monorepa/service/account"
+	loggingservice "github.com/stasBigunenko/monorepa/service/loggingService"
 )
 
 type Config struct {
@@ -47,12 +48,14 @@ func main() {
 		log.Fatal("failed to listen: ", err)
 	}
 
-	db := newStorage.NewDB()
+	loggingService := loggingservice.New()
+
+	db := newStorage.NewDB(loggingService)
 	dbInt := newStorage.NewStore(db)
-	asi := account.NewAccService(dbInt)
+	asi := account.NewAccService(dbInt, loggingService)
 
 	s := grpc.NewServer()
-	pb.RegisterAccountGRPCServiceServer(s, accountgrpcserver.NewAccountGRPCServer(asi))
+	pb.RegisterAccountGRPCServiceServer(s, accountgrpcserver.NewAccountGRPCServer(asi, loggingService))
 
 	sigC := make(chan os.Signal, 1)
 	defer close(sigC)

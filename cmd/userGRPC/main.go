@@ -12,6 +12,7 @@ import (
 	"github.com/stasBigunenko/monorepa/pkg/storage/newStorage"
 	pb "github.com/stasBigunenko/monorepa/pkg/userGRPC/proto"
 	usergrpcserver "github.com/stasBigunenko/monorepa/pkg/userGRPC/server"
+	loggingservice "github.com/stasBigunenko/monorepa/service/loggingService"
 	"github.com/stasBigunenko/monorepa/service/user"
 )
 
@@ -47,12 +48,14 @@ func main() {
 		log.Fatal("failed to listen: ", err)
 	}
 
-	db := newStorage.NewDB()
+	loggingService := loggingservice.New()
+
+	db := newStorage.NewDB(loggingService)
 	dbInt := newStorage.NewStore(db)
-	usi := user.NewUsrService(dbInt)
+	usi := user.NewUsrService(dbInt, loggingService)
 
 	s := grpc.NewServer()
-	pb.RegisterUserGRPCServiceServer(s, usergrpcserver.NewUsersGRPCServer(usi))
+	pb.RegisterUserGRPCServiceServer(s, usergrpcserver.NewUsersGRPCServer(usi, loggingService))
 
 	sigC := make(chan os.Signal, 1)
 	defer close(sigC)

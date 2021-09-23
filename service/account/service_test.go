@@ -3,15 +3,19 @@ package account
 import (
 	"context"
 	"encoding/json"
+	"testing"
+
 	"github.com/google/uuid"
-	"github.com/stasBigunenko/monorepa/mocks/pkg/storage/mockNewStore"
-	"github.com/stasBigunenko/monorepa/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
+
+	"github.com/stasBigunenko/monorepa/mocks/pkg/storage/mockNewStore"
+	"github.com/stasBigunenko/monorepa/model"
+	loggingservice "github.com/stasBigunenko/monorepa/service/loggingService"
 )
 
 func Test_Create(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	userID := uuid.New()
@@ -37,7 +41,7 @@ func Test_Create(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewAccService(tc.stor)
+			u := NewAccService(tc.stor, loggingService)
 			got, err := u.Create(context.Background(), tc.param)
 			if err != nil && err.Error() != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -49,6 +53,7 @@ func Test_Create(t *testing.T) {
 }
 
 func Test_Get(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	userID := uuid.New()
@@ -83,7 +88,7 @@ func Test_Get(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewAccService(tc.stor)
+			u := NewAccService(tc.stor, loggingService)
 			got, err := u.Get(context.Background(), id)
 			if err != nil && err.Error() != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -95,6 +100,7 @@ func Test_Get(t *testing.T) {
 }
 
 func TestUserService_Delete(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	ui.On("Delete", context.Background(), id).Return(true, nil)
@@ -115,7 +121,7 @@ func TestUserService_Delete(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewAccService(tc.stor)
+			u := NewAccService(tc.stor, loggingService)
 			err := u.Delete(context.Background(), tc.param)
 			if err != nil && err.Error() != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -127,6 +133,7 @@ func TestUserService_Delete(t *testing.T) {
 }
 
 func TestUserService_GetAll(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockNewStore.NewStore)
 	m1 := model.Account{ID: uuid.New(), UserID: uuid.New(), Balance: 0}
 	m2 := model.Account{ID: uuid.New(), UserID: uuid.New(), Balance: 12}
@@ -156,7 +163,7 @@ func TestUserService_GetAll(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewAccService(tc.stor)
+			u := NewAccService(tc.stor, loggingService)
 			got, err := u.GetAll(context.Background())
 			if err != nil {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -168,6 +175,7 @@ func TestUserService_GetAll(t *testing.T) {
 }
 
 func TestUserService_Update(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	userID := uuid.New()
@@ -201,7 +209,7 @@ func TestUserService_Update(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewAccService(tc.stor)
+			u := NewAccService(tc.stor, loggingService)
 			got, err := u.Update(context.Background(), m)
 			if (err != nil) && err.Error() != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
@@ -213,6 +221,7 @@ func TestUserService_Update(t *testing.T) {
 }
 
 func TestUserService_GetUser(t *testing.T) {
+	loggingService := loggingservice.New()
 	ui := new(mockNewStore.NewStore)
 	userID := uuid.New()
 	m1 := model.Account{ID: uuid.New(), UserID: userID, Balance: 0}
@@ -255,7 +264,7 @@ func TestUserService_GetUser(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewAccService(tc.stor)
+			u := NewAccService(tc.stor, loggingService)
 			got, err := u.GetUser(context.Background(), tc.param)
 			if (err != nil) && err.Error() != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)

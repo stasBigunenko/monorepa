@@ -3,15 +3,19 @@ package newStorage
 import (
 	"context"
 	"encoding/json"
+	"testing"
+
 	"github.com/google/uuid"
-	"github.com/stasBigunenko/monorepa/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
+
+	"github.com/stasBigunenko/monorepa/model"
+	loggingservice "github.com/stasBigunenko/monorepa/service/loggingService"
 )
 
 func TestStorageDB_Get(t *testing.T) {
-	acc := NewDB()
+	loggingService := loggingservice.New()
+	acc := NewDB(loggingService)
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
@@ -44,7 +48,8 @@ func TestStorageDB_Get(t *testing.T) {
 }
 
 func TestStorageDB_GetUser(t *testing.T) {
-	acc := NewDB()
+	loggingService := loggingservice.New()
+	acc := NewDB(loggingService)
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
@@ -72,7 +77,8 @@ func TestStorageDB_GetUser(t *testing.T) {
 }
 
 func TestStorageDB_GetAll(t *testing.T) {
-	acc := NewDB()
+	loggingService := loggingservice.New()
+	acc := NewDB(loggingService)
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
@@ -100,7 +106,8 @@ func TestStorageDB_GetAll(t *testing.T) {
 }
 
 func TestStorageDB_Create(t *testing.T) {
-	acc := NewDB()
+	loggingService := loggingservice.New()
+	acc := NewDB(loggingService)
 	username := "Jim"
 	r, _ := json.Marshal(username)
 
@@ -124,7 +131,8 @@ func TestStorageDB_Create(t *testing.T) {
 }
 
 func TestStorageDB_Update(t *testing.T) {
-	acc := NewDB()
+	loggingService := loggingservice.New()
+	acc := NewDB(loggingService)
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
@@ -161,7 +169,8 @@ func TestStorageDB_Update(t *testing.T) {
 }
 
 func TestStorageDB_Delete(t *testing.T) {
-	acc := NewDB()
+	loggingService := loggingservice.New()
+	acc := NewDB(loggingService)
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
