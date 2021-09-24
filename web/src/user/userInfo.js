@@ -1,6 +1,7 @@
 import React from "react";
-import {TestData} from "./data"
+// import {TestData} from "./data"
 import Tree from '@naisutech/react-tree'
+import axios from 'axios';
 
 const urlGetUser = "http://localhost:8081/users"
 export class User extends React.Component {
@@ -24,8 +25,8 @@ export class User extends React.Component {
     handleSubmit(e) {
         e.preventDefault();
 
-        let {userID} = this.state;
-        if (userID == "" || userData.length == 0){
+        let {userID, userData} = this.state;
+        if (userID === "" || userData.length === 0){
           console.log("wrong data")
           console.log("userData: ", userID)
           console.log("userData: ", userData)
@@ -38,7 +39,7 @@ export class User extends React.Component {
           headers: {
             "Authorization": `bearer ${this.props.token}`
           },
-          data: user,
+          data: {},
         }).then((response) => {
           console.log("status", response.status)
           console.log("headers", response.headers)
