@@ -227,7 +227,7 @@ func TestAccount_Update(t *testing.T) {
 			name:    "Error",
 			stor:    ui2,
 			param:   &pb.Account{Id: idd, UserID: idd, Balance: 100},
-			wantErr: codes.Internal,
+			wantErr: codes.DataLoss,
 		},
 	}
 	for _, tc := range tests {
@@ -235,7 +235,7 @@ func TestAccount_Update(t *testing.T) {
 			u := NewAccountGRPCServer(tc.stor, loggingService)
 			got, err := u.UpdateAccount(context.Background(), tc.param)
 			if (err != nil) && status.Code(err) != tc.wantErr {
-				t.Errorf("SomeLogic error = %v, wantErr %v", err.Error(), tc.wantErr)
+				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
 				return
 			}
 			assert.Equal(t, tc.want, got)
