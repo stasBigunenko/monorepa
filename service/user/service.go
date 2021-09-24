@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 
 	"github.com/google/uuid"
@@ -30,114 +29,76 @@ func NewUsrService(s newStorage.NewStore, loggingService LoggingService) *UsrSer
 func (u *UsrService) Get(c context.Context, id uuid.UUID) (model.UserHTTP, error) {
 	u.loggingService.WriteLog(c, "User service: Command Get received...")
 
-	res, err := u.storage.Get(c, id)
+	val, err := u.storage.Get(c, id)
 	if err != nil {
 		return model.UserHTTP{}, err
 	}
 
-	if res == nil {
-		return model.UserHTTP{}, errors.New("not found")
+	res, ok := val.(model.UserHTTP)
+	if !ok {
+		return model.UserHTTP{}, err
 	}
 
-	var m model.UserHTTP
-
-	err = json.Unmarshal(res, &m)
-	if err != nil {
-		return model.UserHTTP{}, errors.New("unmarshal problem")
-	}
-
-	return m, nil
+	return res, nil
 }
 
 func (u *UsrService) GetAll(c context.Context) ([]model.UserHTTP, error) {
 	u.loggingService.WriteLog(c, "User service: Command GetAll received...")
 
-	res, err := u.storage.GetAll(c)
+	val, err := u.storage.GetAll(c)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
 
-	ac := []model.UserHTTP{}
-
-	var m model.UserHTTP
-
-	for _, val := range res {
-		err := json.Unmarshal(val, &m)
-		if err != nil {
-			return nil, errors.New("unmarshal problem")
-		}
-
-		ac = append(ac, m)
+	res, ok := val.([]model.UserHTTP)
+	if !ok {
+		return []model.UserHTTP{}, err
 	}
-	return ac, nil
+
+	return res, nil
 }
 
 func (u *UsrService) Create(c context.Context, name string) (model.UserHTTP, error) {
+
 	u.loggingService.WriteLog(c, "User service: Command Create received...")
 
-	m := model.UserHTTP{
-		Name: name,
-	}
+	m := model.UserHTTP{ID: uuid.Nil, Name: name}
 
-	bt, err := json.Marshal(m)
-	if err != nil {
-		return model.UserHTTP{}, errors.New("marshal problem")
-	}
-
-	res, id, err := u.storage.Create(c, bt)
+	val, err := u.storage.Create(c, m)
 	if err != nil {
 		return model.UserHTTP{}, err
 	}
 
-	err = json.Unmarshal(res, &m)
-	if err != nil {
-		return model.UserHTTP{}, errors.New("unmarshal problem")
+	res, ok := val.(model.UserHTTP)
+	if !ok {
+		return model.UserHTTP{}, errors.New("invalid data")
 	}
 
-	m.ID = id
-
-	return m, nil
+	return res, nil
 }
 
 func (u *UsrService) Update(c context.Context, user model.UserHTTP) (model.UserHTTP, error) {
 	u.loggingService.WriteLog(c, "User service: Command Update received...")
 
-	id := user.ID
-
-	bt, err := json.Marshal(user)
-	if err != nil {
-		return model.UserHTTP{}, errors.New("marshal problem")
-	}
-
-	res, err := u.storage.Update(c, id, bt)
+	val, err := u.storage.Update(c, user)
 	if err != nil {
 		return model.UserHTTP{}, err
 	}
 
-	if res == nil && err == nil {
-		return model.UserHTTP{}, errors.New("not found")
+	res, ok := val.(model.UserHTTP)
+	if !ok {
+		return model.UserHTTP{}, errors.New("invalid data")
 	}
 
-	var m model.UserHTTP
-
-	err = json.Unmarshal(res, &m)
-	if err != nil {
-		return model.UserHTTP{}, errors.New("unmarshal problem")
-	}
-
-	return m, nil
+	return res, nil
 }
 
 func (u *UsrService) Delete(c context.Context, id uuid.UUID) error {
 	u.loggingService.WriteLog(c, "User service: Command Delete received...")
 
-	b, err := u.storage.Delete(c, id)
+	err := u.storage.Delete(c, id)
 	if err != nil {
 		return err
-	}
-
-	if !b {
-		return errors.New("not found")
 	}
 
 	return nil

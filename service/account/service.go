@@ -2,9 +2,6 @@ package account
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-
 	"github.com/google/uuid"
 
 	"github.com/stasBigunenko/monorepa/model"
@@ -30,134 +27,94 @@ func NewAccService(s newStorage.NewStore, loggingService LoggingService) *AccSer
 func (a *AccService) Get(c context.Context, id uuid.UUID) (model.Account, error) {
 	a.loggingService.WriteLog(c, "AccService: Command Get received...")
 
-	res, err := a.storage.Get(c, id)
+	val, err := a.storage.Get(c, id)
 	if err != nil {
 		return model.Account{}, err
 	}
 
-	if res == nil {
-		return model.Account{}, errors.New("couldn't get account")
+	res, ok := val.(model.Account)
+	if !ok {
+		return model.Account{}, err
 	}
 
-	var acc model.Account
-
-	err = json.Unmarshal(res, &acc)
-	if err != nil {
-		return model.Account{}, errors.New("couldn't unmarshal data")
-	}
-
-	return acc, nil
+	return res, nil
 
 }
 
 func (a *AccService) GetUser(c context.Context, userID uuid.UUID) ([]model.Account, error) {
 	a.loggingService.WriteLog(c, "AccService: Command GetUser received...")
 
-	res, err := a.storage.GetUser(c, userID)
+	val, err := a.storage.GetUserAccounts(c, userID)
 	if err != nil {
 		return []model.Account{}, err
 	}
 
-	if res == nil {
-		return []model.Account{}, errors.New("storage problem")
+	res, ok := val.([]model.Account)
+	if !ok {
+		return []model.Account{}, err
 	}
 
-	var acs []model.Account
-
-	for _, val := range res {
-		var acc model.Account
-		err := json.Unmarshal(val, &acc)
-		if err != nil {
-			return []model.Account{}, errors.New("couldn't unmarshal data")
-		}
-		acs = append(acs, acc)
-	}
-
-	return acs, nil
+	return res, nil
 }
 
 func (a *AccService) GetAll(c context.Context) ([]model.Account, error) {
 	a.loggingService.WriteLog(c, "AccService: Command GetAll received...")
 
-	res, err := a.storage.GetAll(c)
+	val, err := a.storage.GetAll(c)
 	if err != nil {
 		return nil, err
 	}
 
-	acs := []model.Account{}
-
-	for _, val := range res {
-		var acc model.Account
-		err := json.Unmarshal(val, &acc)
-		if err != nil {
-			return nil, errors.New("couldn't unmarshal data")
-		}
-
-		acs = append(acs, acc)
+	res, ok := val.([]model.Account)
+	if !ok {
+		return []model.Account{}, err
 	}
-	return acs, nil
+
+	return res, nil
 }
 
 func (a *AccService) Create(c context.Context, userID uuid.UUID) (model.Account, error) {
 	a.loggingService.WriteLog(c, "AccService: Command Create received...")
 
-	acc := model.Account{UserID: userID, Balance: 0}
-
-	jUsrID, err := json.Marshal(acc)
-	if err != nil {
-		return model.Account{}, errors.New("couldn't marshal data")
+	acc := model.Account{
+		UserID: userID,
 	}
 
-	res, id, err := a.storage.Create(c, jUsrID)
+	val, err := a.storage.Create(c, acc)
 	if err != nil {
 		return model.Account{}, err
 	}
 
-	err = json.Unmarshal(res, &acc)
-	if err != nil {
-		return model.Account{}, errors.New("couldn't unmarshal data")
+	res, ok := val.(model.Account)
+	if !ok {
+		return model.Account{}, err
 	}
 
-	acc.ID = id
-
-	return acc, nil
+	return res, nil
 }
 
 func (a *AccService) Update(c context.Context, account model.Account) (model.Account, error) {
 	a.loggingService.WriteLog(c, "AccService: Command Update received...")
 
-	id := account.ID
-
-	j, err := json.Marshal(account)
-	if err != nil {
-		return model.Account{}, errors.New("couldn't marshal data")
-	}
-
-	res, err := a.storage.Update(c, id, j)
+	val, err := a.storage.Update(c, account)
 	if err != nil {
 		return model.Account{}, err
 	}
 
-	var acc model.Account
-
-	err = json.Unmarshal(res, &acc)
-	if err != nil {
-		return model.Account{}, errors.New("couldn't unmarshal data")
+	res, ok := val.(model.Account)
+	if !ok {
+		return model.Account{}, err
 	}
 
-	return acc, nil
+	return res, nil
 }
 
 func (a *AccService) Delete(c context.Context, id uuid.UUID) error {
 	a.loggingService.WriteLog(c, "AccService: Command Delete received...")
 
-	b, err := a.storage.Delete(c, id)
-	if err != nil || !b {
+	err := a.storage.Delete(c, id)
+	if err != nil {
 		return err
-	}
-
-	if !b {
-		return errors.New("not found")
 	}
 
 	return nil

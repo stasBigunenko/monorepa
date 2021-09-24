@@ -73,7 +73,7 @@ func main() {
 	}
 	defer connAcc.Close()
 
-	connUser, err := grpc.Dial(cfg.GRPCAccountAddress, grpc.WithInsecure())
+	connUser, err := grpc.Dial(cfg.GRPCUserAddress, grpc.WithInsecure())
 	if err != nil {
 		log.Info("did not connect to grpc: ", err)
 		return
