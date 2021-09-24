@@ -41,7 +41,7 @@ func (s AccountServerGRPC) GetAccount(c context.Context, in *pb.AccountID) (*pb.
 
 	res, err := s.service.Get(c, id)
 	if err != nil {
-		return &pb.Account{}, status.Error(codes.Internal, "internal problems")
+		return &pb.Account{}, status.Error(codes.DataLoss, "internal problems")
 	}
 
 	return &pb.Account{
@@ -61,7 +61,7 @@ func (s AccountServerGRPC) GetUserAccounts(c context.Context, in *pb.UserID) (*p
 
 	users, err := s.service.GetUser(c, userID)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to get the list of users")
+		return nil, status.Error(codes.DataLoss, "failed to get the list of users")
 	}
 
 	all := []*pb.Account{}
@@ -139,7 +139,7 @@ func (s AccountServerGRPC) UpdateAccount(c context.Context, in *pb.Account) (*pb
 
 	res, err := s.service.Update(c, m)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to update user")
+		return nil, status.Error(codes.DataLoss, "failed to update user")
 	}
 
 	return &pb.Account{
@@ -158,7 +158,7 @@ func (s AccountServerGRPC) DeleteAccount(c context.Context, in *pb.AccountID) (*
 
 	err = s.service.Delete(c, id)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to delete")
+		return nil, status.Error(codes.DataLoss, "failed to delete")
 	}
 
 	return &emptypb.Empty{}, nil

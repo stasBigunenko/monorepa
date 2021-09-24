@@ -220,7 +220,7 @@ func TestUserService_Update(t *testing.T) {
 			name:    "Error",
 			stor:    ui2,
 			param:   &pb.User{Id: idd, Name: "Abdula"},
-			wantErr: codes.Internal,
+			wantErr: codes.NotFound,
 		},
 	}
 	for _, tc := range tests {
@@ -228,7 +228,7 @@ func TestUserService_Update(t *testing.T) {
 			u := NewUsersGRPCServer(tc.stor, loggingService)
 			got, err := u.Update(context.Background(), tc.param)
 			if (err != nil) && status.Code(err) != tc.wantErr {
-				t.Errorf("SomeLogic error = %v, wantErr %v", err.Error(), tc.wantErr)
+				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
 				return
 			}
 			assert.Equal(t, tc.want, got)

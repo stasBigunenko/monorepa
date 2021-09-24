@@ -6,10 +6,10 @@ import (
 )
 
 type NewStore interface {
-	Get(context.Context, uuid.UUID) ([]byte, error)
-	GetUser(context.Context, uuid.UUID) ([][]byte, error)
-	GetAll(context.Context) ([][]byte, error)
-	Create(context.Context, []byte) ([]byte, uuid.UUID, error)
-	Update(context.Context, uuid.UUID, []byte) ([]byte, error)
-	Delete(context.Context, uuid.UUID) (bool, error)
+	Get(context.Context, uuid.UUID) (interface{}, error)
+	GetUserAccounts(context.Context, uuid.UUID) (interface{}, error)
+	GetAll(context.Context) (interface{}, error)
+	Create(context.Context, interface{}) (interface{}, error)
+	Update(context.Context, interface{}) (interface{}, error)
+	Delete(context.Context, uuid.UUID) error
 }

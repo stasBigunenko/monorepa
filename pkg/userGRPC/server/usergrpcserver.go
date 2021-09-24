@@ -91,7 +91,7 @@ func (s UserServerGRPC) Update(c context.Context, in *pb.User) (*pb.User, error)
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to parse uuid")
+		return nil, status.Error(codes.NotFound, "failed to parse uuid")
 	}
 
 	m := model.UserHTTP{
@@ -101,7 +101,7 @@ func (s UserServerGRPC) Update(c context.Context, in *pb.User) (*pb.User, error)
 
 	res, err := s.service.Update(c, m)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to update user")
+		return nil, status.Error(codes.NotFound, "failed to update user")
 	}
 
 	return &pb.User{

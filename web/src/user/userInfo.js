@@ -3,7 +3,7 @@ import React from "react";
 import Tree from '@naisutech/react-tree'
 import axios from 'axios';
 
-const urlGetUser = "http://localhost:8081/users"
+const urlGetUser = "http://localhost:8081/accounts_and_user"
 export class User extends React.Component {
     constructor(props){
       super(props);
@@ -25,11 +25,11 @@ export class User extends React.Component {
     handleSubmit(e) {
         e.preventDefault();
 
-        let {userID, userData} = this.state;
-        if (userID === "" || userData.length === 0){
+        let {userID} = this.state;
+        console.log("userID", userID)
+        if (userID === ""){
           console.log("wrong data")
           console.log("userData: ", userID)
-          console.log("userData: ", userData)
           return
         } 
 
@@ -37,6 +37,7 @@ export class User extends React.Component {
           method: 'GET',
           url: `${urlGetUser}/${userID}`,
           headers: {
+            'Access-Control-Allow-Origin': '*',
             "Authorization": `bearer ${this.props.token}`
           },
           data: {},

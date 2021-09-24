@@ -73,7 +73,7 @@ func main() {
 	}
 	defer connAcc.Close()
 
-	connUser, err := grpc.Dial(cfg.GRPCAccountAddress, grpc.WithInsecure())
+	connUser, err := grpc.Dial(cfg.GRPCUserAddress, grpc.WithInsecure())
 	if err != nil {
 		log.Info("did not connect to grpc: ", err)
 		return
@@ -88,7 +88,7 @@ func main() {
 
 	srv := http.Server{
 		Addr:    cfg.HTTPAddress,
-		Handler: h.GetRouter(),
+		Handler: h.AccessControlMiddleware(h.GetRouter()),
 	}
 
 	sigC := make(chan os.Signal, 1)

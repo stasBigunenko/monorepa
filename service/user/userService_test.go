@@ -2,7 +2,7 @@ package user
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,20 +11,23 @@ import (
 	"github.com/google/uuid"
 	"github.com/stasBigunenko/monorepa/mocks/pkg/storage/mockNewStore"
 	"github.com/stasBigunenko/monorepa/model"
-	loggingservice "github.com/stasBigunenko/monorepa/service/loggingService"
 )
 
+type MockLoggingService struct {
+}
+
+func (s MockLoggingService) WriteLog(ctx context.Context, message string) {}
+
 func Test_Create(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	mm := model.UserHTTP{Name: "Andrew"}
-	mj, _ := json.Marshal(mm)
 	m := model.UserHTTP{ID: id, Name: "Andrew"}
-	ui.On("Create", mock.Anything, mj).Return(mj, id, nil)
+	ui.On("Create", mock.Anything, mm).Return(m, nil)
 
 	ui2 := new(mockNewStore.NewStore)
-	ui2.On("Create", mock.Anything, mock.Anything).Return(nil, nil, nil)
+	ui2.On("Create", mock.Anything, mock.Anything).Return(nil, errors.New("invalid data"))
 
 	tests := []struct {
 		name    string
@@ -44,7 +47,7 @@ func Test_Create(t *testing.T) {
 			param:   "sdda",
 			stor:    ui2,
 			want:    model.UserHTTP{},
-			wantErr: "unmarshal problem",
+			wantErr: "invalid data",
 		},
 	}
 	for _, tc := range tests {
@@ -61,15 +64,14 @@ func Test_Create(t *testing.T) {
 }
 
 func Test_Get(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	m := model.UserHTTP{ID: id, Name: "Andrew"}
-	mj, _ := json.Marshal(m)
-	ui.On("Get", context.Background(), id).Return(mj, nil)
+	ui.On("Get", context.Background(), id).Return(m, nil)
 
 	ui2 := new(mockNewStore.NewStore)
-	ui2.On("Get", mock.Anything, mock.Anything).Return(nil, nil)
+	ui2.On("Get", mock.Anything, mock.Anything).Return(nil, errors.New("not found"))
 
 	tests := []struct {
 		name    string
@@ -80,10 +82,7 @@ func Test_Get(t *testing.T) {
 		{
 			name: "Everything ok",
 			stor: ui,
-			want: model.UserHTTP{
-				ID:   id,
-				Name: "Andrew",
-			},
+			want: m,
 		},
 		{
 			name:    "Everything bad",
@@ -106,13 +105,13 @@ func Test_Get(t *testing.T) {
 }
 
 func TestUserService_Delete(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
-	ui.On("Delete", context.Background(), id).Return(true, nil)
+	ui.On("Delete", context.Background(), id).Return(nil)
 
 	ui2 := new(mockNewStore.NewStore)
-	ui2.On("Delete", mock.Anything, mock.Anything).Return(false, nil)
+	ui2.On("Delete", mock.Anything, mock.Anything).Return(errors.New("not found"))
 
 	tests := []struct {
 		name    string
@@ -147,7 +146,7 @@ func TestUserService_Delete(t *testing.T) {
 
 //
 func TestUserService_GetAll(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	ui := new(mockNewStore.NewStore)
 	m1 := model.UserHTTP{ID: uuid.New(), Name: "Andrew"}
 	m2 := model.UserHTTP{ID: uuid.New(), Name: "Ivan"}
@@ -155,13 +154,7 @@ func TestUserService_GetAll(t *testing.T) {
 		m1,
 		m2,
 	}
-	var mj [][]byte
-
-	for _, val := range m {
-		j, _ := json.Marshal(val)
-		mj = append(mj, j)
-	}
-	ui.On("GetAll", context.Background()).Return(mj, nil)
+	ui.On("GetAll", context.Background()).Return(m, nil)
 
 	tests := []struct {
 		name    string
@@ -189,15 +182,14 @@ func TestUserService_GetAll(t *testing.T) {
 }
 
 func TestUserService_Update(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	m := model.UserHTTP{ID: id, Name: "Abdula"}
-	mj, _ := json.Marshal(m)
-	ui.On("Update", context.Background(), id, mj).Return(mj, nil)
+	ui.On("Update", context.Background(), m).Return(m, nil)
 
 	ui2 := new(mockNewStore.NewStore)
-	ui2.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
+	ui2.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("not found in DB"))
 
 	tests := []struct {
 		name    string
@@ -217,7 +209,7 @@ func TestUserService_Update(t *testing.T) {
 			stor:    ui2,
 			param:   m,
 			want:    model.UserHTTP{},
-			wantErr: "not found",
+			wantErr: "not found in DB",
 		},
 	}
 	for _, tc := range tests {
