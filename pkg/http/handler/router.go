@@ -43,7 +43,6 @@ func (h HTTPHandler) GetRouter() *mux.Router {
 
 	router.HandleFunc("/accounts_and_user/{id}", h.GetAggregate).Methods("GET")
 
-	router.Use(h.AccessControlMiddleware)
 	router.Use(h.AuthMiddleware)
 	router.Use(h.RequestIDMiddleware)
 

@@ -26,6 +26,7 @@ export class User extends React.Component {
         e.preventDefault();
 
         let {userID} = this.state;
+        console.log("userID", userID)
         if (userID === ""){
           console.log("wrong data")
           console.log("userData: ", userID)
@@ -36,6 +37,7 @@ export class User extends React.Component {
           method: 'GET',
           url: `${urlGetUser}/${userID}`,
           headers: {
+            'Access-Control-Allow-Origin': '*',
             "Authorization": `bearer ${this.props.token}`
           },
           data: {},

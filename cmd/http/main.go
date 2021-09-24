@@ -88,7 +88,7 @@ func main() {
 
 	srv := http.Server{
 		Addr:    cfg.HTTPAddress,
-		Handler: h.GetRouter(),
+		Handler: h.AccessControlMiddleware(h.GetRouter()),
 	}
 
 	sigC := make(chan os.Signal, 1)
