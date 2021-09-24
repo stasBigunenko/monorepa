@@ -16,50 +16,20 @@ type NewStore struct {
 }
 
 // Create provides a mock function with given fields: _a0, _a1
-func (_m *NewStore) Create(_a0 context.Context, _a1 []byte) ([]byte, uuid.UUID, error) {
+func (_m *NewStore) Create(_a0 context.Context, _a1 interface{}) (interface{}, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 []byte
-	if rf, ok := ret.Get(0).(func(context.Context, []byte) []byte); ok {
+	var r0 interface{}
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) interface{}); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]byte)
+			r0 = ret.Get(0).(interface{})
 		}
-	}
-
-	var r1 uuid.UUID
-	if rf, ok := ret.Get(1).(func(context.Context, []byte) uuid.UUID); ok {
-		r1 = rf(_a0, _a1)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(uuid.UUID)
-		}
-	}
-
-	var r2 error
-	if rf, ok := ret.Get(2).(func(context.Context, []byte) error); ok {
-		r2 = rf(_a0, _a1)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
-}
-
-// Delete provides a mock function with given fields: _a0, _a1
-func (_m *NewStore) Delete(_a0 context.Context, _a1 uuid.UUID) (bool, error) {
-	ret := _m.Called(_a0, _a1)
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) bool); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, interface{}) error); ok {
 		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
@@ -68,16 +38,30 @@ func (_m *NewStore) Delete(_a0 context.Context, _a1 uuid.UUID) (bool, error) {
 	return r0, r1
 }
 
-// Get provides a mock function with given fields: _a0, _a1
-func (_m *NewStore) Get(_a0 context.Context, _a1 uuid.UUID) ([]byte, error) {
+// Delete provides a mock function with given fields: _a0, _a1
+func (_m *NewStore) Delete(_a0 context.Context, _a1 uuid.UUID) error {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 []byte
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []byte); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Get provides a mock function with given fields: _a0, _a1
+func (_m *NewStore) Get(_a0 context.Context, _a1 uuid.UUID) (interface{}, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 interface{}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) interface{}); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]byte)
+			r0 = ret.Get(0).(interface{})
 		}
 	}
 
@@ -92,15 +76,15 @@ func (_m *NewStore) Get(_a0 context.Context, _a1 uuid.UUID) ([]byte, error) {
 }
 
 // GetAll provides a mock function with given fields: _a0
-func (_m *NewStore) GetAll(_a0 context.Context) ([][]byte, error) {
+func (_m *NewStore) GetAll(_a0 context.Context) (interface{}, error) {
 	ret := _m.Called(_a0)
 
-	var r0 [][]byte
-	if rf, ok := ret.Get(0).(func(context.Context) [][]byte); ok {
+	var r0 interface{}
+	if rf, ok := ret.Get(0).(func(context.Context) interface{}); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([][]byte)
+			r0 = ret.Get(0).(interface{})
 		}
 	}
 
@@ -114,16 +98,16 @@ func (_m *NewStore) GetAll(_a0 context.Context) ([][]byte, error) {
 	return r0, r1
 }
 
-// GetUser provides a mock function with given fields: _a0, _a1
-func (_m *NewStore) GetUser(_a0 context.Context, _a1 uuid.UUID) ([][]byte, error) {
+// GetUserAccounts provides a mock function with given fields: _a0, _a1
+func (_m *NewStore) GetUserAccounts(_a0 context.Context, _a1 uuid.UUID) (interface{}, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 [][]byte
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) [][]byte); ok {
+	var r0 interface{}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) interface{}); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([][]byte)
+			r0 = ret.Get(0).(interface{})
 		}
 	}
 
@@ -137,22 +121,22 @@ func (_m *NewStore) GetUser(_a0 context.Context, _a1 uuid.UUID) ([][]byte, error
 	return r0, r1
 }
 
-// Update provides a mock function with given fields: _a0, _a1, _a2
-func (_m *NewStore) Update(_a0 context.Context, _a1 uuid.UUID, _a2 []byte) ([]byte, error) {
-	ret := _m.Called(_a0, _a1, _a2)
+// Update provides a mock function with given fields: _a0, _a1
+func (_m *NewStore) Update(_a0 context.Context, _a1 interface{}) (interface{}, error) {
+	ret := _m.Called(_a0, _a1)
 
-	var r0 []byte
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []byte) []byte); ok {
-		r0 = rf(_a0, _a1, _a2)
+	var r0 interface{}
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) interface{}); ok {
+		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]byte)
+			r0 = ret.Get(0).(interface{})
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, []byte) error); ok {
-		r1 = rf(_a0, _a1, _a2)
+	if rf, ok := ret.Get(1).(func(context.Context, interface{}) error); ok {
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}

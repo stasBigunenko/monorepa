@@ -83,7 +83,7 @@ func (sdb *StorageDB) GetAll(c context.Context) (interface{}, error) {
 		}
 	}
 
-	if users != nil {
+	if users != nil { //nolint
 		return users, nil
 	} else if accounts != nil {
 		return accounts, nil
@@ -126,7 +126,7 @@ func (sdb *StorageDB) Update(c context.Context, i interface{}) (interface{}, err
 
 	res, ok := i.(model.UserHTTP)
 	if ok {
-		if _, ok := sdb.Data[res.ID]; !ok {
+		if _, ok := sdb.Data[res.ID]; !ok { //nolint
 			return nil, errors.New("not found in DB")
 		}
 		sdb.Data[res.ID] = res

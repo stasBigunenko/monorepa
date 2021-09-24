@@ -2,66 +2,66 @@ package newStorage
 
 import (
 	"context"
-	"encoding/json"
+	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
 	"github.com/stasBigunenko/monorepa/model"
-	loggingservice "github.com/stasBigunenko/monorepa/service/loggingService"
+	"github.com/stretchr/testify/assert"
 )
 
+type MockLoggingService struct {
+}
+
+func (s MockLoggingService) WriteLog(ctx context.Context, message string) {}
+
 func TestStorageDB_Get(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	acc := NewDB(loggingService)
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
-	j, _ := json.Marshal(m)
-	acc.Data[id] = j
-	nf := uuid.New()
+	acc.Data[id] = m
 
 	tests := []struct {
-		name  string
-		param uuid.UUID
-		want  []byte
+		name    string
+		param   uuid.UUID
+		want    model.Account
+		wantErr string
 	}{
 		{
 			name:  "Everything ok",
 			param: id,
-			want:  j,
-		},
-		{
-			name:  "not found",
-			param: nf,
-			want:  nil,
+			want:  m,
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got, _ := acc.Get(context.Background(), tc.param)
+			got, err := acc.Get(context.Background(), tc.param)
+			if (err != nil) && err.Error() != tc.wantErr {
+				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
+				return
+			}
 			assert.Equal(t, tc.want, got)
 		})
 	}
 }
 
+//
 func TestStorageDB_GetUser(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	acc := NewDB(loggingService)
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
-	j, _ := json.Marshal(m)
-	acc.Data[id] = j
-	res := [][]byte{
-		j,
+	acc.Data[id] = m
+	res := []model.Account{
+		m,
 	}
 
 	tests := []struct {
 		name string
-		want [][]byte
+		want []model.Account
 	}{
 		{
 			name: "Everything ok",
@@ -70,27 +70,26 @@ func TestStorageDB_GetUser(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got, _ := acc.GetUser(context.Background(), userID)
+			got, _ := acc.GetUserAccounts(context.Background(), userID)
 			assert.Equal(t, tc.want, got)
 		})
 	}
 }
 
 func TestStorageDB_GetAll(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	acc := NewDB(loggingService)
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
-	j, _ := json.Marshal(m)
-	acc.Data[id] = j
-	res := [][]byte{
-		j,
+	acc.Data[id] = m
+	res := []model.Account{
+		m,
 	}
 
 	tests := []struct {
 		name string
-		want [][]byte
+		want []model.Account
 	}{
 		{
 			name: "Everything ok",
@@ -106,97 +105,52 @@ func TestStorageDB_GetAll(t *testing.T) {
 }
 
 func TestStorageDB_Create(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	acc := NewDB(loggingService)
-	username := "Jim"
-	r, _ := json.Marshal(username)
+	m := model.UserHTTP{Name: "Jim"}
 
 	tests := []struct {
 		name  string
-		param []byte
-		want  [][]byte
+		param model.UserHTTP
 	}{
 		{
 			name:  "Everything ok",
-			param: r,
+			param: m,
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 
-			val, _, _ := acc.Create(context.Background(), tc.param)
+			val, _ := acc.Create(context.Background(), tc.param)
 			require.NotNil(t, val, "should be no error")
 		})
 	}
 }
 
-func TestStorageDB_Update(t *testing.T) {
-	loggingService := loggingservice.New()
-	acc := NewDB(loggingService)
-	id := uuid.New()
-	userID := uuid.New()
-	m := model.Account{ID: id, UserID: userID, Balance: 0}
-	j, _ := json.Marshal(m)
-	acc.Data[id] = j
-	m.Balance = 10
-	j2, _ := json.Marshal(m)
-
-	tests := []struct {
-		name   string
-		param1 uuid.UUID
-		param2 []byte
-		want   []byte
-	}{
-		{
-			name:   "Everything ok",
-			param1: id,
-			param2: j2,
-			want:   j2,
-		},
-		{
-			name:   "Not forun (error)",
-			param1: uuid.New(),
-			param2: j2,
-			want:   nil,
-		},
-	}
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			got, _ := acc.Update(context.Background(), tc.param1, tc.param2)
-			assert.Equal(t, tc.want, got)
-		})
-	}
-}
-
 func TestStorageDB_Delete(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	acc := NewDB(loggingService)
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
-	j, _ := json.Marshal(m)
-	acc.Data[id] = j
+	acc.Data[id] = m
 
 	tests := []struct {
-		name  string
-		param uuid.UUID
-		want  bool
+		name    string
+		param   uuid.UUID
+		want    []byte
+		wantErr string
 	}{
 		{
 			name:  "Everything ok",
 			param: id,
-			want:  true,
-		},
-		{
-			name:  "not found",
-			param: id,
-			want:  false,
+			want:  nil,
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got, _ := acc.Delete(context.Background(), id)
-			assert.Equal(t, tc.want, got)
+			err := acc.Delete(context.Background(), id)
+			assert.Empty(t, err)
 		})
 	}
 }

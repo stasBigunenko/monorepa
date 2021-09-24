@@ -2,27 +2,30 @@ package account
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
+	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/mock"
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-
 	"github.com/stasBigunenko/monorepa/mocks/pkg/storage/mockNewStore"
 	"github.com/stasBigunenko/monorepa/model"
-	loggingservice "github.com/stasBigunenko/monorepa/service/loggingService"
+	"github.com/stretchr/testify/assert"
 )
 
+type MockLoggingService struct {
+}
+
+func (s MockLoggingService) WriteLog(ctx context.Context, message string) {}
+
 func Test_Create(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
-	mm := model.Account{UserID: userID, Balance: 0}
-	mj, _ := json.Marshal(mm)
-	ui.On("Create", context.Background(), mj).Return(mj, id, nil)
+	mm := model.Account{UserID: userID}
+	ui.On("Create", context.Background(), mm).Return(m, nil)
 
 	tests := []struct {
 		name    string
@@ -43,6 +46,7 @@ func Test_Create(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			u := NewAccService(tc.stor, loggingService)
 			got, err := u.Create(context.Background(), tc.param)
+			log.Info(got)
 			if err != nil && err.Error() != tc.wantErr {
 				t.Errorf("error = %v, wantErr %v", err.Error(), tc.wantErr)
 				return
@@ -52,14 +56,14 @@ func Test_Create(t *testing.T) {
 	}
 }
 
+//
 func Test_Get(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
-	mj, _ := json.Marshal(m)
-	ui.On("Get", context.Background(), id).Return(mj, nil)
+	ui.On("Get", context.Background(), id).Return(m, nil)
 
 	ui2 := new(mockNewStore.NewStore)
 	ui2.On("Get", mock.Anything, mock.Anything).Return(nil, nil)
@@ -73,11 +77,7 @@ func Test_Get(t *testing.T) {
 		{
 			name: "Everything ok",
 			stor: ui,
-			want: model.Account{
-				ID:      id,
-				UserID:  userID,
-				Balance: 0,
-			},
+			want: m,
 		},
 		{
 			name:    "Everything ok",
@@ -100,10 +100,10 @@ func Test_Get(t *testing.T) {
 }
 
 func TestUserService_Delete(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
-	ui.On("Delete", context.Background(), id).Return(true, nil)
+	ui.On("Delete", context.Background(), id).Return(nil)
 
 	tests := []struct {
 		name    string
@@ -133,7 +133,7 @@ func TestUserService_Delete(t *testing.T) {
 }
 
 func TestUserService_GetAll(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	ui := new(mockNewStore.NewStore)
 	m1 := model.Account{ID: uuid.New(), UserID: uuid.New(), Balance: 0}
 	m2 := model.Account{ID: uuid.New(), UserID: uuid.New(), Balance: 12}
@@ -141,13 +141,7 @@ func TestUserService_GetAll(t *testing.T) {
 		m1,
 		m2,
 	}
-	var mj [][]byte
-
-	for _, val := range m {
-		j, _ := json.Marshal(val)
-		mj = append(mj, j)
-	}
-	ui.On("GetAll", context.Background()).Return(mj, nil)
+	ui.On("GetAll", context.Background()).Return(m, nil)
 
 	tests := []struct {
 		name    string
@@ -175,16 +169,15 @@ func TestUserService_GetAll(t *testing.T) {
 }
 
 func TestUserService_Update(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	ui := new(mockNewStore.NewStore)
 	id := uuid.New()
 	userID := uuid.New()
 	m := model.Account{ID: id, UserID: userID, Balance: 0}
-	mj, _ := json.Marshal(m)
-	ui.On("Update", context.Background(), id, mj).Return(mj, nil)
+	ui.On("Update", context.Background(), m).Return(m, nil)
 
 	ui2 := new(mockNewStore.NewStore)
-	ui2.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
+	ui2.On("Update", mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("not found"))
 
 	tests := []struct {
 		name    string
@@ -204,7 +197,7 @@ func TestUserService_Update(t *testing.T) {
 			stor:    ui2,
 			param:   m,
 			want:    model.Account{},
-			wantErr: "couldn't unmarshal data",
+			wantErr: "not found",
 		},
 	}
 	for _, tc := range tests {
@@ -221,7 +214,7 @@ func TestUserService_Update(t *testing.T) {
 }
 
 func TestUserService_GetUser(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	ui := new(mockNewStore.NewStore)
 	userID := uuid.New()
 	m1 := model.Account{ID: uuid.New(), UserID: userID, Balance: 0}
@@ -230,16 +223,7 @@ func TestUserService_GetUser(t *testing.T) {
 		m1,
 		m2,
 	}
-	var mj [][]byte
-
-	for _, val := range m {
-		j, _ := json.Marshal(val)
-		mj = append(mj, j)
-	}
-	ui.On("GetUser", context.Background(), userID).Return(mj, nil)
-
-	ui2 := new(mockNewStore.NewStore)
-	ui2.On("GetUser", mock.Anything, mock.Anything).Return(nil, nil)
+	ui.On("GetUserAccounts", context.Background(), userID).Return(m, nil)
 
 	tests := []struct {
 		name    string
@@ -253,13 +237,6 @@ func TestUserService_GetUser(t *testing.T) {
 			stor:  ui,
 			param: userID,
 			want:  m,
-		},
-		{
-			name:    "Storage problem",
-			stor:    ui2,
-			param:   userID,
-			want:    []model.Account{},
-			wantErr: "storage problem",
 		},
 	}
 	for _, tc := range tests {
