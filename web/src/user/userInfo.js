@@ -2,6 +2,7 @@ import React from "react";
 import {TestData} from "./data"
 import Tree from '@naisutech/react-tree'
 
+const urlGetUser = "http://localhost:8081/users"
 export class User extends React.Component {
     constructor(props){
       super(props);
@@ -10,7 +11,7 @@ export class User extends React.Component {
   
       this.state = {
         userID: "",
-        show: false
+        userData: []
       };
     }
 
@@ -23,16 +24,42 @@ export class User extends React.Component {
     handleSubmit(e) {
         e.preventDefault();
 
+        let {userID} = this.state;
+        if (userID == "" || userData.length == 0){
+          console.log("wrong data")
+          console.log("userData: ", userID)
+          console.log("userData: ", userData)
+          return
+        } 
+
+        axios({
+          method: 'GET',
+          url: `${urlGetUser}/${userID}`,
+          headers: {
+            "Authorization": `bearer ${this.props.token}`
+          },
+          data: user,
+        }).then((response) => {
+          console.log("status", response.status)
+          console.log("headers", response.headers)
+          console.log("body", response.data)
+
+          this.setState({userData: response.data})
+  
+        }).catch((error) => {
+          console.log(error);
+        });
+
         this.setState({show: true })
     }
     
 
     render() {
-      let {show} = this.state;
+      let {userData} = this.state;
 
       let userInfo = null;
-      if (show) {
-        userInfo = treeComponent(transformDataToTree(TestData))
+      if (userData.length !== 0) {
+        userInfo = treeComponent(transformDataToTree(userData))
       }
         return (
             <div>
