@@ -38,12 +38,12 @@ func getCfg() Config {
 
 	grpcAccAddr := os.Getenv("GRPC_ACCOUNTS_ADDRESS")
 	if grpcAccAddr == "" {
-		grpcAccAddr = "127.0.0.1:50051"
+		grpcAccAddr = "127.0.0.1:50053"
 	}
 
 	grpcUserAddr := os.Getenv("GRPC_USERS_ADDRESS")
 	if grpcUserAddr == "" {
-		grpcUserAddr = "127.0.0.1:50051"
+		grpcUserAddr = "127.0.0.1:50052"
 	}
 
 	return Config{
