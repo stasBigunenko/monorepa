@@ -1,5 +1,6 @@
 import React from "react";
 import {Login} from './login/login'
+import {User} from './user/userInfo'
 
 class App extends React.Component {
   constructor() {
@@ -19,8 +20,14 @@ class App extends React.Component {
 
   render(){
     console.log("state", this.state)
+    let {token} = this.state;
+    
     return (
-      <Login handleUserLogin={this.onLogin}/>
+      <div>
+        <Login handleUserLogin={this.onLogin}/>
+        <hr/>
+        <User token={token}/>
+      </div>
     );
   }
 }

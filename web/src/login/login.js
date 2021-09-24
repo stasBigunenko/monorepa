@@ -68,7 +68,7 @@ export class Login extends React.Component {
           <input type="text" name="password" onChange={this.handleChange} />
           </label>
           <br/>
-          <button type="submit">Add</button>
+          <button type="submit">Login</button>
         </form>
       </div>
     );
