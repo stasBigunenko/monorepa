@@ -43,7 +43,7 @@ func getCfg() Config {
 
 	grpcUserAddr := os.Getenv("GRPC_USERS_ADDRESS")
 	if grpcUserAddr == "" {
-		grpcUserAddr = "127.0.0.1:50051"
+		grpcUserAddr = "127.0.0.1:50050"
 	}
 
 	return Config{
@@ -73,7 +73,7 @@ func main() {
 	}
 	defer connAcc.Close()
 
-	connUser, err := grpc.Dial(cfg.GRPCAccountAddress, grpc.WithInsecure())
+	connUser, err := grpc.Dial(cfg.GRPCUserAddress, grpc.WithInsecure())
 	if err != nil {
 		log.Info("did not connect to grpc: ", err)
 		return
