@@ -3,6 +3,7 @@ package usergrpcserver
 import (
 	"context"
 	"errors"
+	"google.golang.org/grpc/metadata"
 	"testing"
 
 	"github.com/google/uuid"
@@ -18,8 +19,13 @@ import (
 	loggingservice "github.com/stasBigunenko/monorepa/service/loggingService"
 )
 
+type MockLoggingService struct {
+}
+
+func (MockLoggingService) WriteLog(ctx context.Context, message string) {}
+
 func Test_Create(t *testing.T) {
-	loggingService := loggingservice.New()
+	loggingService := MockLoggingService{}
 	ui := new(userInt.User)
 	s := "Andrew"
 	uuidS := "00000000-0000-0000-0000-000000000000"
@@ -89,7 +95,10 @@ func Test_Get(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			u := NewUsersGRPCServer(tc.stor, loggingService)
-			got, err := u.Get(context.Background(), tc.param)
+			ctx := (context.Background())
+			contextID := "test"
+			c := metadata.AppendToOutgoingContext(ctx, "requestid", contextID)
+			got, err := u.Get(c, tc.param)
 			if err != nil && status.Code(err) != tc.wantErr {
 				assert.Error(t, err)
 				return

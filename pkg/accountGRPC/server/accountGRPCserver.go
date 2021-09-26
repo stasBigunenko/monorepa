@@ -45,16 +45,18 @@ func (s AccountServerGRPC) GetAccount(c context.Context, in *pb.AccountID) (*pb.
 		log.Info("cann't receive request id")
 	}
 
-	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	if ccc != nil {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
 
-	s.loggingService.WriteLog(ctx, "GRPC Server: Command GetAccount received...")
+	s.loggingService.WriteLog(c, "GRPC Server: Command GetAccount received...")
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "failed to parse uuid in grpc server")
 	}
 
-	res, err := s.service.Get(ctx, id)
+	res, err := s.service.Get(c, id)
 	if err != nil {
 		return &pb.Account{}, status.Error(codes.DataLoss, "internal problems")
 	}
@@ -78,16 +80,18 @@ func (s AccountServerGRPC) GetUserAccounts(c context.Context, in *pb.UserID) (*p
 		log.Info("cann't receive request id")
 	}
 
-	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	if ccc != nil {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
 
-	s.loggingService.WriteLog(ctx, "GRPC Server: Command GetUserAccounts received...")
+	s.loggingService.WriteLog(c, "GRPC Server: Command GetUserAccounts received...")
 
 	userID, err := uuid.Parse(in.UserID)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "failed to parse uuid in grpc server")
 	}
 
-	users, err := s.service.GetUser(ctx, userID)
+	users, err := s.service.GetUser(c, userID)
 	if err != nil {
 		return nil, status.Error(codes.DataLoss, "failed to get the list of users")
 	}
@@ -118,11 +122,13 @@ func (s AccountServerGRPC) GetAllUsers(c context.Context, in *emptypb.Empty) (*p
 		log.Info("cann't receive request id")
 	}
 
-	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	if ccc != nil {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
 
-	s.loggingService.WriteLog(ctx, "GRPC Server: Command GetAllUsers received...")
+	s.loggingService.WriteLog(c, "GRPC Server: Command GetAllUsers received...")
 
-	users, err := s.service.GetAll(ctx)
+	users, err := s.service.GetAll(c)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to get the list of users")
 	}
@@ -152,16 +158,18 @@ func (s AccountServerGRPC) CreateAccount(c context.Context, in *pb.UserID) (*pb.
 		log.Info("cann't receive request id")
 	}
 
-	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	if ccc != nil {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
 
-	s.loggingService.WriteLog(ctx, "GRPC Server: Command CreateAccount received...")
+	s.loggingService.WriteLog(c, "GRPC Server: Command CreateAccount received...")
 
 	userID, err := uuid.Parse(in.UserID)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "failed to parse uuid in grpc server")
 	}
 
-	res, err := s.service.Create(ctx, userID)
+	res, err := s.service.Create(c, userID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to create user")
 	}
@@ -184,9 +192,11 @@ func (s AccountServerGRPC) UpdateAccount(c context.Context, in *pb.Account) (*pb
 		log.Info("cann't receive request id")
 	}
 
-	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	if ccc != nil {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
 
-	s.loggingService.WriteLog(ctx, "GRPC Server: Command UpdateAccount received...")
+	s.loggingService.WriteLog(c, "GRPC Server: Command UpdateAccount received...")
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
@@ -204,7 +214,7 @@ func (s AccountServerGRPC) UpdateAccount(c context.Context, in *pb.Account) (*pb
 		Balance: int(in.Balance),
 	}
 
-	res, err := s.service.Update(ctx, m)
+	res, err := s.service.Update(c, m)
 	if err != nil {
 		return nil, status.Error(codes.DataLoss, "failed to update user")
 	}
@@ -227,16 +237,18 @@ func (s AccountServerGRPC) DeleteAccount(c context.Context, in *pb.AccountID) (*
 		log.Info("cann't receive request id")
 	}
 
-	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	if ccc != nil {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
 
-	s.loggingService.WriteLog(ctx, "GRPC Server: Command DeleteAccount received...")
+	s.loggingService.WriteLog(c, "GRPC Server: Command DeleteAccount received...")
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to parse uuid")
 	}
 
-	err = s.service.Delete(ctx, id)
+	err = s.service.Delete(c, id)
 	if err != nil {
 		return nil, status.Error(codes.DataLoss, "failed to delete")
 	}

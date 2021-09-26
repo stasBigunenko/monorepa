@@ -46,16 +46,18 @@ func (s UserServerGRPC) Get(c context.Context, in *pb.Id) (*pb.User, error) {
 		log.Info("cann't receive request id")
 	}
 
-	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	if ccc != nil {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
 
-	s.loggingService.WriteLog(ctx, "GRPC Server: Command Get received...")
+	s.loggingService.WriteLog(c, "GRPC Server: Command Get received...")
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to parse uuid in grpc server")
 	}
 
-	res, err := s.service.Get(ctx, id)
+	res, err := s.service.Get(c, id)
 	if err != nil {
 		return &pb.User{}, status.Error(codes.Internal, "internal problem")
 	}
@@ -76,11 +78,13 @@ func (s UserServerGRPC) GetAllUsers(c context.Context, in *emptypb.Empty) (*pb.A
 		log.Info("cann't receive request id")
 	}
 
-	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	if ccc != nil {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
 
-	s.loggingService.WriteLog(ctx, "GRPC Server: Command GetAllUsers received...")
+	s.loggingService.WriteLog(c, "GRPC Server: Command GetAllUsers received...")
 
-	users, err := s.service.GetAll(ctx)
+	users, err := s.service.GetAll(c)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to get the list of users")
 	}
@@ -110,10 +114,13 @@ func (s UserServerGRPC) Create(c context.Context, in *pb.Name) (*pb.User, error)
 		log.Info("cann't receive request id")
 	}
 
-	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
-	s.loggingService.WriteLog(ctx, "GRPC Server: Command Create received...")
+	if ccc != nil {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
 
-	res, err := s.service.Create(ctx, in.Name)
+	s.loggingService.WriteLog(c, "GRPC Server: Command Create received...")
+
+	res, err := s.service.Create(c, in.Name)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to create user")
 	}
@@ -135,9 +142,11 @@ func (s UserServerGRPC) Update(c context.Context, in *pb.User) (*pb.User, error)
 		log.Info("cann't receive request id")
 	}
 
-	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	if ccc != nil {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
 
-	s.loggingService.WriteLog(ctx, "GRPC Server: Command Update received...")
+	s.loggingService.WriteLog(c, "GRPC Server: Command Update received...")
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
@@ -149,7 +158,7 @@ func (s UserServerGRPC) Update(c context.Context, in *pb.User) (*pb.User, error)
 		Name: in.Name,
 	}
 
-	res, err := s.service.Update(ctx, m)
+	res, err := s.service.Update(c, m)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, "failed to update user")
 	}
@@ -171,8 +180,11 @@ func (s UserServerGRPC) Delete(c context.Context, in *pb.Id) (*emptypb.Empty, er
 		log.Info("cann't receive request id")
 	}
 
-	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
-	s.loggingService.WriteLog(ctx, "GRPC Server: Command Delete received...")
+	if ccc != nil {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
+
+	s.loggingService.WriteLog(c, "GRPC Server: Command Delete received...")
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
