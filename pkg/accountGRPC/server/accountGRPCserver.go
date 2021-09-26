@@ -2,6 +2,8 @@ package accountgrpcserver
 
 import (
 	"context"
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -32,14 +34,27 @@ func NewAccountGRPCServer(s account.AccInterface, loggingService LoggingService)
 }
 
 func (s AccountServerGRPC) GetAccount(c context.Context, in *pb.AccountID) (*pb.Account, error) {
-	s.loggingService.WriteLog(c, "GRPC Server: Command GetAccount received...")
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	ccc, ok := md["requestid"]
+	if !ok {
+		log.Info("cann't receive request id")
+	}
+
+	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+
+	s.loggingService.WriteLog(ctx, "GRPC Server: Command GetAccount received...")
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "failed to parse uuid in grpc server")
 	}
 
-	res, err := s.service.Get(c, id)
+	res, err := s.service.Get(ctx, id)
 	if err != nil {
 		return &pb.Account{}, status.Error(codes.DataLoss, "internal problems")
 	}
@@ -52,14 +67,27 @@ func (s AccountServerGRPC) GetAccount(c context.Context, in *pb.AccountID) (*pb.
 }
 
 func (s AccountServerGRPC) GetUserAccounts(c context.Context, in *pb.UserID) (*pb.AllAccounts, error) {
-	s.loggingService.WriteLog(c, "GRPC Server: Command GetUserAccounts received...")
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	ccc, ok := md["requestid"]
+	if !ok {
+		log.Info("cann't receive request id")
+	}
+
+	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+
+	s.loggingService.WriteLog(ctx, "GRPC Server: Command GetUserAccounts received...")
 
 	userID, err := uuid.Parse(in.UserID)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "failed to parse uuid in grpc server")
 	}
 
-	users, err := s.service.GetUser(c, userID)
+	users, err := s.service.GetUser(ctx, userID)
 	if err != nil {
 		return nil, status.Error(codes.DataLoss, "failed to get the list of users")
 	}
@@ -79,9 +107,22 @@ func (s AccountServerGRPC) GetUserAccounts(c context.Context, in *pb.UserID) (*p
 }
 
 func (s AccountServerGRPC) GetAllUsers(c context.Context, in *emptypb.Empty) (*pb.AllAccounts, error) {
-	s.loggingService.WriteLog(c, "GRPC Server: Command GetAllUsers received...")
 
-	users, err := s.service.GetAll(c)
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	ccc, ok := md["requestid"]
+	if !ok {
+		log.Info("cann't receive request id")
+	}
+
+	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+
+	s.loggingService.WriteLog(ctx, "GRPC Server: Command GetAllUsers received...")
+
+	users, err := s.service.GetAll(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to get the list of users")
 	}
@@ -100,14 +141,27 @@ func (s AccountServerGRPC) GetAllUsers(c context.Context, in *emptypb.Empty) (*p
 	}, nil
 }
 func (s AccountServerGRPC) CreateAccount(c context.Context, in *pb.UserID) (*pb.Account, error) {
-	s.loggingService.WriteLog(c, "GRPC Server: Command CreateAccount received...")
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	ccc, ok := md["requestid"]
+	if !ok {
+		log.Info("cann't receive request id")
+	}
+
+	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+
+	s.loggingService.WriteLog(ctx, "GRPC Server: Command CreateAccount received...")
 
 	userID, err := uuid.Parse(in.UserID)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "failed to parse uuid in grpc server")
 	}
 
-	res, err := s.service.Create(c, userID)
+	res, err := s.service.Create(ctx, userID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to create user")
 	}
@@ -119,7 +173,20 @@ func (s AccountServerGRPC) CreateAccount(c context.Context, in *pb.UserID) (*pb.
 	}, nil
 }
 func (s AccountServerGRPC) UpdateAccount(c context.Context, in *pb.Account) (*pb.Account, error) {
-	s.loggingService.WriteLog(c, "GRPC Server: Command UpdateAccount received...")
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	ccc, ok := md["requestid"]
+	if !ok {
+		log.Info("cann't receive request id")
+	}
+
+	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+
+	s.loggingService.WriteLog(ctx, "GRPC Server: Command UpdateAccount received...")
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
@@ -137,7 +204,7 @@ func (s AccountServerGRPC) UpdateAccount(c context.Context, in *pb.Account) (*pb
 		Balance: int(in.Balance),
 	}
 
-	res, err := s.service.Update(c, m)
+	res, err := s.service.Update(ctx, m)
 	if err != nil {
 		return nil, status.Error(codes.DataLoss, "failed to update user")
 	}
@@ -149,14 +216,27 @@ func (s AccountServerGRPC) UpdateAccount(c context.Context, in *pb.Account) (*pb
 	}, nil
 }
 func (s AccountServerGRPC) DeleteAccount(c context.Context, in *pb.AccountID) (*emptypb.Empty, error) {
-	s.loggingService.WriteLog(c, "GRPC Server: Command DeleteAccount received...")
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	ccc, ok := md["requestid"]
+	if !ok {
+		log.Info("cann't receive request id")
+	}
+
+	ctx := context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+
+	s.loggingService.WriteLog(ctx, "GRPC Server: Command DeleteAccount received...")
 
 	id, err := uuid.Parse(in.Id)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to parse uuid")
 	}
 
-	err = s.service.Delete(c, id)
+	err = s.service.Delete(ctx, id)
 	if err != nil {
 		return nil, status.Error(codes.DataLoss, "failed to delete")
 	}

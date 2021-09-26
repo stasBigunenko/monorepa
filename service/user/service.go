@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"errors"
-
 	"github.com/google/uuid"
 
 	"github.com/stasBigunenko/monorepa/model"
@@ -59,7 +58,6 @@ func (u *UsrService) GetAll(c context.Context) ([]model.UserHTTP, error) {
 }
 
 func (u *UsrService) Create(c context.Context, name string) (model.UserHTTP, error) {
-
 	u.loggingService.WriteLog(c, "User service: Command Create received...")
 
 	m := model.UserHTTP{ID: uuid.Nil, Name: name}
