@@ -2,9 +2,10 @@ package usergrpcserver
 
 import (
 	"context"
-
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 
@@ -34,6 +35,16 @@ func NewUsersGRPCServer(s user.User, loggingService LoggingService) UserServerGR
 }
 
 func (s UserServerGRPC) Get(c context.Context, in *pb.Id) (*pb.User, error) {
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	if ccc, ok := md["requestid"]; ok {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
+
 	s.loggingService.WriteLog(c, "GRPC Server: Command Get received...")
 
 	id, err := uuid.Parse(in.Id)
@@ -52,6 +63,15 @@ func (s UserServerGRPC) Get(c context.Context, in *pb.Id) (*pb.User, error) {
 	}, nil
 }
 func (s UserServerGRPC) GetAllUsers(c context.Context, in *emptypb.Empty) (*pb.AllUsers, error) {
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	if ccc, ok := md["requestid"]; ok {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
+
 	s.loggingService.WriteLog(c, "GRPC Server: Command GetAllUsers received...")
 
 	users, err := s.service.GetAll(c)
@@ -73,6 +93,16 @@ func (s UserServerGRPC) GetAllUsers(c context.Context, in *emptypb.Empty) (*pb.A
 }
 
 func (s UserServerGRPC) Create(c context.Context, in *pb.Name) (*pb.User, error) {
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	if ccc, ok := md["requestid"]; ok {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
+
 	s.loggingService.WriteLog(c, "GRPC Server: Command Create received...")
 
 	res, err := s.service.Create(c, in.Name)
@@ -87,6 +117,15 @@ func (s UserServerGRPC) Create(c context.Context, in *pb.Name) (*pb.User, error)
 }
 
 func (s UserServerGRPC) Update(c context.Context, in *pb.User) (*pb.User, error) {
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	if ccc, ok := md["requestid"]; ok {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
+
 	s.loggingService.WriteLog(c, "GRPC Server: Command Update received...")
 
 	id, err := uuid.Parse(in.Id)
@@ -110,6 +149,16 @@ func (s UserServerGRPC) Update(c context.Context, in *pb.User) (*pb.User, error)
 	}, nil
 }
 func (s UserServerGRPC) Delete(c context.Context, in *pb.Id) (*emptypb.Empty, error) {
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	if ccc, ok := md["requestid"]; ok {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
+
 	s.loggingService.WriteLog(c, "GRPC Server: Command Delete received...")
 
 	id, err := uuid.Parse(in.Id)

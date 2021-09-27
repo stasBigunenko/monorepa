@@ -3,6 +3,8 @@ package usergrpccontroller
 import (
 	"context"
 	"fmt"
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -50,7 +52,15 @@ func (s UserGRPCСontroller) formatError(err error, message string) error {
 
 func (s UserGRPCСontroller) CreateUser(ctx context.Context, name string) (uuid.UUID, error) {
 	s.loggingService.WriteLog(ctx, "GRPC Client: Command CreateUser received...")
-	resp, err := s.client.Create(ctx, &pb.Name{
+
+	contextID, ok := ctx.Value(model.ContextKeyRequestID).(string)
+	if !ok {
+		log.Info("failed to convert context value and get context id")
+	}
+
+	c := metadata.AppendToOutgoingContext(ctx, "requestid", contextID)
+
+	resp, err := s.client.Create(c, &pb.Name{
 		Name: name,
 	})
 
@@ -68,7 +78,15 @@ func (s UserGRPCСontroller) CreateUser(ctx context.Context, name string) (uuid.
 
 func (s UserGRPCСontroller) GetUser(ctx context.Context, id uuid.UUID) (model.UserHTTP, error) {
 	s.loggingService.WriteLog(ctx, "GRPC Client: Command GetUser received...")
-	resp, err := s.client.Get(ctx, &pb.Id{
+
+	contextID, ok := ctx.Value(model.ContextKeyRequestID).(string)
+	if !ok {
+		log.Info("failed to convert context value and get context id")
+	}
+
+	c := metadata.AppendToOutgoingContext(ctx, "requestid", contextID)
+
+	resp, err := s.client.Get(c, &pb.Id{
 		Id: id.String(),
 	})
 
@@ -89,7 +107,15 @@ func (s UserGRPCСontroller) GetUser(ctx context.Context, id uuid.UUID) (model.U
 
 func (s UserGRPCСontroller) GetAllUsers(ctx context.Context) ([]model.UserHTTP, error) {
 	s.loggingService.WriteLog(ctx, "GRPC Client: Command GetAllUsers received...")
-	resp, err := s.client.GetAllUsers(ctx, &emptypb.Empty{})
+
+	contextID, ok := ctx.Value(model.ContextKeyRequestID).(string)
+	if !ok {
+		log.Info("failed to convert context value and get context id")
+	}
+
+	c := metadata.AppendToOutgoingContext(ctx, "requestid", contextID)
+
+	resp, err := s.client.GetAllUsers(c, &emptypb.Empty{})
 	if err != nil {
 		return nil, s.formatError(err, "failed to get all users")
 	}
@@ -112,7 +138,15 @@ func (s UserGRPCСontroller) GetAllUsers(ctx context.Context) ([]model.UserHTTP,
 
 func (s UserGRPCСontroller) UpdateUser(ctx context.Context, user model.UserHTTP) error {
 	s.loggingService.WriteLog(ctx, "GRPC Client: Command UpdateUser received...")
-	_, err := s.client.Update(ctx, &pb.User{
+
+	contextID, ok := ctx.Value(model.ContextKeyRequestID).(string)
+	if !ok {
+		log.Info("failed to convert context value and get context id")
+	}
+
+	c := metadata.AppendToOutgoingContext(ctx, "requestid", contextID)
+
+	_, err := s.client.Update(c, &pb.User{
 		Id:   user.ID.String(),
 		Name: user.Name,
 	})
@@ -126,7 +160,15 @@ func (s UserGRPCСontroller) UpdateUser(ctx context.Context, user model.UserHTTP
 
 func (s UserGRPCСontroller) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	s.loggingService.WriteLog(ctx, "GRPC Client: Command DeleteUser received...")
-	_, err := s.client.Delete(ctx, &pb.Id{
+
+	contextID, ok := ctx.Value(model.ContextKeyRequestID).(string)
+	if !ok {
+		log.Info("failed to convert context value and get context id")
+	}
+
+	c := metadata.AppendToOutgoingContext(ctx, "requestid", contextID)
+
+	_, err := s.client.Delete(c, &pb.Id{
 		Id: id.String(),
 	})
 

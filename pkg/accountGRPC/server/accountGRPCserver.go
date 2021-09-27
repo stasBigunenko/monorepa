@@ -2,6 +2,8 @@ package accountgrpcserver
 
 import (
 	"context"
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -32,6 +34,16 @@ func NewAccountGRPCServer(s account.AccInterface, loggingService LoggingService)
 }
 
 func (s AccountServerGRPC) GetAccount(c context.Context, in *pb.AccountID) (*pb.Account, error) {
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	if ccc, ok := md["requestid"]; ok {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
+
 	s.loggingService.WriteLog(c, "GRPC Server: Command GetAccount received...")
 
 	id, err := uuid.Parse(in.Id)
@@ -52,6 +64,16 @@ func (s AccountServerGRPC) GetAccount(c context.Context, in *pb.AccountID) (*pb.
 }
 
 func (s AccountServerGRPC) GetUserAccounts(c context.Context, in *pb.UserID) (*pb.AllAccounts, error) {
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	if ccc, ok := md["requestid"]; ok {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
+
 	s.loggingService.WriteLog(c, "GRPC Server: Command GetUserAccounts received...")
 
 	userID, err := uuid.Parse(in.UserID)
@@ -79,6 +101,16 @@ func (s AccountServerGRPC) GetUserAccounts(c context.Context, in *pb.UserID) (*p
 }
 
 func (s AccountServerGRPC) GetAllUsers(c context.Context, in *emptypb.Empty) (*pb.AllAccounts, error) {
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	if ccc, ok := md["requestid"]; ok {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
+
 	s.loggingService.WriteLog(c, "GRPC Server: Command GetAllUsers received...")
 
 	users, err := s.service.GetAll(c)
@@ -100,6 +132,16 @@ func (s AccountServerGRPC) GetAllUsers(c context.Context, in *emptypb.Empty) (*p
 	}, nil
 }
 func (s AccountServerGRPC) CreateAccount(c context.Context, in *pb.UserID) (*pb.Account, error) {
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	if ccc, ok := md["requestid"]; ok {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
+
 	s.loggingService.WriteLog(c, "GRPC Server: Command CreateAccount received...")
 
 	userID, err := uuid.Parse(in.UserID)
@@ -119,6 +161,16 @@ func (s AccountServerGRPC) CreateAccount(c context.Context, in *pb.UserID) (*pb.
 	}, nil
 }
 func (s AccountServerGRPC) UpdateAccount(c context.Context, in *pb.Account) (*pb.Account, error) {
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	if ccc, ok := md["requestid"]; ok {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
+
 	s.loggingService.WriteLog(c, "GRPC Server: Command UpdateAccount received...")
 
 	id, err := uuid.Parse(in.Id)
@@ -149,6 +201,16 @@ func (s AccountServerGRPC) UpdateAccount(c context.Context, in *pb.Account) (*pb
 	}, nil
 }
 func (s AccountServerGRPC) DeleteAccount(c context.Context, in *pb.AccountID) (*emptypb.Empty, error) {
+
+	md, ok := metadata.FromIncomingContext(c)
+	if !ok {
+		log.Info("Cann't receive metada")
+	}
+
+	if ccc, ok := md["requestid"]; ok {
+		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
+	}
+
 	s.loggingService.WriteLog(c, "GRPC Server: Command DeleteAccount received...")
 
 	id, err := uuid.Parse(in.Id)
