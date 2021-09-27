@@ -227,7 +227,7 @@ func TestAccount_Update(t *testing.T) {
 			name:    "Error",
 			stor:    ui2,
 			param:   &pb.Account{Id: idd, UserID: idd, Balance: 100},
-			wantErr: codes.DataLoss,
+			wantErr: codes.Internal,
 		},
 	}
 	for _, tc := range tests {

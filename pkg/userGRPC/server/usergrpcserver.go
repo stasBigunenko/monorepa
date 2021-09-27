@@ -2,8 +2,10 @@ package usergrpcserver
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
+	"github.com/stasBigunenko/monorepa/customErrors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -54,7 +56,10 @@ func (s UserServerGRPC) Get(c context.Context, in *pb.Id) (*pb.User, error) {
 
 	res, err := s.service.Get(c, id)
 	if err != nil {
-		return &pb.User{}, status.Error(codes.Internal, "internal problem")
+		if errors.Is(err, customErrors.NotFound) {
+			return nil, status.Error(codes.NotFound, "not found")
+		}
+		return nil, status.Error(codes.Internal, "internal storage problem")
 	}
 
 	return &pb.User{
@@ -140,7 +145,10 @@ func (s UserServerGRPC) Update(c context.Context, in *pb.User) (*pb.User, error)
 
 	res, err := s.service.Update(c, m)
 	if err != nil {
-		return nil, status.Error(codes.NotFound, "failed to update user")
+		if errors.Is(err, customErrors.NotFound) {
+			return nil, status.Error(codes.NotFound, "not found")
+		}
+		return nil, status.Error(codes.Internal, "internal storage problem")
 	}
 
 	return &pb.User{
@@ -168,7 +176,10 @@ func (s UserServerGRPC) Delete(c context.Context, in *pb.Id) (*emptypb.Empty, er
 
 	err = s.service.Delete(c, id)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to parse uuid")
+		if errors.Is(err, customErrors.NotFound) {
+			return nil, status.Error(codes.NotFound, "not found")
+		}
+		return nil, status.Error(codes.Internal, "internal storage problem")
 	}
 
 	return &emptypb.Empty{}, nil

@@ -2,7 +2,9 @@ package accountgrpcserver
 
 import (
 	"context"
+	"errors"
 	log "github.com/sirupsen/logrus"
+	"github.com/stasBigunenko/monorepa/customErrors"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/google/uuid"
@@ -83,7 +85,10 @@ func (s AccountServerGRPC) GetUserAccounts(c context.Context, in *pb.UserID) (*p
 
 	users, err := s.service.GetUser(c, userID)
 	if err != nil {
-		return nil, status.Error(codes.DataLoss, "failed to get the list of users")
+		if errors.Is(err, customErrors.NotFound) {
+			return nil, status.Error(codes.NotFound, "not found")
+		}
+		return nil, status.Error(codes.Internal, "internal storage problem")
 	}
 
 	all := []*pb.Account{}
@@ -191,7 +196,10 @@ func (s AccountServerGRPC) UpdateAccount(c context.Context, in *pb.Account) (*pb
 
 	res, err := s.service.Update(c, m)
 	if err != nil {
-		return nil, status.Error(codes.DataLoss, "failed to update user")
+		if errors.Is(err, customErrors.NotFound) {
+			return nil, status.Error(codes.NotFound, "not found")
+		}
+		return nil, status.Error(codes.Internal, "internal storage problem")
 	}
 
 	return &pb.Account{
@@ -220,7 +228,10 @@ func (s AccountServerGRPC) DeleteAccount(c context.Context, in *pb.AccountID) (*
 
 	err = s.service.Delete(c, id)
 	if err != nil {
-		return nil, status.Error(codes.DataLoss, "failed to delete")
+		if errors.Is(err, customErrors.NotFound) {
+			return nil, status.Error(codes.NotFound, "not found")
+		}
+		return nil, status.Error(codes.Internal, "internal storage problem")
 	}
 
 	return &emptypb.Empty{}, nil
