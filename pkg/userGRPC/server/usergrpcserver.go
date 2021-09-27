@@ -41,12 +41,7 @@ func (s UserServerGRPC) Get(c context.Context, in *pb.Id) (*pb.User, error) {
 		log.Info("Cann't receive metada")
 	}
 
-	ccc, ok := md["requestid"]
-	if !ok {
-		log.Info("cann't receive request id")
-	}
-
-	if ccc != nil {
+	if ccc, ok := md["requestid"]; ok {
 		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
 	}
 
@@ -73,12 +68,7 @@ func (s UserServerGRPC) GetAllUsers(c context.Context, in *emptypb.Empty) (*pb.A
 		log.Info("Cann't receive metada")
 	}
 
-	ccc, ok := md["requestid"]
-	if !ok {
-		log.Info("cann't receive request id")
-	}
-
-	if ccc != nil {
+	if ccc, ok := md["requestid"]; ok {
 		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
 	}
 
@@ -109,12 +99,7 @@ func (s UserServerGRPC) Create(c context.Context, in *pb.Name) (*pb.User, error)
 		log.Info("Cann't receive metada")
 	}
 
-	ccc, ok := md["requestid"]
-	if !ok {
-		log.Info("cann't receive request id")
-	}
-
-	if ccc != nil {
+	if ccc, ok := md["requestid"]; ok {
 		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
 	}
 
@@ -137,12 +122,7 @@ func (s UserServerGRPC) Update(c context.Context, in *pb.User) (*pb.User, error)
 		log.Info("Cann't receive metada")
 	}
 
-	ccc, ok := md["requestid"]
-	if !ok {
-		log.Info("cann't receive request id")
-	}
-
-	if ccc != nil {
+	if ccc, ok := md["requestid"]; ok {
 		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
 	}
 
@@ -175,12 +155,7 @@ func (s UserServerGRPC) Delete(c context.Context, in *pb.Id) (*emptypb.Empty, er
 		log.Info("Cann't receive metada")
 	}
 
-	ccc, ok := md["requestid"]
-	if !ok {
-		log.Info("cann't receive request id")
-	}
-
-	if ccc != nil {
+	if ccc, ok := md["requestid"]; ok {
 		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
 	}
 

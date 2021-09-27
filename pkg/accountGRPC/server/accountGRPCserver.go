@@ -40,12 +40,7 @@ func (s AccountServerGRPC) GetAccount(c context.Context, in *pb.AccountID) (*pb.
 		log.Info("Cann't receive metada")
 	}
 
-	ccc, ok := md["requestid"]
-	if !ok {
-		log.Info("cann't receive request id")
-	}
-
-	if ccc != nil {
+	if ccc, ok := md["requestid"]; ok {
 		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
 	}
 
@@ -75,12 +70,7 @@ func (s AccountServerGRPC) GetUserAccounts(c context.Context, in *pb.UserID) (*p
 		log.Info("Cann't receive metada")
 	}
 
-	ccc, ok := md["requestid"]
-	if !ok {
-		log.Info("cann't receive request id")
-	}
-
-	if ccc != nil {
+	if ccc, ok := md["requestid"]; ok {
 		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
 	}
 
@@ -117,12 +107,7 @@ func (s AccountServerGRPC) GetAllUsers(c context.Context, in *emptypb.Empty) (*p
 		log.Info("Cann't receive metada")
 	}
 
-	ccc, ok := md["requestid"]
-	if !ok {
-		log.Info("cann't receive request id")
-	}
-
-	if ccc != nil {
+	if ccc, ok := md["requestid"]; ok {
 		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
 	}
 
@@ -153,12 +138,7 @@ func (s AccountServerGRPC) CreateAccount(c context.Context, in *pb.UserID) (*pb.
 		log.Info("Cann't receive metada")
 	}
 
-	ccc, ok := md["requestid"]
-	if !ok {
-		log.Info("cann't receive request id")
-	}
-
-	if ccc != nil {
+	if ccc, ok := md["requestid"]; ok {
 		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
 	}
 
@@ -187,12 +167,7 @@ func (s AccountServerGRPC) UpdateAccount(c context.Context, in *pb.Account) (*pb
 		log.Info("Cann't receive metada")
 	}
 
-	ccc, ok := md["requestid"]
-	if !ok {
-		log.Info("cann't receive request id")
-	}
-
-	if ccc != nil {
+	if ccc, ok := md["requestid"]; ok {
 		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
 	}
 
@@ -232,12 +207,7 @@ func (s AccountServerGRPC) DeleteAccount(c context.Context, in *pb.AccountID) (*
 		log.Info("Cann't receive metada")
 	}
 
-	ccc, ok := md["requestid"]
-	if !ok {
-		log.Info("cann't receive request id")
-	}
-
-	if ccc != nil {
+	if ccc, ok := md["requestid"]; ok {
 		c = context.WithValue(context.Background(), model.ContextKeyRequestID, ccc[0])
 	}
 
