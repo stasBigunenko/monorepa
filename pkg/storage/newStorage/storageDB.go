@@ -3,6 +3,7 @@ package newStorage
 import (
 	"context"
 	"errors"
+	"github.com/stasBigunenko/monorepa/customErrors"
 	"sync"
 
 	"github.com/google/uuid"
@@ -35,7 +36,7 @@ func (sdb *StorageDB) Get(c context.Context, id uuid.UUID) (interface{}, error) 
 
 	val, ok := sdb.Data[id]
 	if !ok {
-		return nil, errors.New("not found")
+		return nil, customErrors.NotFound
 	}
 
 	return val, nil
@@ -127,7 +128,7 @@ func (sdb *StorageDB) Update(c context.Context, i interface{}) (interface{}, err
 	res, ok := i.(model.UserHTTP)
 	if ok {
 		if _, ok := sdb.Data[res.ID]; !ok { //nolint
-			return nil, errors.New("not found in DB")
+			return nil, customErrors.NotFound
 		}
 		sdb.Data[res.ID] = res
 		return res, nil
@@ -157,7 +158,7 @@ func (sdb *StorageDB) Delete(c context.Context, id uuid.UUID) error {
 	sdb.loggingService.WriteLog(c, "Storage: Command Delete received...")
 
 	if _, ok := sdb.Data[id]; !ok {
-		return errors.New("not found")
+		return customErrors.NotFound
 	}
 
 	delete(sdb.Data, id)
