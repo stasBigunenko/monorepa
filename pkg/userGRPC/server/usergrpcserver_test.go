@@ -229,7 +229,7 @@ func TestUserService_Update(t *testing.T) {
 			name:    "Error",
 			stor:    ui2,
 			param:   &pb.User{Id: idd, Name: "Abdula"},
-			wantErr: codes.NotFound,
+			wantErr: codes.Internal,
 		},
 	}
 	for _, tc := range tests {
