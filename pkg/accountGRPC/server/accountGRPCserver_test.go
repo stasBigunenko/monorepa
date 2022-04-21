@@ -299,3 +299,5 @@ func TestAccount_GetUserAccount(t *testing.T) {
 		})
 	}
 }
+
+//
